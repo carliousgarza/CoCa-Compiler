@@ -3,7 +3,7 @@ grammar patito;
 //Ignore whitespace
 COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
-WS : [ \t\r\n]+ -> skip ; 
+WS : [ \t\r\n]+ -> skip ;
 
 //Symbols
 LESS: '<';
@@ -57,10 +57,10 @@ CHAR: 'char';
 CTE_BOOL: 'true' | 'false';
 CTE_FLOAT: [0-9]+.[0-9]+;
 CTE_INT: [0-9]+;
-CTE_CHAR: [a-zA-Z0-9];
+CTE_CHAR: [.];
 CTE_STRING: '"' .*? '"';
 VOID: 'void';
-ID: [A-z]([_A-Za-z0-9])*;
+ID: [_A-Za-z]([_A-Za-z0-9])*;
 
 program
   : PROGRAM ID SEMICOLON declarevars functions mainfunc
@@ -119,11 +119,9 @@ term
   ;
 
 factor
-  : (constant | LEFT_PARENTHESIS hexp RIGHT_PARENTHESIS |
-    ID (DETERMINANT | TRANSPOSE | INVERSE)? |
-    LEFT_BRACKET mexp RIGHT_BRACKET |
-    LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
-    LEFT_PARENTHESIS (hexp (COMMA hexp)*)? RIGHT_PARENTHESIS )
+  : (constant |
+    LEFT_PARENTHESIS hexp RIGHT_PARENTHESIS |
+    ID ( | (DETERMINANT | TRANSPOSE | INVERSE) | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_PARENTHESIS ( | hexp (COMMA hexp)*) RIGHT_PARENTHESIS))
   ;
 
 statute
