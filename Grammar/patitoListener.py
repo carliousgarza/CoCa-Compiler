@@ -1,5 +1,6 @@
 # Generated from patito.g4 by ANTLR 4.7.1
 from antlr4 import *
+from Compiler.compiler import *
 if __name__ is not None and "." in __name__:
     from .patitoParser import patitoParser
 else:
@@ -7,6 +8,8 @@ else:
 
 # This class defines a complete listener for a parse tree produced by patitoParser.
 class patitoListener(ParseTreeListener):
+    def __init__(self):
+        self.compiler = Compiler()
 
     # Enter a parse tree produced by patitoParser#program.
     def enterProgram(self, ctx:patitoParser.ProgramContext):
@@ -73,6 +76,13 @@ class patitoListener(ParseTreeListener):
 
     # Enter a parse tree produced by patitoParser#function.
     def enterFunction(self, ctx:patitoParser.FunctionContext):
+        vartype = (ctx.vartypes()) #type
+        if vartype == None:
+            vartype = (ctx.VOID())
+
+        id = (ctx.ID())
+        func = Function(id, vartype)
+        self.compiler._add_function(func)
         pass
 
     # Exit a parse tree produced by patitoParser#function.
@@ -240,5 +250,3 @@ class patitoListener(ParseTreeListener):
     # Exit a parse tree produced by patitoParser#mainfunc.
     def exitMainfunc(self, ctx:patitoParser.MainfuncContext):
         pass
-
-

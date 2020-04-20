@@ -3,13 +3,18 @@ var int: i, j, p;
 int: arreglo[10], otroArreglo[10];
 float: valor;
 
-function int fact (int j)
+function void fact (int j)
 var int: i;
-{i= j + (p-j*2+j);
-if(j==1) then
-{return(j);}
-else
-{return(j*fact(j-1));}
+{
+  i = j + (p-j*2+j);
+  if(j==1) then
+  {
+    return(j);
+  }
+  else
+  {
+    return(j*fact(j-1));
+  }
 }
 
 main()

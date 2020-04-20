@@ -8,12 +8,12 @@ from antlr4.tree.Trees import Trees
 
 
 def main(argv):
-    print("algo")
     input = FileStream(argv[1]) #read the first argument as a filestream
     lexer = patitoLexer(input) #call your lexer
     stream = CommonTokenStream(lexer)
     parser = patitoParser(stream)
     tree = parser.program() #start from the parser rule, however should be changed to your entry rule for your specific grammar.
+    print(Trees.toStringTree(tree, None, parser))
     printer = patitoListener()
     walker = ParseTreeWalker()
     walker.walk(printer, tree)
