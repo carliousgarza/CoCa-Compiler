@@ -13,7 +13,7 @@ def main(argv):
     stream = CommonTokenStream(lexer)
     parser = patitoParser(stream)
     tree = parser.program() #start from the parser rule, however should be changed to your entry rule for your specific grammar.
-    print(Trees.toStringTree(tree, None, parser))
+    #print(Trees.toStringTree(tree, None, parser))
     printer = patitoListener()
     walker = ParseTreeWalker()
     walker.walk(printer, tree)

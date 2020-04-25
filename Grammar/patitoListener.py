@@ -31,9 +31,6 @@ class patitoListener(ParseTreeListener):
 
     # Enter a parse tree produced by patitoParser#variables.
     def enterVariables(self, ctx:patitoParser.VariablesContext):
-        for var in ctx.varindividual():
-            var = Variable(var.ID(), ctx.vartypes().getText(), "")
-            self.compiler._add_variable(var)
         pass
 
     # Exit a parse tree produced by patitoParser#variables.
@@ -79,14 +76,22 @@ class patitoListener(ParseTreeListener):
 
     # Enter a parse tree produced by patitoParser#function.
     def enterFunction(self, ctx:patitoParser.FunctionContext):
-        vartype = (ctx.vartypes()) #type
-        if vartype == None:
-            vartype = (ctx.VOID())
-        else:
-            vartype = (ctx.vartypes().getText())
+        #Function Type
+        vartype = get_vartype(ctx) #type
 
+        #Function ID
         id = (ctx.ID())
-        func = Function(id, vartype, [])
+
+        #Function Parameters
+        parserParameters = (ctx.parameters())
+        parameters = get_parameters(parserParameters)
+
+        #Function Variables
+        parserVariables = (ctx.declarevars())
+        variables = get_variables(parserVariables)
+
+        #Build Function object and send to compiler
+        func = Function(id, vartype, parameters, variables)
         self.compiler._add_function(func)
         pass
 
