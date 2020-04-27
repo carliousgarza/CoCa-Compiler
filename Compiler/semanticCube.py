@@ -1,7 +1,7 @@
 from antlr4 import *
 
 
-class semanticCube():
+class SemanticCube():
     cube = {
         "int": {
                 "*":{

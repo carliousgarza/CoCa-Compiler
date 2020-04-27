@@ -1,4 +1,4 @@
-# Generated from patito.g4 by ANTLR 4.7.1
+# Generated from patito.g4 by ANTLR 4.8
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .patitoParser import patitoParser
@@ -8,14 +8,12 @@ else:
 from Compiler.compiler import *
 from Compiler.function import *
 from Compiler.variable import *
-from Compiler.interpreter import *
-interpreter = Interpreter()
+from Compiler.quadruple import *
+compiler = Compiler()
 
 
 # This class defines a complete listener for a parse tree produced by patitoParser.
 class patitoListener(ParseTreeListener):
-    def __init__(self):
-        self.compiler = Compiler()
 
     # Enter a parse tree produced by patitoParser#program.
     def enterProgram(self, ctx:patitoParser.ProgramContext):
@@ -62,12 +60,12 @@ class patitoListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by patitoParser#varindividual.
-    def enterVarindividual(self, ctx:patitoParser.VarindividualContext):
+    # Enter a parse tree produced by patitoParser#array.
+    def enterArray(self, ctx:patitoParser.ArrayContext):
         pass
 
-    # Exit a parse tree produced by patitoParser#varindividual.
-    def exitVarindividual(self, ctx:patitoParser.VarindividualContext):
+    # Exit a parse tree produced by patitoParser#array.
+    def exitArray(self, ctx:patitoParser.ArrayContext):
         pass
 
 
@@ -82,27 +80,19 @@ class patitoListener(ParseTreeListener):
 
     # Enter a parse tree produced by patitoParser#function.
     def enterFunction(self, ctx:patitoParser.FunctionContext):
-        #Function Type
-        vartype = get_vartype(ctx) #type
-
-        #Function ID
-        id = (ctx.ID())
-
-        #Function Parameters
-        parserParameters = (ctx.parameters())
-        parameters = get_parameters(parserParameters)
-
-        #Function Variables
-        parserVariables = (ctx.declarevars())
-        variables = get_variables(parserVariables)
-
-        #Build Function object and send to compiler
-        func = Function(id, vartype, parameters, variables)
-        self.compiler._add_function(func)
         pass
 
     # Exit a parse tree produced by patitoParser#function.
     def exitFunction(self, ctx:patitoParser.FunctionContext):
+        pass
+
+
+    # Enter a parse tree produced by patitoParser#functiontype.
+    def enterFunctiontype(self, ctx:patitoParser.FunctiontypeContext):
+        pass
+
+    # Exit a parse tree produced by patitoParser#functiontype.
+    def exitFunctiontype(self, ctx:patitoParser.FunctiontypeContext):
         pass
 
 
@@ -266,3 +256,7 @@ class patitoListener(ParseTreeListener):
     # Exit a parse tree produced by patitoParser#mainfunc.
     def exitMainfunc(self, ctx:patitoParser.MainfuncContext):
         pass
+
+
+
+del patitoParser

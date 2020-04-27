@@ -1,11 +1,11 @@
 grammar patito;
 
 @header {
-  from Compiler.compiler import *
-  from Compiler.function import *
-  from Compiler.variable import *
-  from Compiler.interpreter import *
-  interpreter = Interpreter()
+from Compiler.compiler import *
+from Compiler.function import *
+from Compiler.variable import *
+from Compiler.quadruple import *
+compiler = Compiler()
 }
 
 //Ignore whitespace
@@ -71,7 +71,7 @@ VOID: 'void';
 ID: [_A-Za-z]([_A-Za-z0-9])*;
 
 program
-  : PROGRAM ID SEMICOLON declarevars functions mainfunc
+  : PROGRAM ID SEMICOLON declarevars {compiler._add_function(compiler.currentFunction)} functions mainfunc
   ;
 
 declarevars
@@ -79,7 +79,7 @@ declarevars
   ;
 
 variables
-  : vartypes COLON varindividual (COMMA varindividual)* SEMICOLON
+  : vartypes COLON ID array? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)} (COMMA ID array? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
   ;
 
 vartypes
@@ -87,11 +87,11 @@ vartypes
   ;
 
 constant
-  : (CTE_BOOL | CTE_FLOAT | CTE_INT | CTE_CHAR | CTE_STRING)
+  : (CTE_BOOL {compiler.addType("bool")} | CTE_FLOAT {compiler.addType("float")} | CTE_INT {compiler.addType("int")}| CTE_CHAR {compiler.addType("char")}| CTE_STRING {compiler.addType("string")})
   ;
 
-varindividual
-  : ID (LEFT_BRACKET CTE_INT RIGHT_BRACKET | LEFT_BRACKET CTE_INT RIGHT_BRACKET LEFT_BRACKET CTE_INT RIGHT_BRACKET)?
+array
+  : LEFT_BRACKET CTE_INT RIGHT_BRACKET | LEFT_BRACKET CTE_INT RIGHT_BRACKET LEFT_BRACKET CTE_INT RIGHT_BRACKET
   ;
 
 functions
@@ -99,46 +99,51 @@ functions
   ;
 
 function
-  : FUNCTION (vartypes | VOID) ID LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? LEFT_CURLY statute? RIGHT_CURLY
+  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, {}, {})} LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY
+  ;
+
+functiontype
+  : (INT | BOOL | FLOAT | STRING | CHAR | VOID)
   ;
 
 parameters
-  : vartypes ID (COMMA vartypes ID)*
+  : vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)} (COMMA vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)})*
   ;
 
 hexp
-  : mexp (ASSIGN mexp)*
+  : mexp {compiler.topIsAssignment()} (ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.topIsAssignment()} )*
   ;
 
 mexp
-  : sexp ((AND {interpreter.addOperator($AND.text)} | OR {interpreter.addOperator($OR.text)} ) sexp)*
+  : sexp ((AND {compiler.addOperator($AND.text)} | OR {compiler.addOperator($OR.text)} ) mexp)*
   ;
 
 sexp
-  : exp ((GREATER {interpreter.addOperator($GREATER.text)} |
-      LESS {interpreter.addOperator($LESS.text)} |
-      GREATER_EQUAL {interpreter.addOperator($GREATER_EQUAL.text)} |
-      LESS_EQUAL {interpreter.addOperator($LESS_EQUAL.text)} |
-      NOT_EQUAL {interpreter.addOperator($NOT_EQUAL.text)} |
-      EQUAL {interpreter.addOperator($EQUAL.text)} ) exp)?
+  : exp ((GREATER {compiler.addOperator($GREATER.text)} |
+      LESS {compiler.addOperator($LESS.text)} |
+      GREATER_EQUAL {compiler.addOperator($GREATER_EQUAL.text)} |
+      LESS_EQUAL {compiler.addOperator($LESS_EQUAL.text)} |
+      NOT_EQUAL {compiler.addOperator($NOT_EQUAL.text)} |
+      EQUAL {compiler.addOperator($EQUAL.text)} ) sexp)?
   ;
 
 exp
-  : term ((ADD {interpreter.addOperator($ADD.text)} | SUB {interpreter.addOperator($SUB.text)} ) term)*
+  : term {compiler.topIsAddOrSub()} ((ADD {compiler.addOperator($ADD.text)} | SUB {compiler.addOperator($SUB.text)} ) exp {compiler.topIsAddOrSub()})*
   ;
 
 term
-  : factor ((MULT {interpreter.addOperator($MULT.text)} | DIV {interpreter.addOperator($DIV.text)}) factor)*
+  : factor {compiler.topIsMultOrDiv()}
+    ((MULT {compiler.addOperator($MULT.text)} | DIV {compiler.addOperator($DIV.text)}) term {compiler.topIsMultOrDiv()})*
   ;
 
 factor
-  : (constant |
-    LEFT_PARENTHESIS {interpreter.addParenthesis()} hexp RIGHT_PARENTHESIS {interpreter.popParenthesis()} |
-    ID ( |
+  : (constant {compiler.addOperand($constant.text)} |
+    LEFT_PARENTHESIS {compiler.addParenthesis()} mexp RIGHT_PARENTHESIS {compiler.popParenthesis()} |
+    ID {compiler.addOperandAndType($ID.text)} ( |
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
       LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_PARENTHESIS {interpreter.addParenthesis()} ( | hexp (COMMA hexp)*) RIGHT_PARENTHESIS {interpreter.popParenthesis()} ))
+      LEFT_PARENTHESIS {compiler.addParenthesis()} ( | mexp (COMMA mexp)*) RIGHT_PARENTHESIS {compiler.popParenthesis()} ))
   ;
 
 statute
@@ -146,7 +151,7 @@ statute
   ;
 
 assignation
-  : ID ( | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET) ASSIGN hexp SEMICOLON
+  : ID {compiler.addOperandAndType($ID.text)} ( | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET) ASSIGN {compiler.addOperator($ASSIGN.text)} hexp SEMICOLON
   ;
 
 voidcall
@@ -154,7 +159,7 @@ voidcall
   ;
 
 returncall
-  : RETURN LEFT_PARENTHESIS hexp RIGHT_PARENTHESIS SEMICOLON
+  : RETURN LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS SEMICOLON
   ;
 
 indexvariable
@@ -182,5 +187,5 @@ fromloop
   ;
 
 mainfunc
-  : MAIN LEFT_PARENTHESIS RIGHT_PARENTHESIS LEFT_CURLY statute RIGHT_CURLY
+  : MAIN {compiler.currentFunction=Function("main", "void", {}, {})} LEFT_PARENTHESIS RIGHT_PARENTHESIS {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute RIGHT_CURLY
   ;

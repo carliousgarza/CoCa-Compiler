@@ -1,0 +1,16 @@
+program littleDuck2020CorrectFileTest;
+var int: i, p;
+int: arreglo[10], otroArreglo[10];
+float: valor;
+
+function void fact (int j, float k, bool n)
+var int: i;
+{
+  i = j * (k + 2);
+}
+
+main()
+{
+  p = 5;
+  i=p*2;
+}

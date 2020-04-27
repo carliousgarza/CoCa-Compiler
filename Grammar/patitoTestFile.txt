@@ -4,10 +4,9 @@ int: arreglo[10], otroArreglo[10];
 float: valor;
 
 function void fact (int j, float k, bool n)
-var int: i,k;
-    float: j, i;
+var int: i;
 {
-  i = j + (p-j*2+j);
+  i = j * 2;
   a = b * (c * d) * e * f;
   a = b + c * d + e + f;
   if(j==1) then

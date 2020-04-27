@@ -1,13 +1,16 @@
-# Generated from patito.g4 by ANTLR 4.7.1
+# Generated from patito.g4 by ANTLR 4.8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
 import sys
+
+
 from Compiler.compiler import *
 from Compiler.function import *
 from Compiler.variable import *
-from Compiler.interpreter import *
-interpreter = Interpreter()
+from Compiler.quadruple import *
+compiler = Compiler()
+
 
 
 def serializedATN():
@@ -227,41 +230,43 @@ class patitoLexer(Lexer):
     modeNames = [ "DEFAULT_MODE" ]
 
     literalNames = [ "<INVALID>",
-            "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='", "'&&'",
-            "'||'", "'+'", "'-'", "'*'", "'/'", "'('", "')'", "'['", "']'",
-            "'{'", "'}'", "'$'", "'\u00A1'", "'?'", "','", "':'", "';'",
-            "'program'", "'main'", "'function'", "'return'", "'input'",
-            "'print'", "'if'", "'then'", "'else'", "'while'", "'do'", "'from'",
-            "'to'", "'var'", "'bool'", "'int'", "'float'", "'string'", "'char'",
+            "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='", "'&&'", 
+            "'||'", "'+'", "'-'", "'*'", "'/'", "'('", "')'", "'['", "']'", 
+            "'{'", "'}'", "'$'", "'\u00A1'", "'?'", "','", "':'", "';'", 
+            "'program'", "'main'", "'function'", "'return'", "'input'", 
+            "'print'", "'if'", "'then'", "'else'", "'while'", "'do'", "'from'", 
+            "'to'", "'var'", "'bool'", "'int'", "'float'", "'string'", "'char'", 
             "'void'" ]
 
     symbolicNames = [ "<INVALID>",
-            "COMMENT", "LINE_COMMENT", "WS", "LESS", "GREATER", "LESS_EQUAL",
-            "GREATER_EQUAL", "EQUAL", "NOT_EQUAL", "ASSIGN", "AND", "OR",
-            "ADD", "SUB", "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS",
-            "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY",
-            "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON", "SEMICOLON",
-            "PROGRAM", "MAIN", "FUNCTION", "RETURN", "INPUT", "PRINT", "IF",
-            "THEN", "ELSE", "WHILE", "DO", "FROM", "TO", "VAR", "BOOL",
-            "INT", "FLOAT", "STRING", "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT",
+            "COMMENT", "LINE_COMMENT", "WS", "LESS", "GREATER", "LESS_EQUAL", 
+            "GREATER_EQUAL", "EQUAL", "NOT_EQUAL", "ASSIGN", "AND", "OR", 
+            "ADD", "SUB", "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+            "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY", 
+            "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON", "SEMICOLON", 
+            "PROGRAM", "MAIN", "FUNCTION", "RETURN", "INPUT", "PRINT", "IF", 
+            "THEN", "ELSE", "WHILE", "DO", "FROM", "TO", "VAR", "BOOL", 
+            "INT", "FLOAT", "STRING", "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", 
             "CTE_CHAR", "CTE_STRING", "VOID", "ID" ]
 
-    ruleNames = [ "COMMENT", "LINE_COMMENT", "WS", "LESS", "GREATER", "LESS_EQUAL",
-                  "GREATER_EQUAL", "EQUAL", "NOT_EQUAL", "ASSIGN", "AND",
-                  "OR", "ADD", "SUB", "MULT", "DIV", "LEFT_PARENTHESIS",
-                  "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET",
-                  "LEFT_CURLY", "RIGHT_CURLY", "DETERMINANT", "TRANSPOSE",
-                  "INVERSE", "COMMA", "COLON", "SEMICOLON", "PROGRAM", "MAIN",
-                  "FUNCTION", "RETURN", "INPUT", "PRINT", "IF", "THEN",
-                  "ELSE", "WHILE", "DO", "FROM", "TO", "VAR", "BOOL", "INT",
-                  "FLOAT", "STRING", "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT",
+    ruleNames = [ "COMMENT", "LINE_COMMENT", "WS", "LESS", "GREATER", "LESS_EQUAL", 
+                  "GREATER_EQUAL", "EQUAL", "NOT_EQUAL", "ASSIGN", "AND", 
+                  "OR", "ADD", "SUB", "MULT", "DIV", "LEFT_PARENTHESIS", 
+                  "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", 
+                  "LEFT_CURLY", "RIGHT_CURLY", "DETERMINANT", "TRANSPOSE", 
+                  "INVERSE", "COMMA", "COLON", "SEMICOLON", "PROGRAM", "MAIN", 
+                  "FUNCTION", "RETURN", "INPUT", "PRINT", "IF", "THEN", 
+                  "ELSE", "WHILE", "DO", "FROM", "TO", "VAR", "BOOL", "INT", 
+                  "FLOAT", "STRING", "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", 
                   "CTE_CHAR", "CTE_STRING", "VOID", "ID" ]
 
     grammarFileName = "patito.g4"
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.7.1")
+        self.checkVersion("4.8")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None
+
+
