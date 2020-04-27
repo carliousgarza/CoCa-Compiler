@@ -1,5 +1,5 @@
 program littleDuck2020CorrectFileTest;
-var int: i, j, p;
+var int: i, j, p, a, b, c, d, e, f;
 int: arreglo[10], otroArreglo[10];
 float: valor;
 
@@ -8,6 +8,8 @@ var int: i,k;
     float: j, i;
 {
   i = j + (p-j*2+j);
+  a = b * c * d * e * f;
+  a = b + c * d + e + f;
   if(j==1) then
   {
     return(j);
@@ -22,6 +24,7 @@ function int fact2 (float j)
 var int: i;
 {
   i = j + (p-j*2+j);
+
   if(j==1) then
   {
     return(j);

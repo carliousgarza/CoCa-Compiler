@@ -16,7 +16,7 @@ def get_parameters(parserParameters):
         parameterType = (parserParameters.vartypes()[i].getText())
         parameterName = (parserParameters.ID()[i].getText())
         if parameterName not in parameters:
-            print(parameterName, parameterType)
+            #print(parameterName, parameterType)
             parameters[parameterName] = Variable(parameterName, parameterType, None)
         else:
             print("You can't have two or more parameters with the same name.")

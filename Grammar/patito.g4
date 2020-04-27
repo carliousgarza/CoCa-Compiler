@@ -1,5 +1,13 @@
 grammar patito;
 
+@header {
+  from Compiler.compiler import *
+  from Compiler.function import *
+  from Compiler.variable import *
+  from Compiler.interpreter import *
+  interpreter = Interpreter()
+}
+
 //Ignore whitespace
 COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
@@ -103,25 +111,34 @@ hexp
   ;
 
 mexp
-  : sexp ((AND | OR) sexp)*
+  : sexp ((AND {interpreter.addOperator($AND.text)} | OR {interpreter.addOperator($OR.text)} ) sexp)*
   ;
 
 sexp
-  : exp ((GREATER | LESS | GREATER_EQUAL | LESS_EQUAL | NOT_EQUAL | EQUAL) exp)?
+  : exp ((GREATER {interpreter.addOperator($GREATER.text)} |
+      LESS {interpreter.addOperator($LESS.text)} |
+      GREATER_EQUAL {interpreter.addOperator($GREATER_EQUAL.text)} |
+      LESS_EQUAL {interpreter.addOperator($LESS_EQUAL.text)} |
+      NOT_EQUAL {interpreter.addOperator($NOT_EQUAL.text)} |
+      EQUAL {interpreter.addOperator($EQUAL.text)} ) exp)?
   ;
 
 exp
-  : term ((ADD | SUB) term)*
+  : term ((ADD {interpreter.addOperator($ADD.text)} | SUB {interpreter.addOperator($SUB.text)} ) term)*
   ;
 
 term
-  : factor ((MULT | DIV) factor)*
+  : factor ((MULT {interpreter.addOperator($MULT.text)} | DIV {interpreter.addOperator($DIV.text)}) factor)*
   ;
 
 factor
   : (constant |
-    LEFT_PARENTHESIS hexp RIGHT_PARENTHESIS |
-    ID ( | (DETERMINANT | TRANSPOSE | INVERSE) | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_PARENTHESIS ( | hexp (COMMA hexp)*) RIGHT_PARENTHESIS))
+    LEFT_PARENTHESIS {interpreter.addParenthesis()} hexp RIGHT_PARENTHESIS {interpreter.popParenthesis()} |
+    ID ( |
+      (DETERMINANT | TRANSPOSE | INVERSE) |
+      LEFT_BRACKET mexp RIGHT_BRACKET |
+      LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
+      LEFT_PARENTHESIS {interpreter.addParenthesis()} ( | hexp (COMMA hexp)*) RIGHT_PARENTHESIS {interpreter.popParenthesis()} ))
   ;
 
 statute
