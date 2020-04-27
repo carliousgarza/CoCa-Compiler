@@ -1,14 +1,16 @@
 # Generated from patito.g4 by ANTLR 4.7.1
 from antlr4 import *
-from Compiler.compiler import *
-from Compiler.function import *
-from Compiler.variable import *
-from Compiler.interpreter import *
-
 if __name__ is not None and "." in __name__:
     from .patitoParser import patitoParser
 else:
     from patitoParser import patitoParser
+
+from Compiler.compiler import *
+from Compiler.function import *
+from Compiler.variable import *
+from Compiler.interpreter import *
+interpreter = Interpreter()
+
 
 # This class defines a complete listener for a parse tree produced by patitoParser.
 class patitoListener(ParseTreeListener):

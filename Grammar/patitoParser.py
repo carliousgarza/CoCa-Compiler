@@ -4,11 +4,16 @@ from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
 import sys
+from Compiler.compiler import *
+from Compiler.function import *
+from Compiler.variable import *
+from Compiler.interpreter import *
+interpreter = Interpreter()
 
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\38")
-        buf.write("\u015c\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\u017c\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
         buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31")
@@ -19,151 +24,169 @@ def serializedATN():
         buf.write("\16\bb\3\t\3\t\3\t\5\th\n\t\3\t\3\t\3\t\5\tm\n\t\3\t\3")
         buf.write("\t\5\tq\n\t\3\t\3\t\5\tu\n\t\3\t\3\t\3\n\3\n\3\n\3\n\3")
         buf.write("\n\3\n\7\n\177\n\n\f\n\16\n\u0082\13\n\3\13\3\13\3\13")
-        buf.write("\7\13\u0087\n\13\f\13\16\13\u008a\13\13\3\f\3\f\3\f\7")
-        buf.write("\f\u008f\n\f\f\f\16\f\u0092\13\f\3\r\3\r\3\r\5\r\u0097")
-        buf.write("\n\r\3\16\3\16\3\16\7\16\u009c\n\16\f\16\16\16\u009f\13")
-        buf.write("\16\3\17\3\17\3\17\7\17\u00a4\n\17\f\17\16\17\u00a7\13")
-        buf.write("\17\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20")
+        buf.write("\7\13\u0087\n\13\f\13\16\13\u008a\13\13\3\f\3\f\3\f\3")
+        buf.write("\f\3\f\5\f\u0091\n\f\3\f\7\f\u0094\n\f\f\f\16\f\u0097")
+        buf.write("\13\f\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r")
+        buf.write("\3\r\5\r\u00a6\n\r\3\r\5\r\u00a9\n\r\3\16\3\16\3\16\3")
+        buf.write("\16\3\16\5\16\u00b0\n\16\3\16\7\16\u00b3\n\16\f\16\16")
+        buf.write("\16\u00b6\13\16\3\17\3\17\3\17\3\17\3\17\5\17\u00bd\n")
+        buf.write("\17\3\17\7\17\u00c0\n\17\f\17\16\17\u00c3\13\17\3\20\3")
+        buf.write("\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20")
         buf.write("\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20")
-        buf.write("\3\20\3\20\3\20\7\20\u00c1\n\20\f\20\16\20\u00c4\13\20")
-        buf.write("\5\20\u00c6\n\20\3\20\5\20\u00c9\n\20\5\20\u00cb\n\20")
-        buf.write("\3\21\3\21\3\21\3\21\3\21\3\21\3\21\3\21\7\21\u00d5\n")
-        buf.write("\21\f\21\16\21\u00d8\13\21\3\22\3\22\3\22\3\22\3\22\3")
-        buf.write("\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\5\22\u00e7\n\22")
-        buf.write("\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23\3\23\3\23\7\23")
-        buf.write("\u00f3\n\23\f\23\16\23\u00f6\13\23\5\23\u00f8\n\23\3\23")
-        buf.write("\3\23\3\23\3\24\3\24\3\24\3\24\3\24\3\24\3\25\3\25\3\25")
-        buf.write("\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\5\25")
-        buf.write("\u0110\n\25\3\26\3\26\3\26\3\26\3\26\7\26\u0117\n\26\f")
-        buf.write("\26\16\26\u011a\13\26\3\26\3\26\3\26\3\27\3\27\3\27\3")
-        buf.write("\27\5\27\u0123\n\27\3\27\3\27\3\27\5\27\u0128\n\27\7\27")
-        buf.write("\u012a\n\27\f\27\16\27\u012d\13\27\3\27\3\27\3\27\3\30")
-        buf.write("\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30")
-        buf.write("\3\30\5\30\u013f\n\30\3\31\3\31\3\31\3\31\3\31\3\31\3")
-        buf.write("\31\3\31\3\31\3\32\3\32\3\32\3\32\3\32\3\32\3\32\3\32")
-        buf.write("\3\32\3\32\3\32\3\33\3\33\3\33\3\33\3\33\3\33\3\33\3\33")
-        buf.write("\2\2\34\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*")
-        buf.write(",.\60\62\64\2\t\3\2-\61\3\2\62\66\3\2\r\16\3\2\6\13\3")
-        buf.write("\2\17\20\3\2\21\22\3\2\31\33\2\u016b\2\66\3\2\2\2\4=\3")
-        buf.write("\2\2\2\6C\3\2\2\2\bO\3\2\2\2\nQ\3\2\2\2\fS\3\2\2\2\16")
-        buf.write("`\3\2\2\2\20d\3\2\2\2\22x\3\2\2\2\24\u0083\3\2\2\2\26")
-        buf.write("\u008b\3\2\2\2\30\u0093\3\2\2\2\32\u0098\3\2\2\2\34\u00a0")
-        buf.write("\3\2\2\2\36\u00ca\3\2\2\2 \u00d6\3\2\2\2\"\u00d9\3\2\2")
-        buf.write("\2$\u00ec\3\2\2\2&\u00fc\3\2\2\2(\u0102\3\2\2\2*\u0111")
-        buf.write("\3\2\2\2,\u011e\3\2\2\2.\u0131\3\2\2\2\60\u0140\3\2\2")
-        buf.write("\2\62\u0149\3\2\2\2\64\u0154\3\2\2\2\66\67\7\37\2\2\67")
-        buf.write("8\78\2\289\7\36\2\29:\5\4\3\2:;\5\16\b\2;<\5\64\33\2<")
-        buf.write("\3\3\2\2\2=?\7,\2\2>@\5\6\4\2?>\3\2\2\2@A\3\2\2\2A?\3")
-        buf.write("\2\2\2AB\3\2\2\2B\5\3\2\2\2CD\5\b\5\2DE\7\35\2\2EJ\5\f")
-        buf.write("\7\2FG\7\34\2\2GI\5\f\7\2HF\3\2\2\2IL\3\2\2\2JH\3\2\2")
-        buf.write("\2JK\3\2\2\2KM\3\2\2\2LJ\3\2\2\2MN\7\36\2\2N\7\3\2\2\2")
-        buf.write("OP\t\2\2\2P\t\3\2\2\2QR\t\3\2\2R\13\3\2\2\2S]\78\2\2T")
-        buf.write("U\7\25\2\2UV\7\64\2\2V^\7\26\2\2WX\7\25\2\2XY\7\64\2\2")
-        buf.write("YZ\7\26\2\2Z[\7\25\2\2[\\\7\64\2\2\\^\7\26\2\2]T\3\2\2")
-        buf.write("\2]W\3\2\2\2]^\3\2\2\2^\r\3\2\2\2_a\5\20\t\2`_\3\2\2\2")
-        buf.write("ab\3\2\2\2b`\3\2\2\2bc\3\2\2\2c\17\3\2\2\2dg\7!\2\2eh")
-        buf.write("\5\b\5\2fh\7\67\2\2ge\3\2\2\2gf\3\2\2\2hi\3\2\2\2ij\7")
-        buf.write("8\2\2jl\7\23\2\2km\5\22\n\2lk\3\2\2\2lm\3\2\2\2mn\3\2")
-        buf.write("\2\2np\7\24\2\2oq\5\4\3\2po\3\2\2\2pq\3\2\2\2qr\3\2\2")
-        buf.write("\2rt\7\27\2\2su\5 \21\2ts\3\2\2\2tu\3\2\2\2uv\3\2\2\2")
-        buf.write("vw\7\30\2\2w\21\3\2\2\2xy\5\b\5\2y\u0080\78\2\2z{\7\34")
-        buf.write("\2\2{|\5\b\5\2|}\78\2\2}\177\3\2\2\2~z\3\2\2\2\177\u0082")
-        buf.write("\3\2\2\2\u0080~\3\2\2\2\u0080\u0081\3\2\2\2\u0081\23\3")
-        buf.write("\2\2\2\u0082\u0080\3\2\2\2\u0083\u0088\5\26\f\2\u0084")
-        buf.write("\u0085\7\f\2\2\u0085\u0087\5\26\f\2\u0086\u0084\3\2\2")
-        buf.write("\2\u0087\u008a\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0089")
-        buf.write("\3\2\2\2\u0089\25\3\2\2\2\u008a\u0088\3\2\2\2\u008b\u0090")
-        buf.write("\5\30\r\2\u008c\u008d\t\4\2\2\u008d\u008f\5\30\r\2\u008e")
-        buf.write("\u008c\3\2\2\2\u008f\u0092\3\2\2\2\u0090\u008e\3\2\2\2")
-        buf.write("\u0090\u0091\3\2\2\2\u0091\27\3\2\2\2\u0092\u0090\3\2")
-        buf.write("\2\2\u0093\u0096\5\32\16\2\u0094\u0095\t\5\2\2\u0095\u0097")
-        buf.write("\5\32\16\2\u0096\u0094\3\2\2\2\u0096\u0097\3\2\2\2\u0097")
-        buf.write("\31\3\2\2\2\u0098\u009d\5\34\17\2\u0099\u009a\t\6\2\2")
-        buf.write("\u009a\u009c\5\34\17\2\u009b\u0099\3\2\2\2\u009c\u009f")
-        buf.write("\3\2\2\2\u009d\u009b\3\2\2\2\u009d\u009e\3\2\2\2\u009e")
-        buf.write("\33\3\2\2\2\u009f\u009d\3\2\2\2\u00a0\u00a5\5\36\20\2")
-        buf.write("\u00a1\u00a2\t\7\2\2\u00a2\u00a4\5\36\20\2\u00a3\u00a1")
-        buf.write("\3\2\2\2\u00a4\u00a7\3\2\2\2\u00a5\u00a3\3\2\2\2\u00a5")
-        buf.write("\u00a6\3\2\2\2\u00a6\35\3\2\2\2\u00a7\u00a5\3\2\2\2\u00a8")
-        buf.write("\u00cb\5\n\6\2\u00a9\u00aa\7\23\2\2\u00aa\u00ab\5\24\13")
-        buf.write("\2\u00ab\u00ac\7\24\2\2\u00ac\u00cb\3\2\2\2\u00ad\u00c8")
-        buf.write("\78\2\2\u00ae\u00c9\3\2\2\2\u00af\u00c9\t\b\2\2\u00b0")
-        buf.write("\u00b1\7\25\2\2\u00b1\u00b2\5\26\f\2\u00b2\u00b3\7\26")
-        buf.write("\2\2\u00b3\u00c9\3\2\2\2\u00b4\u00b5\7\25\2\2\u00b5\u00b6")
-        buf.write("\5\26\f\2\u00b6\u00b7\7\26\2\2\u00b7\u00b8\7\25\2\2\u00b8")
-        buf.write("\u00b9\5\26\f\2\u00b9\u00ba\7\26\2\2\u00ba\u00c9\3\2\2")
-        buf.write("\2\u00bb\u00c5\7\23\2\2\u00bc\u00c6\3\2\2\2\u00bd\u00c2")
-        buf.write("\5\24\13\2\u00be\u00bf\7\34\2\2\u00bf\u00c1\5\24\13\2")
-        buf.write("\u00c0\u00be\3\2\2\2\u00c1\u00c4\3\2\2\2\u00c2\u00c0\3")
-        buf.write("\2\2\2\u00c2\u00c3\3\2\2\2\u00c3\u00c6\3\2\2\2\u00c4\u00c2")
-        buf.write("\3\2\2\2\u00c5\u00bc\3\2\2\2\u00c5\u00bd\3\2\2\2\u00c6")
-        buf.write("\u00c7\3\2\2\2\u00c7\u00c9\7\24\2\2\u00c8\u00ae\3\2\2")
-        buf.write("\2\u00c8\u00af\3\2\2\2\u00c8\u00b0\3\2\2\2\u00c8\u00b4")
-        buf.write("\3\2\2\2\u00c8\u00bb\3\2\2\2\u00c9\u00cb\3\2\2\2\u00ca")
-        buf.write("\u00a8\3\2\2\2\u00ca\u00a9\3\2\2\2\u00ca\u00ad\3\2\2\2")
-        buf.write("\u00cb\37\3\2\2\2\u00cc\u00d5\5\"\22\2\u00cd\u00d5\5$")
-        buf.write("\23\2\u00ce\u00d5\5&\24\2\u00cf\u00d5\5*\26\2\u00d0\u00d5")
-        buf.write("\5,\27\2\u00d1\u00d5\5.\30\2\u00d2\u00d5\5\60\31\2\u00d3")
-        buf.write("\u00d5\5\62\32\2\u00d4\u00cc\3\2\2\2\u00d4\u00cd\3\2\2")
-        buf.write("\2\u00d4\u00ce\3\2\2\2\u00d4\u00cf\3\2\2\2\u00d4\u00d0")
-        buf.write("\3\2\2\2\u00d4\u00d1\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4")
-        buf.write("\u00d3\3\2\2\2\u00d5\u00d8\3\2\2\2\u00d6\u00d4\3\2\2\2")
-        buf.write("\u00d6\u00d7\3\2\2\2\u00d7!\3\2\2\2\u00d8\u00d6\3\2\2")
-        buf.write("\2\u00d9\u00e6\78\2\2\u00da\u00e7\3\2\2\2\u00db\u00dc")
-        buf.write("\7\25\2\2\u00dc\u00dd\5\26\f\2\u00dd\u00de\7\26\2\2\u00de")
-        buf.write("\u00e7\3\2\2\2\u00df\u00e0\7\25\2\2\u00e0\u00e1\5\26\f")
-        buf.write("\2\u00e1\u00e2\7\26\2\2\u00e2\u00e3\7\25\2\2\u00e3\u00e4")
-        buf.write("\5\26\f\2\u00e4\u00e5\7\26\2\2\u00e5\u00e7\3\2\2\2\u00e6")
-        buf.write("\u00da\3\2\2\2\u00e6\u00db\3\2\2\2\u00e6\u00df\3\2\2\2")
-        buf.write("\u00e7\u00e8\3\2\2\2\u00e8\u00e9\7\f\2\2\u00e9\u00ea\5")
-        buf.write("\24\13\2\u00ea\u00eb\7\36\2\2\u00eb#\3\2\2\2\u00ec\u00ed")
-        buf.write("\78\2\2\u00ed\u00f7\7\23\2\2\u00ee\u00f8\3\2\2\2\u00ef")
-        buf.write("\u00f4\5\26\f\2\u00f0\u00f1\7\34\2\2\u00f1\u00f3\5\26")
-        buf.write("\f\2\u00f2\u00f0\3\2\2\2\u00f3\u00f6\3\2\2\2\u00f4\u00f2")
-        buf.write("\3\2\2\2\u00f4\u00f5\3\2\2\2\u00f5\u00f8\3\2\2\2\u00f6")
-        buf.write("\u00f4\3\2\2\2\u00f7\u00ee\3\2\2\2\u00f7\u00ef\3\2\2\2")
-        buf.write("\u00f8\u00f9\3\2\2\2\u00f9\u00fa\7\24\2\2\u00fa\u00fb")
-        buf.write("\7\36\2\2\u00fb%\3\2\2\2\u00fc\u00fd\7\"\2\2\u00fd\u00fe")
-        buf.write("\7\23\2\2\u00fe\u00ff\5\24\13\2\u00ff\u0100\7\24\2\2\u0100")
-        buf.write("\u0101\7\36\2\2\u0101\'\3\2\2\2\u0102\u010f\78\2\2\u0103")
-        buf.write("\u0110\3\2\2\2\u0104\u0105\7\25\2\2\u0105\u0106\5\26\f")
-        buf.write("\2\u0106\u0107\7\26\2\2\u0107\u0110\3\2\2\2\u0108\u0109")
-        buf.write("\7\25\2\2\u0109\u010a\5\26\f\2\u010a\u010b\7\26\2\2\u010b")
-        buf.write("\u010c\7\25\2\2\u010c\u010d\5\26\f\2\u010d\u010e\7\26")
-        buf.write("\2\2\u010e\u0110\3\2\2\2\u010f\u0103\3\2\2\2\u010f\u0104")
-        buf.write("\3\2\2\2\u010f\u0108\3\2\2\2\u0110)\3\2\2\2\u0111\u0112")
-        buf.write("\7#\2\2\u0112\u0113\7\23\2\2\u0113\u0118\5(\25\2\u0114")
-        buf.write("\u0115\7\34\2\2\u0115\u0117\5(\25\2\u0116\u0114\3\2\2")
-        buf.write("\2\u0117\u011a\3\2\2\2\u0118\u0116\3\2\2\2\u0118\u0119")
-        buf.write("\3\2\2\2\u0119\u011b\3\2\2\2\u011a\u0118\3\2\2\2\u011b")
-        buf.write("\u011c\7\24\2\2\u011c\u011d\7\36\2\2\u011d+\3\2\2\2\u011e")
-        buf.write("\u011f\7$\2\2\u011f\u0122\7\23\2\2\u0120\u0123\5\24\13")
-        buf.write("\2\u0121\u0123\7\66\2\2\u0122\u0120\3\2\2\2\u0122\u0121")
-        buf.write("\3\2\2\2\u0123\u012b\3\2\2\2\u0124\u0127\7\34\2\2\u0125")
-        buf.write("\u0128\5\24\13\2\u0126\u0128\7\66\2\2\u0127\u0125\3\2")
-        buf.write("\2\2\u0127\u0126\3\2\2\2\u0128\u012a\3\2\2\2\u0129\u0124")
-        buf.write("\3\2\2\2\u012a\u012d\3\2\2\2\u012b\u0129\3\2\2\2\u012b")
-        buf.write("\u012c\3\2\2\2\u012c\u012e\3\2\2\2\u012d\u012b\3\2\2\2")
-        buf.write("\u012e\u012f\7\24\2\2\u012f\u0130\7\36\2\2\u0130-\3\2")
-        buf.write("\2\2\u0131\u0132\7%\2\2\u0132\u0133\7\23\2\2\u0133\u0134")
-        buf.write("\5\26\f\2\u0134\u0135\7\24\2\2\u0135\u0136\7&\2\2\u0136")
-        buf.write("\u0137\7\27\2\2\u0137\u0138\5 \21\2\u0138\u013e\7\30\2")
-        buf.write("\2\u0139\u013a\7\'\2\2\u013a\u013b\7\27\2\2\u013b\u013c")
-        buf.write("\5 \21\2\u013c\u013d\7\30\2\2\u013d\u013f\3\2\2\2\u013e")
-        buf.write("\u0139\3\2\2\2\u013e\u013f\3\2\2\2\u013f/\3\2\2\2\u0140")
-        buf.write("\u0141\7(\2\2\u0141\u0142\7\23\2\2\u0142\u0143\5\26\f")
-        buf.write("\2\u0143\u0144\7\24\2\2\u0144\u0145\7)\2\2\u0145\u0146")
-        buf.write("\7\27\2\2\u0146\u0147\5 \21\2\u0147\u0148\7\30\2\2\u0148")
-        buf.write("\61\3\2\2\2\u0149\u014a\7*\2\2\u014a\u014b\5(\25\2\u014b")
-        buf.write("\u014c\7\f\2\2\u014c\u014d\5\26\f\2\u014d\u014e\7+\2\2")
-        buf.write("\u014e\u014f\5\26\f\2\u014f\u0150\7)\2\2\u0150\u0151\7")
-        buf.write("\27\2\2\u0151\u0152\5 \21\2\u0152\u0153\7\30\2\2\u0153")
-        buf.write("\63\3\2\2\2\u0154\u0155\7 \2\2\u0155\u0156\7\23\2\2\u0156")
-        buf.write("\u0157\7\24\2\2\u0157\u0158\7\27\2\2\u0158\u0159\5 \21")
-        buf.write("\2\u0159\u015a\7\30\2\2\u015a\65\3\2\2\2\37AJ]bglpt\u0080")
-        buf.write("\u0088\u0090\u0096\u009d\u00a5\u00c2\u00c5\u00c8\u00ca")
-        buf.write("\u00d4\u00d6\u00e6\u00f4\u00f7\u010f\u0118\u0122\u0127")
-        buf.write("\u012b\u013e")
+        buf.write("\3\20\3\20\3\20\3\20\7\20\u00e0\n\20\f\20\16\20\u00e3")
+        buf.write("\13\20\5\20\u00e5\n\20\3\20\3\20\5\20\u00e9\n\20\5\20")
+        buf.write("\u00eb\n\20\3\21\3\21\3\21\3\21\3\21\3\21\3\21\3\21\7")
+        buf.write("\21\u00f5\n\21\f\21\16\21\u00f8\13\21\3\22\3\22\3\22\3")
+        buf.write("\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\5\22")
+        buf.write("\u0107\n\22\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23\3")
+        buf.write("\23\3\23\7\23\u0113\n\23\f\23\16\23\u0116\13\23\5\23\u0118")
+        buf.write("\n\23\3\23\3\23\3\23\3\24\3\24\3\24\3\24\3\24\3\24\3\25")
+        buf.write("\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25")
+        buf.write("\3\25\5\25\u0130\n\25\3\26\3\26\3\26\3\26\3\26\7\26\u0137")
+        buf.write("\n\26\f\26\16\26\u013a\13\26\3\26\3\26\3\26\3\27\3\27")
+        buf.write("\3\27\3\27\5\27\u0143\n\27\3\27\3\27\3\27\5\27\u0148\n")
+        buf.write("\27\7\27\u014a\n\27\f\27\16\27\u014d\13\27\3\27\3\27\3")
+        buf.write("\27\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30\3\30")
+        buf.write("\3\30\3\30\3\30\5\30\u015f\n\30\3\31\3\31\3\31\3\31\3")
+        buf.write("\31\3\31\3\31\3\31\3\31\3\32\3\32\3\32\3\32\3\32\3\32")
+        buf.write("\3\32\3\32\3\32\3\32\3\32\3\33\3\33\3\33\3\33\3\33\3\33")
+        buf.write("\3\33\3\33\2\2\34\2\4\6\b\n\f\16\20\22\24\26\30\32\34")
+        buf.write("\36 \"$&(*,.\60\62\64\2\5\3\2-\61\3\2\62\66\3\2\31\33")
+        buf.write("\2\u0193\2\66\3\2\2\2\4=\3\2\2\2\6C\3\2\2\2\bO\3\2\2\2")
+        buf.write("\nQ\3\2\2\2\fS\3\2\2\2\16`\3\2\2\2\20d\3\2\2\2\22x\3\2")
+        buf.write("\2\2\24\u0083\3\2\2\2\26\u008b\3\2\2\2\30\u0098\3\2\2")
+        buf.write("\2\32\u00aa\3\2\2\2\34\u00b7\3\2\2\2\36\u00ea\3\2\2\2")
+        buf.write(" \u00f6\3\2\2\2\"\u00f9\3\2\2\2$\u010c\3\2\2\2&\u011c")
+        buf.write("\3\2\2\2(\u0122\3\2\2\2*\u0131\3\2\2\2,\u013e\3\2\2\2")
+        buf.write(".\u0151\3\2\2\2\60\u0160\3\2\2\2\62\u0169\3\2\2\2\64\u0174")
+        buf.write("\3\2\2\2\66\67\7\37\2\2\678\78\2\289\7\36\2\29:\5\4\3")
+        buf.write("\2:;\5\16\b\2;<\5\64\33\2<\3\3\2\2\2=?\7,\2\2>@\5\6\4")
+        buf.write("\2?>\3\2\2\2@A\3\2\2\2A?\3\2\2\2AB\3\2\2\2B\5\3\2\2\2")
+        buf.write("CD\5\b\5\2DE\7\35\2\2EJ\5\f\7\2FG\7\34\2\2GI\5\f\7\2H")
+        buf.write("F\3\2\2\2IL\3\2\2\2JH\3\2\2\2JK\3\2\2\2KM\3\2\2\2LJ\3")
+        buf.write("\2\2\2MN\7\36\2\2N\7\3\2\2\2OP\t\2\2\2P\t\3\2\2\2QR\t")
+        buf.write("\3\2\2R\13\3\2\2\2S]\78\2\2TU\7\25\2\2UV\7\64\2\2V^\7")
+        buf.write("\26\2\2WX\7\25\2\2XY\7\64\2\2YZ\7\26\2\2Z[\7\25\2\2[\\")
+        buf.write("\7\64\2\2\\^\7\26\2\2]T\3\2\2\2]W\3\2\2\2]^\3\2\2\2^\r")
+        buf.write("\3\2\2\2_a\5\20\t\2`_\3\2\2\2ab\3\2\2\2b`\3\2\2\2bc\3")
+        buf.write("\2\2\2c\17\3\2\2\2dg\7!\2\2eh\5\b\5\2fh\7\67\2\2ge\3\2")
+        buf.write("\2\2gf\3\2\2\2hi\3\2\2\2ij\78\2\2jl\7\23\2\2km\5\22\n")
+        buf.write("\2lk\3\2\2\2lm\3\2\2\2mn\3\2\2\2np\7\24\2\2oq\5\4\3\2")
+        buf.write("po\3\2\2\2pq\3\2\2\2qr\3\2\2\2rt\7\27\2\2su\5 \21\2ts")
+        buf.write("\3\2\2\2tu\3\2\2\2uv\3\2\2\2vw\7\30\2\2w\21\3\2\2\2xy")
+        buf.write("\5\b\5\2y\u0080\78\2\2z{\7\34\2\2{|\5\b\5\2|}\78\2\2}")
+        buf.write("\177\3\2\2\2~z\3\2\2\2\177\u0082\3\2\2\2\u0080~\3\2\2")
+        buf.write("\2\u0080\u0081\3\2\2\2\u0081\23\3\2\2\2\u0082\u0080\3")
+        buf.write("\2\2\2\u0083\u0088\5\26\f\2\u0084\u0085\7\f\2\2\u0085")
+        buf.write("\u0087\5\26\f\2\u0086\u0084\3\2\2\2\u0087\u008a\3\2\2")
+        buf.write("\2\u0088\u0086\3\2\2\2\u0088\u0089\3\2\2\2\u0089\25\3")
+        buf.write("\2\2\2\u008a\u0088\3\2\2\2\u008b\u0095\5\30\r\2\u008c")
+        buf.write("\u008d\7\r\2\2\u008d\u0091\b\f\1\2\u008e\u008f\7\16\2")
+        buf.write("\2\u008f\u0091\b\f\1\2\u0090\u008c\3\2\2\2\u0090\u008e")
+        buf.write("\3\2\2\2\u0091\u0092\3\2\2\2\u0092\u0094\5\30\r\2\u0093")
+        buf.write("\u0090\3\2\2\2\u0094\u0097\3\2\2\2\u0095\u0093\3\2\2\2")
+        buf.write("\u0095\u0096\3\2\2\2\u0096\27\3\2\2\2\u0097\u0095\3\2")
+        buf.write("\2\2\u0098\u00a8\5\32\16\2\u0099\u009a\7\7\2\2\u009a\u00a6")
+        buf.write("\b\r\1\2\u009b\u009c\7\6\2\2\u009c\u00a6\b\r\1\2\u009d")
+        buf.write("\u009e\7\t\2\2\u009e\u00a6\b\r\1\2\u009f\u00a0\7\b\2\2")
+        buf.write("\u00a0\u00a6\b\r\1\2\u00a1\u00a2\7\13\2\2\u00a2\u00a6")
+        buf.write("\b\r\1\2\u00a3\u00a4\7\n\2\2\u00a4\u00a6\b\r\1\2\u00a5")
+        buf.write("\u0099\3\2\2\2\u00a5\u009b\3\2\2\2\u00a5\u009d\3\2\2\2")
+        buf.write("\u00a5\u009f\3\2\2\2\u00a5\u00a1\3\2\2\2\u00a5\u00a3\3")
+        buf.write("\2\2\2\u00a6\u00a7\3\2\2\2\u00a7\u00a9\5\32\16\2\u00a8")
+        buf.write("\u00a5\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9\31\3\2\2\2\u00aa")
+        buf.write("\u00b4\5\34\17\2\u00ab\u00ac\7\17\2\2\u00ac\u00b0\b\16")
+        buf.write("\1\2\u00ad\u00ae\7\20\2\2\u00ae\u00b0\b\16\1\2\u00af\u00ab")
+        buf.write("\3\2\2\2\u00af\u00ad\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1")
+        buf.write("\u00b3\5\34\17\2\u00b2\u00af\3\2\2\2\u00b3\u00b6\3\2\2")
+        buf.write("\2\u00b4\u00b2\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\33\3")
+        buf.write("\2\2\2\u00b6\u00b4\3\2\2\2\u00b7\u00c1\5\36\20\2\u00b8")
+        buf.write("\u00b9\7\21\2\2\u00b9\u00bd\b\17\1\2\u00ba\u00bb\7\22")
+        buf.write("\2\2\u00bb\u00bd\b\17\1\2\u00bc\u00b8\3\2\2\2\u00bc\u00ba")
+        buf.write("\3\2\2\2\u00bd\u00be\3\2\2\2\u00be\u00c0\5\36\20\2\u00bf")
+        buf.write("\u00bc\3\2\2\2\u00c0\u00c3\3\2\2\2\u00c1\u00bf\3\2\2\2")
+        buf.write("\u00c1\u00c2\3\2\2\2\u00c2\35\3\2\2\2\u00c3\u00c1\3\2")
+        buf.write("\2\2\u00c4\u00eb\5\n\6\2\u00c5\u00c6\7\23\2\2\u00c6\u00c7")
+        buf.write("\b\20\1\2\u00c7\u00c8\5\24\13\2\u00c8\u00c9\7\24\2\2\u00c9")
+        buf.write("\u00ca\b\20\1\2\u00ca\u00eb\3\2\2\2\u00cb\u00e8\78\2\2")
+        buf.write("\u00cc\u00e9\3\2\2\2\u00cd\u00e9\t\4\2\2\u00ce\u00cf\7")
+        buf.write("\25\2\2\u00cf\u00d0\5\26\f\2\u00d0\u00d1\7\26\2\2\u00d1")
+        buf.write("\u00e9\3\2\2\2\u00d2\u00d3\7\25\2\2\u00d3\u00d4\5\26\f")
+        buf.write("\2\u00d4\u00d5\7\26\2\2\u00d5\u00d6\7\25\2\2\u00d6\u00d7")
+        buf.write("\5\26\f\2\u00d7\u00d8\7\26\2\2\u00d8\u00e9\3\2\2\2\u00d9")
+        buf.write("\u00da\7\23\2\2\u00da\u00e4\b\20\1\2\u00db\u00e5\3\2\2")
+        buf.write("\2\u00dc\u00e1\5\24\13\2\u00dd\u00de\7\34\2\2\u00de\u00e0")
+        buf.write("\5\24\13\2\u00df\u00dd\3\2\2\2\u00e0\u00e3\3\2\2\2\u00e1")
+        buf.write("\u00df\3\2\2\2\u00e1\u00e2\3\2\2\2\u00e2\u00e5\3\2\2\2")
+        buf.write("\u00e3\u00e1\3\2\2\2\u00e4\u00db\3\2\2\2\u00e4\u00dc\3")
+        buf.write("\2\2\2\u00e5\u00e6\3\2\2\2\u00e6\u00e7\7\24\2\2\u00e7")
+        buf.write("\u00e9\b\20\1\2\u00e8\u00cc\3\2\2\2\u00e8\u00cd\3\2\2")
+        buf.write("\2\u00e8\u00ce\3\2\2\2\u00e8\u00d2\3\2\2\2\u00e8\u00d9")
+        buf.write("\3\2\2\2\u00e9\u00eb\3\2\2\2\u00ea\u00c4\3\2\2\2\u00ea")
+        buf.write("\u00c5\3\2\2\2\u00ea\u00cb\3\2\2\2\u00eb\37\3\2\2\2\u00ec")
+        buf.write("\u00f5\5\"\22\2\u00ed\u00f5\5$\23\2\u00ee\u00f5\5&\24")
+        buf.write("\2\u00ef\u00f5\5*\26\2\u00f0\u00f5\5,\27\2\u00f1\u00f5")
+        buf.write("\5.\30\2\u00f2\u00f5\5\60\31\2\u00f3\u00f5\5\62\32\2\u00f4")
+        buf.write("\u00ec\3\2\2\2\u00f4\u00ed\3\2\2\2\u00f4\u00ee\3\2\2\2")
+        buf.write("\u00f4\u00ef\3\2\2\2\u00f4\u00f0\3\2\2\2\u00f4\u00f1\3")
+        buf.write("\2\2\2\u00f4\u00f2\3\2\2\2\u00f4\u00f3\3\2\2\2\u00f5\u00f8")
+        buf.write("\3\2\2\2\u00f6\u00f4\3\2\2\2\u00f6\u00f7\3\2\2\2\u00f7")
+        buf.write("!\3\2\2\2\u00f8\u00f6\3\2\2\2\u00f9\u0106\78\2\2\u00fa")
+        buf.write("\u0107\3\2\2\2\u00fb\u00fc\7\25\2\2\u00fc\u00fd\5\26\f")
+        buf.write("\2\u00fd\u00fe\7\26\2\2\u00fe\u0107\3\2\2\2\u00ff\u0100")
+        buf.write("\7\25\2\2\u0100\u0101\5\26\f\2\u0101\u0102\7\26\2\2\u0102")
+        buf.write("\u0103\7\25\2\2\u0103\u0104\5\26\f\2\u0104\u0105\7\26")
+        buf.write("\2\2\u0105\u0107\3\2\2\2\u0106\u00fa\3\2\2\2\u0106\u00fb")
+        buf.write("\3\2\2\2\u0106\u00ff\3\2\2\2\u0107\u0108\3\2\2\2\u0108")
+        buf.write("\u0109\7\f\2\2\u0109\u010a\5\24\13\2\u010a\u010b\7\36")
+        buf.write("\2\2\u010b#\3\2\2\2\u010c\u010d\78\2\2\u010d\u0117\7\23")
+        buf.write("\2\2\u010e\u0118\3\2\2\2\u010f\u0114\5\26\f\2\u0110\u0111")
+        buf.write("\7\34\2\2\u0111\u0113\5\26\f\2\u0112\u0110\3\2\2\2\u0113")
+        buf.write("\u0116\3\2\2\2\u0114\u0112\3\2\2\2\u0114\u0115\3\2\2\2")
+        buf.write("\u0115\u0118\3\2\2\2\u0116\u0114\3\2\2\2\u0117\u010e\3")
+        buf.write("\2\2\2\u0117\u010f\3\2\2\2\u0118\u0119\3\2\2\2\u0119\u011a")
+        buf.write("\7\24\2\2\u011a\u011b\7\36\2\2\u011b%\3\2\2\2\u011c\u011d")
+        buf.write("\7\"\2\2\u011d\u011e\7\23\2\2\u011e\u011f\5\24\13\2\u011f")
+        buf.write("\u0120\7\24\2\2\u0120\u0121\7\36\2\2\u0121\'\3\2\2\2\u0122")
+        buf.write("\u012f\78\2\2\u0123\u0130\3\2\2\2\u0124\u0125\7\25\2\2")
+        buf.write("\u0125\u0126\5\26\f\2\u0126\u0127\7\26\2\2\u0127\u0130")
+        buf.write("\3\2\2\2\u0128\u0129\7\25\2\2\u0129\u012a\5\26\f\2\u012a")
+        buf.write("\u012b\7\26\2\2\u012b\u012c\7\25\2\2\u012c\u012d\5\26")
+        buf.write("\f\2\u012d\u012e\7\26\2\2\u012e\u0130\3\2\2\2\u012f\u0123")
+        buf.write("\3\2\2\2\u012f\u0124\3\2\2\2\u012f\u0128\3\2\2\2\u0130")
+        buf.write(")\3\2\2\2\u0131\u0132\7#\2\2\u0132\u0133\7\23\2\2\u0133")
+        buf.write("\u0138\5(\25\2\u0134\u0135\7\34\2\2\u0135\u0137\5(\25")
+        buf.write("\2\u0136\u0134\3\2\2\2\u0137\u013a\3\2\2\2\u0138\u0136")
+        buf.write("\3\2\2\2\u0138\u0139\3\2\2\2\u0139\u013b\3\2\2\2\u013a")
+        buf.write("\u0138\3\2\2\2\u013b\u013c\7\24\2\2\u013c\u013d\7\36\2")
+        buf.write("\2\u013d+\3\2\2\2\u013e\u013f\7$\2\2\u013f\u0142\7\23")
+        buf.write("\2\2\u0140\u0143\5\24\13\2\u0141\u0143\7\66\2\2\u0142")
+        buf.write("\u0140\3\2\2\2\u0142\u0141\3\2\2\2\u0143\u014b\3\2\2\2")
+        buf.write("\u0144\u0147\7\34\2\2\u0145\u0148\5\24\13\2\u0146\u0148")
+        buf.write("\7\66\2\2\u0147\u0145\3\2\2\2\u0147\u0146\3\2\2\2\u0148")
+        buf.write("\u014a\3\2\2\2\u0149\u0144\3\2\2\2\u014a\u014d\3\2\2\2")
+        buf.write("\u014b\u0149\3\2\2\2\u014b\u014c\3\2\2\2\u014c\u014e\3")
+        buf.write("\2\2\2\u014d\u014b\3\2\2\2\u014e\u014f\7\24\2\2\u014f")
+        buf.write("\u0150\7\36\2\2\u0150-\3\2\2\2\u0151\u0152\7%\2\2\u0152")
+        buf.write("\u0153\7\23\2\2\u0153\u0154\5\26\f\2\u0154\u0155\7\24")
+        buf.write("\2\2\u0155\u0156\7&\2\2\u0156\u0157\7\27\2\2\u0157\u0158")
+        buf.write("\5 \21\2\u0158\u015e\7\30\2\2\u0159\u015a\7\'\2\2\u015a")
+        buf.write("\u015b\7\27\2\2\u015b\u015c\5 \21\2\u015c\u015d\7\30\2")
+        buf.write("\2\u015d\u015f\3\2\2\2\u015e\u0159\3\2\2\2\u015e\u015f")
+        buf.write("\3\2\2\2\u015f/\3\2\2\2\u0160\u0161\7(\2\2\u0161\u0162")
+        buf.write("\7\23\2\2\u0162\u0163\5\26\f\2\u0163\u0164\7\24\2\2\u0164")
+        buf.write("\u0165\7)\2\2\u0165\u0166\7\27\2\2\u0166\u0167\5 \21\2")
+        buf.write("\u0167\u0168\7\30\2\2\u0168\61\3\2\2\2\u0169\u016a\7*")
+        buf.write("\2\2\u016a\u016b\5(\25\2\u016b\u016c\7\f\2\2\u016c\u016d")
+        buf.write("\5\26\f\2\u016d\u016e\7+\2\2\u016e\u016f\5\26\f\2\u016f")
+        buf.write("\u0170\7)\2\2\u0170\u0171\7\27\2\2\u0171\u0172\5 \21\2")
+        buf.write("\u0172\u0173\7\30\2\2\u0173\63\3\2\2\2\u0174\u0175\7 ")
+        buf.write("\2\2\u0175\u0176\7\23\2\2\u0176\u0177\7\24\2\2\u0177\u0178")
+        buf.write("\7\27\2\2\u0178\u0179\5 \21\2\u0179\u017a\7\30\2\2\u017a")
+        buf.write("\65\3\2\2\2#AJ]bglpt\u0080\u0088\u0090\u0095\u00a5\u00a8")
+        buf.write("\u00af\u00b4\u00bc\u00c1\u00e1\u00e4\u00e8\u00ea\u00f4")
+        buf.write("\u00f6\u0106\u0114\u0117\u012f\u0138\u0142\u0147\u014b")
+        buf.write("\u015e")
         return buf.getvalue()
 
 
@@ -780,6 +803,7 @@ class patitoParser ( Parser ):
         def vartypes(self):
             return self.getTypedRuleContext(patitoParser.VartypesContext,0)
 
+
         def VOID(self):
             return self.getToken(patitoParser.VOID, 0)
 
@@ -1013,6 +1037,8 @@ class patitoParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self._AND = None # Token
+            self._OR = None # Token
 
         def sexp(self, i:int=None):
             if i is None:
@@ -1056,20 +1082,29 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 137
             self.sexp()
-            self.state = 142
+            self.state = 147
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.AND or _la==patitoParser.OR:
-                self.state = 138
-                _la = self._input.LA(1)
-                if not(_la==patitoParser.AND or _la==patitoParser.OR):
-                    self._errHandler.recoverInline(self)
+                self.state = 142
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [patitoParser.AND]:
+                    self.state = 138
+                    localctx._AND = self.match(patitoParser.AND)
+                    interpreter.addOperator((None if localctx._AND is None else localctx._AND.text))
+                    pass
+                elif token in [patitoParser.OR]:
+                    self.state = 140
+                    localctx._OR = self.match(patitoParser.OR)
+                    interpreter.addOperator((None if localctx._OR is None else localctx._OR.text))
+                    pass
                 else:
-                    self._errHandler.reportMatch(self)
-                    self.consume()
-                self.state = 139
-                self.sexp()
+                    raise NoViableAltException(self)
+
                 self.state = 144
+                self.sexp()
+                self.state = 149
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1086,6 +1121,12 @@ class patitoParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self._GREATER = None # Token
+            self._LESS = None # Token
+            self._GREATER_EQUAL = None # Token
+            self._LESS_EQUAL = None # Token
+            self._NOT_EQUAL = None # Token
+            self._EQUAL = None # Token
 
         def exp(self, i:int=None):
             if i is None:
@@ -1133,20 +1174,49 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 145
+            self.state = 150
             self.exp()
-            self.state = 148
+            self.state = 166
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.LESS) | (1 << patitoParser.GREATER) | (1 << patitoParser.LESS_EQUAL) | (1 << patitoParser.GREATER_EQUAL) | (1 << patitoParser.EQUAL) | (1 << patitoParser.NOT_EQUAL))) != 0):
-                self.state = 146
-                _la = self._input.LA(1)
-                if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.LESS) | (1 << patitoParser.GREATER) | (1 << patitoParser.LESS_EQUAL) | (1 << patitoParser.GREATER_EQUAL) | (1 << patitoParser.EQUAL) | (1 << patitoParser.NOT_EQUAL))) != 0)):
-                    self._errHandler.recoverInline(self)
+                self.state = 163
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [patitoParser.GREATER]:
+                    self.state = 151
+                    localctx._GREATER = self.match(patitoParser.GREATER)
+                    interpreter.addOperator((None if localctx._GREATER is None else localctx._GREATER.text))
+                    pass
+                elif token in [patitoParser.LESS]:
+                    self.state = 153
+                    localctx._LESS = self.match(patitoParser.LESS)
+                    interpreter.addOperator((None if localctx._LESS is None else localctx._LESS.text))
+                    pass
+                elif token in [patitoParser.GREATER_EQUAL]:
+                    self.state = 155
+                    localctx._GREATER_EQUAL = self.match(patitoParser.GREATER_EQUAL)
+                    interpreter.addOperator((None if localctx._GREATER_EQUAL is None else localctx._GREATER_EQUAL.text))
+                    pass
+                elif token in [patitoParser.LESS_EQUAL]:
+                    self.state = 157
+                    localctx._LESS_EQUAL = self.match(patitoParser.LESS_EQUAL)
+                    interpreter.addOperator((None if localctx._LESS_EQUAL is None else localctx._LESS_EQUAL.text))
+                    pass
+                elif token in [patitoParser.NOT_EQUAL]:
+                    self.state = 159
+                    localctx._NOT_EQUAL = self.match(patitoParser.NOT_EQUAL)
+                    interpreter.addOperator((None if localctx._NOT_EQUAL is None else localctx._NOT_EQUAL.text))
+                    pass
+                elif token in [patitoParser.EQUAL]:
+                    self.state = 161
+                    localctx._EQUAL = self.match(patitoParser.EQUAL)
+                    interpreter.addOperator((None if localctx._EQUAL is None else localctx._EQUAL.text))
+                    pass
                 else:
-                    self._errHandler.reportMatch(self)
-                    self.consume()
-                self.state = 147
+                    raise NoViableAltException(self)
+
+                self.state = 165
                 self.exp()
 
 
@@ -1163,6 +1233,8 @@ class patitoParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self._ADD = None # Token
+            self._SUB = None # Token
 
         def term(self, i:int=None):
             if i is None:
@@ -1204,22 +1276,31 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 150
+            self.state = 168
             self.term()
-            self.state = 155
+            self.state = 178
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.ADD or _la==patitoParser.SUB:
-                self.state = 151
-                _la = self._input.LA(1)
-                if not(_la==patitoParser.ADD or _la==patitoParser.SUB):
-                    self._errHandler.recoverInline(self)
+                self.state = 173
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [patitoParser.ADD]:
+                    self.state = 169
+                    localctx._ADD = self.match(patitoParser.ADD)
+                    interpreter.addOperator((None if localctx._ADD is None else localctx._ADD.text))
+                    pass
+                elif token in [patitoParser.SUB]:
+                    self.state = 171
+                    localctx._SUB = self.match(patitoParser.SUB)
+                    interpreter.addOperator((None if localctx._SUB is None else localctx._SUB.text))
+                    pass
                 else:
-                    self._errHandler.reportMatch(self)
-                    self.consume()
-                self.state = 152
+                    raise NoViableAltException(self)
+
+                self.state = 175
                 self.term()
-                self.state = 157
+                self.state = 180
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1236,6 +1317,8 @@ class patitoParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self._MULT = None # Token
+            self._DIV = None # Token
 
         def factor(self, i:int=None):
             if i is None:
@@ -1277,22 +1360,31 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 158
+            self.state = 181
             self.factor()
-            self.state = 163
+            self.state = 191
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.MULT or _la==patitoParser.DIV:
-                self.state = 159
-                _la = self._input.LA(1)
-                if not(_la==patitoParser.MULT or _la==patitoParser.DIV):
-                    self._errHandler.recoverInline(self)
+                self.state = 186
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [patitoParser.MULT]:
+                    self.state = 182
+                    localctx._MULT = self.match(patitoParser.MULT)
+                    interpreter.addOperator((None if localctx._MULT is None else localctx._MULT.text))
+                    pass
+                elif token in [patitoParser.DIV]:
+                    self.state = 184
+                    localctx._DIV = self.match(patitoParser.DIV)
+                    interpreter.addOperator((None if localctx._DIV is None else localctx._DIV.text))
+                    pass
                 else:
-                    self._errHandler.reportMatch(self)
-                    self.consume()
-                self.state = 160
+                    raise NoViableAltException(self)
+
+                self.state = 188
                 self.factor()
-                self.state = 165
+                self.state = 193
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1385,32 +1477,34 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 200
+            self.state = 232
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [patitoParser.CTE_BOOL, patitoParser.CTE_FLOAT, patitoParser.CTE_INT, patitoParser.CTE_CHAR, patitoParser.CTE_STRING]:
-                self.state = 166
+                self.state = 194
                 self.constant()
                 pass
             elif token in [patitoParser.LEFT_PARENTHESIS]:
-                self.state = 167
+                self.state = 195
                 self.match(patitoParser.LEFT_PARENTHESIS)
-                self.state = 168
+                interpreter.addParenthesis()
+                self.state = 197
                 self.hexp()
-                self.state = 169
+                self.state = 198
                 self.match(patitoParser.RIGHT_PARENTHESIS)
+                interpreter.popParenthesis()
                 pass
             elif token in [patitoParser.ID]:
-                self.state = 171
+                self.state = 201
                 self.match(patitoParser.ID)
-                self.state = 198
+                self.state = 230
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,16,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input,20,self._ctx)
                 if la_ == 1:
                     pass
 
                 elif la_ == 2:
-                    self.state = 173
+                    self.state = 203
                     _la = self._input.LA(1)
                     if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.DETERMINANT) | (1 << patitoParser.TRANSPOSE) | (1 << patitoParser.INVERSE))) != 0)):
                         self._errHandler.recoverInline(self)
@@ -1420,49 +1514,50 @@ class patitoParser ( Parser ):
                     pass
 
                 elif la_ == 3:
-                    self.state = 174
+                    self.state = 204
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.state = 175
+                    self.state = 205
                     self.mexp()
-                    self.state = 176
+                    self.state = 206
                     self.match(patitoParser.RIGHT_BRACKET)
                     pass
 
                 elif la_ == 4:
-                    self.state = 178
+                    self.state = 208
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.state = 179
+                    self.state = 209
                     self.mexp()
-                    self.state = 180
+                    self.state = 210
                     self.match(patitoParser.RIGHT_BRACKET)
-                    self.state = 181
+                    self.state = 211
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.state = 182
+                    self.state = 212
                     self.mexp()
-                    self.state = 183
+                    self.state = 213
                     self.match(patitoParser.RIGHT_BRACKET)
                     pass
 
                 elif la_ == 5:
-                    self.state = 185
+                    self.state = 215
                     self.match(patitoParser.LEFT_PARENTHESIS)
-                    self.state = 195
+                    interpreter.addParenthesis()
+                    self.state = 226
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [patitoParser.RIGHT_PARENTHESIS]:
                         pass
                     elif token in [patitoParser.LEFT_PARENTHESIS, patitoParser.CTE_BOOL, patitoParser.CTE_FLOAT, patitoParser.CTE_INT, patitoParser.CTE_CHAR, patitoParser.CTE_STRING, patitoParser.ID]:
-                        self.state = 187
+                        self.state = 218
                         self.hexp()
-                        self.state = 192
+                        self.state = 223
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
                         while _la==patitoParser.COMMA:
-                            self.state = 188
+                            self.state = 219
                             self.match(patitoParser.COMMA)
-                            self.state = 189
+                            self.state = 220
                             self.hexp()
-                            self.state = 194
+                            self.state = 225
                             self._errHandler.sync(self)
                             _la = self._input.LA(1)
 
@@ -1470,8 +1565,9 @@ class patitoParser ( Parser ):
                     else:
                         raise NoViableAltException(self)
 
-                    self.state = 197
+                    self.state = 228
                     self.match(patitoParser.RIGHT_PARENTHESIS)
+                    interpreter.popParenthesis()
                     pass
 
 
@@ -1570,55 +1666,55 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 212
+            self.state = 244
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.RETURN) | (1 << patitoParser.INPUT) | (1 << patitoParser.PRINT) | (1 << patitoParser.IF) | (1 << patitoParser.WHILE) | (1 << patitoParser.FROM) | (1 << patitoParser.ID))) != 0):
-                self.state = 210
+                self.state = 242
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input,22,self._ctx)
                 if la_ == 1:
-                    self.state = 202
+                    self.state = 234
                     self.assignation()
                     pass
 
                 elif la_ == 2:
-                    self.state = 203
+                    self.state = 235
                     self.voidcall()
                     pass
 
                 elif la_ == 3:
-                    self.state = 204
+                    self.state = 236
                     self.returncall()
                     pass
 
                 elif la_ == 4:
-                    self.state = 205
+                    self.state = 237
                     self.read()
                     pass
 
                 elif la_ == 5:
-                    self.state = 206
+                    self.state = 238
                     self.write()
                     pass
 
                 elif la_ == 6:
-                    self.state = 207
+                    self.state = 239
                     self.conditional()
                     pass
 
                 elif la_ == 7:
-                    self.state = 208
+                    self.state = 240
                     self.whileloop()
                     pass
 
                 elif la_ == 8:
-                    self.state = 209
+                    self.state = 241
                     self.fromloop()
                     pass
 
 
-                self.state = 214
+                self.state = 246
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1688,44 +1784,44 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 32, self.RULE_assignation)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 215
+            self.state = 247
             self.match(patitoParser.ID)
-            self.state = 228
+            self.state = 260
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,20,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,24,self._ctx)
             if la_ == 1:
                 pass
 
             elif la_ == 2:
-                self.state = 217
+                self.state = 249
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 218
+                self.state = 250
                 self.mexp()
-                self.state = 219
+                self.state = 251
                 self.match(patitoParser.RIGHT_BRACKET)
                 pass
 
             elif la_ == 3:
-                self.state = 221
+                self.state = 253
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 222
+                self.state = 254
                 self.mexp()
-                self.state = 223
+                self.state = 255
                 self.match(patitoParser.RIGHT_BRACKET)
-                self.state = 224
+                self.state = 256
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 225
+                self.state = 257
                 self.mexp()
-                self.state = 226
+                self.state = 258
                 self.match(patitoParser.RIGHT_BRACKET)
                 pass
 
 
-            self.state = 230
+            self.state = 262
             self.match(patitoParser.ASSIGN)
-            self.state = 231
+            self.state = 263
             self.hexp()
-            self.state = 232
+            self.state = 264
             self.match(patitoParser.SEMICOLON)
         except RecognitionException as re:
             localctx.exception = re
@@ -1787,27 +1883,27 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 234
+            self.state = 266
             self.match(patitoParser.ID)
-            self.state = 235
+            self.state = 267
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 245
+            self.state = 277
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [patitoParser.RIGHT_PARENTHESIS]:
                 pass
             elif token in [patitoParser.LEFT_PARENTHESIS, patitoParser.CTE_BOOL, patitoParser.CTE_FLOAT, patitoParser.CTE_INT, patitoParser.CTE_CHAR, patitoParser.CTE_STRING, patitoParser.ID]:
-                self.state = 237
+                self.state = 269
                 self.mexp()
-                self.state = 242
+                self.state = 274
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while _la==patitoParser.COMMA:
-                    self.state = 238
+                    self.state = 270
                     self.match(patitoParser.COMMA)
-                    self.state = 239
+                    self.state = 271
                     self.mexp()
-                    self.state = 244
+                    self.state = 276
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
@@ -1815,9 +1911,9 @@ class patitoParser ( Parser ):
             else:
                 raise NoViableAltException(self)
 
-            self.state = 247
+            self.state = 279
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 248
+            self.state = 280
             self.match(patitoParser.SEMICOLON)
         except RecognitionException as re:
             localctx.exception = re
@@ -1869,15 +1965,15 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 36, self.RULE_returncall)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 250
+            self.state = 282
             self.match(patitoParser.RETURN)
-            self.state = 251
+            self.state = 283
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 252
+            self.state = 284
             self.hexp()
-            self.state = 253
+            self.state = 285
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 254
+            self.state = 286
             self.match(patitoParser.SEMICOLON)
         except RecognitionException as re:
             localctx.exception = re
@@ -1935,35 +2031,35 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 38, self.RULE_indexvariable)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 256
+            self.state = 288
             self.match(patitoParser.ID)
-            self.state = 269
+            self.state = 301
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,23,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,27,self._ctx)
             if la_ == 1:
                 pass
 
             elif la_ == 2:
-                self.state = 258
+                self.state = 290
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 259
+                self.state = 291
                 self.mexp()
-                self.state = 260
+                self.state = 292
                 self.match(patitoParser.RIGHT_BRACKET)
                 pass
 
             elif la_ == 3:
-                self.state = 262
+                self.state = 294
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 263
+                self.state = 295
                 self.mexp()
-                self.state = 264
+                self.state = 296
                 self.match(patitoParser.RIGHT_BRACKET)
-                self.state = 265
+                self.state = 297
                 self.match(patitoParser.LEFT_BRACKET)
-                self.state = 266
+                self.state = 298
                 self.mexp()
-                self.state = 267
+                self.state = 299
                 self.match(patitoParser.RIGHT_BRACKET)
                 pass
 
@@ -2028,27 +2124,27 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 271
+            self.state = 303
             self.match(patitoParser.INPUT)
-            self.state = 272
+            self.state = 304
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 273
+            self.state = 305
             self.indexvariable()
-            self.state = 278
+            self.state = 310
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.COMMA:
-                self.state = 274
+                self.state = 306
                 self.match(patitoParser.COMMA)
-                self.state = 275
+                self.state = 307
                 self.indexvariable()
-                self.state = 280
+                self.state = 312
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 281
+            self.state = 313
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 282
+            self.state = 314
             self.match(patitoParser.SEMICOLON)
         except RecognitionException as re:
             localctx.exception = re
@@ -2116,51 +2212,51 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 284
+            self.state = 316
             self.match(patitoParser.PRINT)
-            self.state = 285
+            self.state = 317
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 288
+            self.state = 320
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,25,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,29,self._ctx)
             if la_ == 1:
-                self.state = 286
+                self.state = 318
                 self.hexp()
                 pass
 
             elif la_ == 2:
-                self.state = 287
+                self.state = 319
                 self.match(patitoParser.CTE_STRING)
                 pass
 
 
-            self.state = 297
+            self.state = 329
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.COMMA:
-                self.state = 290
+                self.state = 322
                 self.match(patitoParser.COMMA)
-                self.state = 293
+                self.state = 325
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,26,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input,30,self._ctx)
                 if la_ == 1:
-                    self.state = 291
+                    self.state = 323
                     self.hexp()
                     pass
 
                 elif la_ == 2:
-                    self.state = 292
+                    self.state = 324
                     self.match(patitoParser.CTE_STRING)
                     pass
 
 
-                self.state = 299
+                self.state = 331
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 300
+            self.state = 332
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 301
+            self.state = 333
             self.match(patitoParser.SEMICOLON)
         except RecognitionException as re:
             localctx.exception = re
@@ -2235,33 +2331,33 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 303
+            self.state = 335
             self.match(patitoParser.IF)
-            self.state = 304
+            self.state = 336
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 305
+            self.state = 337
             self.mexp()
-            self.state = 306
+            self.state = 338
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 307
+            self.state = 339
             self.match(patitoParser.THEN)
-            self.state = 308
+            self.state = 340
             self.match(patitoParser.LEFT_CURLY)
-            self.state = 309
+            self.state = 341
             self.statute()
-            self.state = 310
+            self.state = 342
             self.match(patitoParser.RIGHT_CURLY)
-            self.state = 316
+            self.state = 348
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==patitoParser.ELSE:
-                self.state = 311
+                self.state = 343
                 self.match(patitoParser.ELSE)
-                self.state = 312
+                self.state = 344
                 self.match(patitoParser.LEFT_CURLY)
-                self.state = 313
+                self.state = 345
                 self.statute()
-                self.state = 314
+                self.state = 346
                 self.match(patitoParser.RIGHT_CURLY)
 
 
@@ -2325,21 +2421,21 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 46, self.RULE_whileloop)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 318
+            self.state = 350
             self.match(patitoParser.WHILE)
-            self.state = 319
+            self.state = 351
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 320
+            self.state = 352
             self.mexp()
-            self.state = 321
+            self.state = 353
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 322
+            self.state = 354
             self.match(patitoParser.DO)
-            self.state = 323
+            self.state = 355
             self.match(patitoParser.LEFT_CURLY)
-            self.state = 324
+            self.state = 356
             self.statute()
-            self.state = 325
+            self.state = 357
             self.match(patitoParser.RIGHT_CURLY)
         except RecognitionException as re:
             localctx.exception = re
@@ -2408,25 +2504,25 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 48, self.RULE_fromloop)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 327
+            self.state = 359
             self.match(patitoParser.FROM)
-            self.state = 328
+            self.state = 360
             self.indexvariable()
-            self.state = 329
+            self.state = 361
             self.match(patitoParser.ASSIGN)
-            self.state = 330
+            self.state = 362
             self.mexp()
-            self.state = 331
+            self.state = 363
             self.match(patitoParser.TO)
-            self.state = 332
+            self.state = 364
             self.mexp()
-            self.state = 333
+            self.state = 365
             self.match(patitoParser.DO)
-            self.state = 334
+            self.state = 366
             self.match(patitoParser.LEFT_CURLY)
-            self.state = 335
+            self.state = 367
             self.statute()
-            self.state = 336
+            self.state = 368
             self.match(patitoParser.RIGHT_CURLY)
         except RecognitionException as re:
             localctx.exception = re
@@ -2481,17 +2577,17 @@ class patitoParser ( Parser ):
         self.enterRule(localctx, 50, self.RULE_mainfunc)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 338
+            self.state = 370
             self.match(patitoParser.MAIN)
-            self.state = 339
+            self.state = 371
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.state = 340
+            self.state = 372
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.state = 341
+            self.state = 373
             self.match(patitoParser.LEFT_CURLY)
-            self.state = 342
+            self.state = 374
             self.statute()
-            self.state = 343
+            self.state = 375
             self.match(patitoParser.RIGHT_CURLY)
         except RecognitionException as re:
             localctx.exception = re

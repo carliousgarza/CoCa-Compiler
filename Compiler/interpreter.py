@@ -35,7 +35,7 @@ class Interpreter:
 
 class Quadruples:
     def __init__(self, operator, leftOp, rightOp, resultTemp):
-        self.operator = operator # +, -, *, /, EQUAL, PRINT, GOTOT, GOTOF
+        self.operator = operator 
         self.leftOp = leftOp
         self.rightOp = rightOp
         self.resultTemp = resultTemp
