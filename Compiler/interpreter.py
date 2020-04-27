@@ -13,10 +13,16 @@ class Interpreter:
         self.typesStack =[]
         print("interpreting...")
 
-    def addVarType(self, varId, varType):
-        self.operandStack.append(varId)
+    def addVarType(self, varType):
         self.typesStack.append(varType)
-        print(varId, varType)
+        print('added ' + varType + ' type')
+    
+    def getLastVarType(self):
+        return self.typesStack[-1]
+    
+    def addOperand(self, operand):
+        self.operandStack.append(operand)
+        print('named ' + operand)
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)

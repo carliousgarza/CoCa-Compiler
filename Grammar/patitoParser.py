@@ -508,6 +508,7 @@ class patitoParser ( Parser ):
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==patitoParser.COMMA:
+                interpreter.addVarType(interpreter.getLastVarType())
                 self.state = 68
                 self.match(patitoParser.COMMA)
                 self.state = 69
@@ -574,6 +575,16 @@ class patitoParser ( Parser ):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
+                if(_la in [patitoParser.INT]):
+                    interpreter.addVarType('int')
+                elif(_la in [patitoParser.FLOAT]):
+                    interpreter.addVarType('float')
+                elif(_la in [patitoParser.CHAR]):
+                    interpreter.addVarType('char')
+                elif(_la in [patitoParser.BOOL]):
+                    interpreter.addVarType('bool')
+                elif(_la in [patitoParser.STRING]):
+                    interpreter.addVarType('string')                                                              
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -692,6 +703,7 @@ class patitoParser ( Parser ):
             self.state = 91
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
+            interpreter.addOperand(str(localctx.ID()))
             if la_ == 1:
                 self.state = 82
                 self.match(patitoParser.LEFT_BRACKET)
