@@ -99,7 +99,7 @@ functions
   ;
 
 function
-  : FUNCTION (vartypes | VOID) ID LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? LEFT_CURLY statute? RIGHT_CURLY
+  : FUNCTION (vartypes | VOID) ID {print($ID.text)} LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? LEFT_CURLY statute? RIGHT_CURLY
   ;
 
 parameters
