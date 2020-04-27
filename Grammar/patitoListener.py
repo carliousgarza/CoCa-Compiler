@@ -82,23 +82,6 @@ class patitoListener(ParseTreeListener):
 
     # Enter a parse tree produced by patitoParser#function.
     def enterFunction(self, ctx:patitoParser.FunctionContext):
-        #Function Type
-        vartype = get_vartype(ctx) #type
-
-        #Function ID
-        id = (ctx.ID())
-
-        #Function Parameters
-        parserParameters = (ctx.parameters())
-        parameters = get_parameters(parserParameters)
-
-        #Function Variables
-        parserVariables = (ctx.declarevars())
-        variables = get_variables(parserVariables)
-
-        #Build Function object and send to compiler
-        func = Function(id, vartype, parameters, variables)
-        self.compiler._add_function(func)
         pass
 
     # Exit a parse tree produced by patitoParser#function.

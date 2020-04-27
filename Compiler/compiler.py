@@ -8,3 +8,4 @@ class Compiler:
 
     def _add_function(self, func: Function):
         self.functionTable.append(func)
+        print(func.name)

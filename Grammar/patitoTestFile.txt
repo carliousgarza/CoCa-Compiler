@@ -5,7 +5,7 @@ float: valor;
 
 function void fact (int j, float k, bool n)
 var int: i,k;
-    float: j, i;
+    float: j;
 {
   i = j + (p-j*2+j);
   a = b * c * d * e * f;

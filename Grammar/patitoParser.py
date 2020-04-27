@@ -9,6 +9,7 @@ from Compiler.function import *
 from Compiler.variable import *
 from Compiler.interpreter import *
 interpreter = Interpreter()
+compiler = Compiler()
 
 def serializedATN():
     with StringIO() as buf:
@@ -855,7 +856,7 @@ class patitoParser ( Parser ):
                 pass
             else:
                 raise NoViableAltException(self)
-
+            
             self.state = 103
             self.match(patitoParser.ID)
             self.state = 104
@@ -863,6 +864,10 @@ class patitoParser ( Parser ):
             self.state = 106
             self._errHandler.sync(self)
             _la = self._input.LA(1)
+
+            #Function ID
+            fid = (localctx.ID())
+
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.BOOL) | (1 << patitoParser.INT) | (1 << patitoParser.FLOAT) | (1 << patitoParser.STRING) | (1 << patitoParser.CHAR))) != 0):
                 self.state = 105
                 self.parameters()
@@ -873,6 +878,11 @@ class patitoParser ( Parser ):
             self.state = 110
             self._errHandler.sync(self)
             _la = self._input.LA(1)
+
+            #Function Parameters
+            parserParameters = (localctx.parameters())
+            parameters = get_parameters(parserParameters)
+
             if _la==patitoParser.VAR:
                 self.state = 109
                 self.declarevars()
@@ -883,6 +893,18 @@ class patitoParser ( Parser ):
             self.state = 114
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,7,self._ctx)
+
+            #Function Variables
+            parserVariables = (localctx.declarevars())
+            variables = get_variables(parserVariables)
+
+            #Function Type
+            vartype = get_vartype(localctx) #type
+
+            #Build Function object and send to compiler
+            func = Function(fid, vartype, parameters, variables)
+            compiler._add_function(func)
+
             if la_ == 1:
                 self.state = 113
                 self.statute()
