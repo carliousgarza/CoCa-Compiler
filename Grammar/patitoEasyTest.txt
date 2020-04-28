@@ -11,6 +11,7 @@ var int: i;
 
 main()
 {
+  input(j,i,p);
   p = 5;
   i=p*2;
 }

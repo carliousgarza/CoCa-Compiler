@@ -79,7 +79,7 @@ declarevars
   ;
 
 variables
-  : vartypes COLON ID array? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)} (COMMA ID array? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
+  : vartypes COLON ID arrayconstant? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)} (COMMA ID arrayconstant? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
   ;
 
 vartypes
@@ -90,7 +90,7 @@ constant
   : (CTE_BOOL {compiler.addType("bool")} | CTE_FLOAT {compiler.addType("float")} | CTE_INT {compiler.addType("int")}| CTE_CHAR {compiler.addType("char")}| CTE_STRING {compiler.addType("string")})
   ;
 
-array
+arrayconstant
   : LEFT_BRACKET CTE_INT RIGHT_BRACKET | LEFT_BRACKET CTE_INT RIGHT_BRACKET LEFT_BRACKET CTE_INT RIGHT_BRACKET
   ;
 
@@ -163,11 +163,11 @@ returncall
   ;
 
 indexvariable
-  : ID ( | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET)
+  : (LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET)
   ;
 
 read
-  : INPUT LEFT_PARENTHESIS indexvariable (COMMA indexvariable)* RIGHT_PARENTHESIS SEMICOLON
+  : INPUT LEFT_PARENTHESIS var_id=ID indexvariable? {compiler.generateReadQuad($var_id.text)} (COMMA var_id2=ID indexvariable? {compiler.generateReadQuad($var_id2.text)})* RIGHT_PARENTHESIS SEMICOLON
   ;
 
 write
@@ -183,7 +183,7 @@ whileloop
   ;
 
 fromloop
-  : FROM indexvariable ASSIGN mexp TO mexp DO LEFT_CURLY statute RIGHT_CURLY
+  : FROM ID indexvariable? ASSIGN mexp TO mexp DO LEFT_CURLY statute RIGHT_CURLY
   ;
 
 mainfunc
