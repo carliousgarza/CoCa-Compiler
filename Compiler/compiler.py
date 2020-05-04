@@ -91,7 +91,7 @@ class Compiler:
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.generateQuad()
-    
+
     def generateIfQuad(self):
         # beginning of if
         if len(self.operandStack) != 0:
@@ -109,7 +109,7 @@ class Compiler:
         # popping
         false = self.jumpStack.pop()
         # fill the previous quadruple's GOTOF value with the current quadruple index
-        self.quadruples[false].tempResult = len(self.quadruples)
+        self.quadruples[false].resultTemp = len(self.quadruples)
 
     def generateGoToQuad(self):
         # if there was an else, you are here
@@ -123,6 +123,35 @@ class Compiler:
         # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
         self.jumpStack.append(len(self.quadruples)-1)
 
+    def generateWhileBeforeCheck(self):
+        print("WhileBeginning")
+        self.jumpStack.append(len(self.quadruples))
+
+    def generateWhileAfterCheck(self):
+        print("WhileQuad")
+        if len(self.operandStack) != 0:
+            conditionVar = self.operandStack.pop()
+            typeConditionVar = self.typesStack.pop()
+            if typeConditionVar == "bool":
+                quad = Quadruple("GOTOF", conditionVar, None, "_")
+                # this quadruple's index must be saved for later
+                self.jumpStack.append(len(self.quadruples))
+                self.quadruples.append(quad)
+                print("GOTOF", conditionVar, None, "_")
+            else:
+                raise TypeError(f'Error: {conditionVar} is not a boolean')
+
+    def generateWhileEnd(self):
+        print("WhileEnd")
+        #Get the index of the beginning of the while statute
+        whileAfterCheckIndex = self.jumpStack.pop()
+        whileBeforeCheckIndex = self.jumpStack.pop()
+        #Append the current GOTO quadruple, to go back to the beginning of the while
+        quad = Quadruple("GOTO", None, None, whileBeforeCheckIndex)
+        print("GOTO", None, None, whileBeforeCheckIndex)
+        self.quadruples.append(quad)
+        self.quadruples[whileAfterCheckIndex].resultTemp = len(self.quadruples)
+        print(self.quadruples[whileAfterCheckIndex].operator, self.quadruples[whileAfterCheckIndex].leftOp, self.quadruples[whileAfterCheckIndex].rightOp, self.quadruples[whileAfterCheckIndex].resultTemp)
 
     def generateReadQuad(self, operand):
         # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.

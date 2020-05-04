@@ -177,7 +177,7 @@ conditional
   ;
 
 whileloop
-  : WHILE LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS DO LEFT_CURLY statute RIGHT_CURLY
+  : WHILE LEFT_PARENTHESIS {compiler.generateWhileBeforeCheck()} mexp RIGHT_PARENTHESIS {compiler.generateWhileAfterCheck()} DO LEFT_CURLY statute {compiler.generateWhileEnd()} RIGHT_CURLY
   ;
 
 fromloop
