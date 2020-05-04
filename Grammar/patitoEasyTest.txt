@@ -3,10 +3,10 @@ var int: i, p;
 int: arreglo[10], otroArreglo[10];
 float: valor;
 
-function void fact (int j, int k, bool n)
+function void fact (int j, int k, bool n, bool m)
 var int: i;
 {
-  i = j = k = p + 2;
+  
 }
 
 main()

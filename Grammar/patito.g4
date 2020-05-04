@@ -111,16 +111,16 @@ parameters
   ;
 
 mexp
-  : sexp ((AND {compiler.addOperator($AND.text)} | OR {compiler.addOperator($OR.text)} ) mexp)*
+  : sexp {compiler.topIsLogicOperator()} ((AND {compiler.addOperator($AND.text)} | OR {compiler.addOperator($OR.text)} ) mexp {compiler.topIsLogicOperator()} )*
   ;
 
 sexp
-  : exp ((GREATER {compiler.addOperator($GREATER.text)} |
+  : exp {compiler.topIsComparison()} ((GREATER {compiler.addOperator($GREATER.text)} |
       LESS {compiler.addOperator($LESS.text)} |
       GREATER_EQUAL {compiler.addOperator($GREATER_EQUAL.text)} |
       LESS_EQUAL {compiler.addOperator($LESS_EQUAL.text)} |
       NOT_EQUAL {compiler.addOperator($NOT_EQUAL.text)} |
-      EQUAL {compiler.addOperator($EQUAL.text)} ) sexp)?
+      EQUAL {compiler.addOperator($EQUAL.text)} ) sexp {compiler.topIsComparison()})?
   ;
 
 exp
@@ -151,10 +151,6 @@ assignation
     (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*
     (ID {compiler.addOperandAndType($ID.text)} | mexp) SEMICOLON {compiler.generateAssignQuads()}
   ;
-
-  //hexp
-  //  : mexp {compiler.topIsAssignment()} (ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.topIsAssignment()} )*
-  //  ;
 
 voidcall
   : ID LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON

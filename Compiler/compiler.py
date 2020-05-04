@@ -57,7 +57,7 @@ class Compiler:
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
             #print(operand)
         else:
-            print("undeclared variable", operand)
+            raise ValueError(f'The variable {operand} is not declared')
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
@@ -81,14 +81,18 @@ class Compiler:
             if self.operatorStack[-1] == "+" or self.operatorStack[-1] == "-":
                 self.generateQuad()
 
-    def topIsAssignment(self):
+    def topIsComparison(self):
         if len(self.operatorStack) != 0:
-            # print(self.operatorStack[-1])
-            if self.operatorStack[-1] == "=":
+            if self.operatorStack[-1] == "==" or self.operatorStack[-1] == "!=" or self.operatorStack[-1] == ">=" or self.operatorStack[-1] == "<=" or self.operatorStack[-1] == ">" or self.operatorStack[-1] == "<":
+                self.generateQuad()
+
+    def topIsLogicOperator(self):
+        if len(self.operatorStack) != 0:
+            if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.generateQuad()
 
     def generateReadQuad(self, readId):
-        print("read", readId, None, "-")
+        #print("read", readId, None, "-")
         quad = Quadruple("read", readId, None, "-")
         self.quadruples.append(quad)
 
@@ -96,18 +100,19 @@ class Compiler:
         print("writing")
 
     def generateAssignQuads(self):
-        while self.operatorStack and self.operatorStack[-1] == "=":                            #a = b = c = X0;
-            rightOperand = self.operandStack.pop()                      #
-            leftOperand = self.operandStack.pop()                       #
-                                                                        # X0 c =
-            operator = self.operatorStack.pop()                         # b c =
-                                                                        # = a b
+        #In case of multiple assignments in the same line, we use a while
+        while self.operatorStack and self.operatorStack[-1] == "=":
+            rightOperand = self.operandStack.pop()
+            leftOperand = self.operandStack.pop()
+
+            operator = self.operatorStack.pop()
+
             rightOperandType = self.typesStack.pop()
             leftOperandType = self.typesStack.pop()
 
             #Semantic Cube Error
             if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
-                print(self.scube.cube[leftOperandType][operator][rightOperandType])
+                raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
 
             quad = Quadruple(operator, leftOperand, rightOperand, "_")
             self.quadruples.append(quad)
@@ -119,22 +124,29 @@ class Compiler:
         self.operandStack.pop()
         self.typesStack.pop()
 
-
     def generateQuad(self):
         rightOperand = self.operandStack.pop()
         leftOperand = self.operandStack.pop()
         operator = self.operatorStack.pop()
         rightOperandType = self.typesStack.pop()
         leftOperandType = self.typesStack.pop()
+
+        #Check with semantic cube to see if operation is possible
         if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
-            print(self.scube.cube[leftOperandType][operator][rightOperandType])
+            raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
         else:
-            ## FIXME:
+            ## FIXME: create real address for temporal variable
             tempResult = 'X' + str(self.counter)
             self.counter = self.counter + 1
 
+            #Create Quad and add it to Quadruples Stack
             quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
             self.quadruples.append(quad)
+
+            #Add result back to the Operand Stack
             self.addOperand(tempResult)
-            self.addType('int')
+
+            #Look up result type and add it to type stack
+            self.addType(self.scube.cube[leftOperandType][operator][rightOperandType])
+
             print(operator, leftOperand, rightOperand, tempResult)

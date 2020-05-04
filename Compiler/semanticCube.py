@@ -80,6 +80,20 @@ class SemanticCube():
                     "char": "Error, can't assign a char value to an integer",
                     "string": "Error, can't assign a string value to an integer",
                     "bool": "Error, can't assign a boolean value to an integer"
+                },
+                "&&":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
+                },
+                "||":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
                 }
             },
         "float":{
@@ -159,6 +173,20 @@ class SemanticCube():
                     "char": "Error, can't assign a char value to an float",
                     "string": "Error, can't assign a string value to an float",
                     "bool": "Error, can't assign a boolean value to an float"
+                },
+                "&&":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
+                },
+                "||":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
                 }
             },
         "char":{
@@ -238,6 +266,20 @@ class SemanticCube():
                     "char": "char",
                     "string": "Error, can't assign a string value to an char",
                     "bool": "Error, can't assign a boolean value to an char"
+                },
+                "&&":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
+                },
+                "||":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
                 }
             },
         "string":{
@@ -317,6 +359,20 @@ class SemanticCube():
                     "char": "string",
                     "string": "string",
                     "bool": "Error, can't assign a boolean value to an string"
+                },
+                "&&":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
+                },
+                "||":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "Error, logic operators can only be used with boolean values"
                 }
             },
         "bool":{
@@ -395,6 +451,20 @@ class SemanticCube():
                     "float": "Error, can't assign a float value to an boolean",
                     "char": "Error, can't assign a char value to an boolean",
                     "string": "Error, can't assign a string value to an boolean",
+                    "bool": "bool"
+                },
+                "&&":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
+                    "bool": "bool"
+                },
+                "||":{
+                    "int": "Error, logic operators can only be used with boolean values",
+                    "float": "Error, logic operators can only be used with boolean values",
+                    "char": "Error, logic operators can only be used with boolean values",
+                    "string": "Error, logic operators can only be used with boolean values",
                     "bool": "bool"
                 }
             }
