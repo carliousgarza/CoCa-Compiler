@@ -14,10 +14,12 @@ class Compiler:
         self.operatorStack = []
         self.operandStack = []
         self.jumpStack = []
-        self.typesStack =[]
+        self.typesStack = []
+        self.tempStack = []
+        self.counter = 0
         self.scube = SemanticCube()
         print("compiling...")
-    
+
     def get_operator_fn(op):
         return {
             '+' : operator.add,
@@ -40,50 +42,58 @@ class Compiler:
 
     def addType(self, vartype):
         self.typesStack.append(vartype)
-        print(vartype)
+        # print(vartype)
 
     def addOperand(self, operand):
         self.operandStack.append(operand)
-        print(operand)
+        # print(operand)
 
     def addOperandAndType(self, operand):
         self.operandStack.append(operand)
         if operand in self.currentFunction.varsTable:
             self.addType(self.currentFunction.varsTable[operand].vartype)
-            print(operand)
+            # print(operand)
         elif operand in self.functionTable["global"].varsTable:
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
-            print(operand)
+            # print(operand)
         else:
             print("undeclared variable", operand)
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
-        print(operator)
+        # print(operator)
 
     def addParenthesis(self):
         self.operatorStack.append('(')
-        print('(')
+        # print('(')
 
     def popParenthesis(self):
         self.operatorStack.pop()
-        print(')')
+        # print(')')
 
     def topIsMultOrDiv(self):
-        if len(self.operatorStack) is not 0:
+        if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "*" or self.operatorStack[-1] == "/":
                 self.generateQuad()
-    
+
     def topIsAddOrSub(self):
-        if len(self.operatorStack) is not 0:
+        if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "+" or self.operatorStack[-1] == "-":
                 self.generateQuad()
-    
+
     def topIsAssignment(self):
-        if len(self.operatorStack) is not 0:
-            print(self.operatorStack[-1])
+        if len(self.operatorStack) != 0:
+            # print(self.operatorStack[-1])
             if self.operatorStack[-1] == "=":
                 self.generateQuad()
+
+    def generateReadQuad(self, readId):
+        print("read", readId, None, "-")
+        quad = Quadruple("read", readId, None, "-")
+        self.quadruples.append(quad)
+
+    def generateWriteQuad(self, writeId):
+        print("writing")
 
     def generateQuad(self):
         rightOperand = self.operandStack.pop()
@@ -99,10 +109,12 @@ class Compiler:
                 self.quadruples.append(quad)
                 print(operator, leftOperand, rightOperand)
             else:
-                tempResult = 'X'
+                ## FIXME:
+                tempResult = 'X' + str(self.counter)
+                self.counter = self.counter + 1
+
                 quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
                 self.quadruples.append(quad)
                 self.addOperand(tempResult)
                 self.addType('int')
-                print(operator, leftOperand, rightOperand)
-
+                print(operator, leftOperand, rightOperand, tempResult)
