@@ -123,6 +123,55 @@ class Compiler:
         # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
         self.jumpStack.append(len(self.quadruples)-1)
 
+    def addIntOperand(self, operand):
+        if operand in self.currentFunction.varsTable:
+            if self.currentFunction.varsTable[operand].vartype == "int":
+                self.operandStack.append(operand)
+                self.addType(self.currentFunction.varsTable[operand].vartype)
+                #print(operand)
+            else:
+                raise TypeError(f'The variable {operand} is not an int')
+        elif operand in self.functionTable["global"].varsTable:
+            if self.functionTable["global"].varsTable[operand].vartype == "int":
+                self.operandStack.append(operand)
+                self.addType(self.functionTable["global"].varsTable[operand].vartype)
+                #print(operand)
+            else:
+                raise TypeError(f'The variable {operand} is not an int')
+        else:
+            raise ValueError(f'The variable {operand} is not declared')
+
+    def generateFromBeforeCheck(self):
+        print("FromBeginning")
+        self.jumpStack.append(len(self.quadruples))
+
+    def generateFromAfterCheck(self):
+        print("FromAfter")
+        if len(self.operandStack) != 0:
+            expResult = self.operandStack.pop()
+            typeExpResult = self.typesStack.pop()
+            if typeExpResult == "int":
+                quad = Quadruple("GOTOF", expResult, None, "_")
+                # this quadruple's index must be saved for later
+                self.jumpStack.append(len(self.quadruples))
+                self.quadruples.append(quad)
+                print("GOTOF", expResult, None, "_")
+            else:
+                raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
+    
+    def generateEndFromQuad(self):
+        print("FromEnd")
+        #Get the index of the beginning of the from statute
+        fromAfterCheckIndex = self.jumpStack.pop()
+        fromBeforeCheckIndex = self.jumpStack.pop()
+        #Append the current GOTO quadruple, to go back to the beginning of the from
+        quad = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
+        print("GOTO", None, None, fromBeforeCheckIndex)
+        self.quadruples.append(quad)
+        self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
+        print(self.quadruples[fromAfterCheckIndex].operator, self.quadruples[fromAfterCheckIndex].leftOp, self.quadruples[fromAfterCheckIndex].rightOp, self.quadruples[fromAfterCheckIndex].resultTemp)
+        # NOTE: We need to add 1 to the counter variable in here
+
     def generateWhileBeforeCheck(self):
         print("WhileBeginning")
         self.jumpStack.append(len(self.quadruples))

@@ -181,7 +181,7 @@ whileloop
   ;
 
 fromloop
-  : FROM ID indexvariable? ASSIGN mexp TO mexp DO LEFT_CURLY statute RIGHT_CURLY
+  : FROM ID {compiler.addIntOperand($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.generateAssignQuads()} TO {compiler.generateFromBeforeCheck()} mexp {compiler.generateFromAfterCheck()} DO LEFT_CURLY statute RIGHT_CURLY {compiler.generateEndFromQuad()}
   ;
 
 mainfunc
