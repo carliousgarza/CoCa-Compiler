@@ -173,7 +173,7 @@ write
   ;
 
 conditional
-  : IF LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS THEN LEFT_CURLY statute RIGHT_CURLY (ELSE LEFT_CURLY statute RIGHT_CURLY)?
+  : IF LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS {compiler.generateIfQuad()} THEN LEFT_CURLY statute RIGHT_CURLY (ELSE {compiler.generateGoToQuad()} LEFT_CURLY statute RIGHT_CURLY)? {compiler.generateEndIfQuad()}
   ;
 
 whileloop

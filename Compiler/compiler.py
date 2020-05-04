@@ -91,6 +91,38 @@ class Compiler:
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.generateQuad()
+    
+    def generateIfQuad(self):
+        # beginning of if
+        if len(self.operandStack) != 0:
+            conditionVar = self.operandStack.pop()
+            typeConditionVar = self.typesStack.pop()
+            if typeConditionVar == "bool":
+                quad = Quadruple("GOTOF", conditionVar, None, "_")
+                # this quadruple's index must be saved for later
+                self.jumpStack.append(len(self.quadruples))
+                self.quadruples.append(quad)
+            else:
+                raise TypeError(f'Error: {conditionVar} is not a boolean')
+
+    def generateEndIfQuad(self):
+        # popping
+        false = self.jumpStack.pop()
+        # fill the previous quadruple's GOTOF value with the current quadruple index
+        self.quadruples[false].tempResult = len(self.quadruples)
+
+    def generateGoToQuad(self):
+        # if there was an else, you are here
+        # this GOTO will redirect the end of an if block to the end of the conditional statute
+        quad = Quadruple("GOTO", None , None, "_")
+        self.quadruples.append(quad)
+
+        # BUT FIRST! we have to make sure that the previously saved GOTOF from the if redirects to this else
+        # ALSO, we have to point the GOTO to the end of the conditional statue, as said earlier.
+        self.generateEndIfQuad()
+        # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
+        self.jumpStack.append(len(self.quadruples)-1)
+
 
     def generateReadQuad(self, operand):
         # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.

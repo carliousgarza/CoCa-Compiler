@@ -6,12 +6,17 @@ float: valor;
 function void fact (int j, int k, bool n, bool m)
 var int: i;
 {
-  print(2);
-  input(i);
-  input(j, k);
+ if(n) then {
+   k = j + 1;
+ }
+ else {
+   print("hola");
+ }
+ print("sali");
+ print("me brinque el sali");
 }
 
 main()
 {
-  print("hola");
+  print("main");
 }
