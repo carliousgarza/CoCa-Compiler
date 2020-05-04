@@ -110,10 +110,6 @@ parameters
   : vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)} (COMMA vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)})*
   ;
 
-hexp
-  : mexp {compiler.topIsAssignment()} (ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.topIsAssignment()} )*
-  ;
-
 mexp
   : sexp ((AND {compiler.addOperator($AND.text)} | OR {compiler.addOperator($OR.text)} ) mexp)*
   ;
@@ -151,8 +147,14 @@ statute
   ;
 
 assignation
-  : ID {compiler.addOperandAndType($ID.text)} ( | LEFT_BRACKET mexp RIGHT_BRACKET | LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET) ASSIGN {compiler.addOperator($ASSIGN.text)} hexp SEMICOLON
+  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}
+    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*
+    (ID {compiler.addOperandAndType($ID.text)} | mexp) SEMICOLON {compiler.generateAssignQuads()}
   ;
+
+  //hexp
+  //  : mexp {compiler.topIsAssignment()} (ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.topIsAssignment()} )*
+  //  ;
 
 voidcall
   : ID LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON
@@ -171,7 +173,7 @@ read
   ;
 
 write
-  : PRINT LEFT_PARENTHESIS (hexp | CTE_STRING) (COMMA (hexp | CTE_STRING))* RIGHT_PARENTHESIS SEMICOLON
+  : PRINT LEFT_PARENTHESIS (mexp | constant) (COMMA (mexp | constant))* RIGHT_PARENTHESIS SEMICOLON
   ;
 
 conditional

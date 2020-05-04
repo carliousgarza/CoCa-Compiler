@@ -105,15 +105,6 @@ class patitoListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by patitoParser#hexp.
-    def enterHexp(self, ctx:patitoParser.HexpContext):
-        pass
-
-    # Exit a parse tree produced by patitoParser#hexp.
-    def exitHexp(self, ctx:patitoParser.HexpContext):
-        pass
-
-
     # Enter a parse tree produced by patitoParser#mexp.
     def enterMexp(self, ctx:patitoParser.MexpContext):
         pass

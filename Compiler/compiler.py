@@ -42,26 +42,26 @@ class Compiler:
 
     def addType(self, vartype):
         self.typesStack.append(vartype)
-        # print(vartype)
+        #print(vartype)
 
     def addOperand(self, operand):
         self.operandStack.append(operand)
-        # print(operand)
+        #print(operand)
 
     def addOperandAndType(self, operand):
         self.operandStack.append(operand)
         if operand in self.currentFunction.varsTable:
             self.addType(self.currentFunction.varsTable[operand].vartype)
-            # print(operand)
+            #print(operand)
         elif operand in self.functionTable["global"].varsTable:
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
-            # print(operand)
+            #print(operand)
         else:
             print("undeclared variable", operand)
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
-        # print(operator)
+        #print(operator)
 
     def addParenthesis(self):
         self.operatorStack.append('(')
@@ -95,6 +95,31 @@ class Compiler:
     def generateWriteQuad(self, writeId):
         print("writing")
 
+    def generateAssignQuads(self):
+        while self.operatorStack and self.operatorStack[-1] == "=":                            #a = b = c = X0;
+            rightOperand = self.operandStack.pop()                      #
+            leftOperand = self.operandStack.pop()                       #
+                                                                        # X0 c =
+            operator = self.operatorStack.pop()                         # b c =
+                                                                        # = a b
+            rightOperandType = self.typesStack.pop()
+            leftOperandType = self.typesStack.pop()
+
+            #Semantic Cube Error
+            if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
+                print(self.scube.cube[leftOperandType][operator][rightOperandType])
+
+            quad = Quadruple(operator, leftOperand, rightOperand, "_")
+            self.quadruples.append(quad)
+
+            self.operandStack.append(leftOperand)
+            self.typesStack.append(leftOperandType)
+            print(operator, leftOperand, rightOperand, "_")
+
+        self.operandStack.pop()
+        self.typesStack.pop()
+
+
     def generateQuad(self):
         rightOperand = self.operandStack.pop()
         leftOperand = self.operandStack.pop()
@@ -104,17 +129,12 @@ class Compiler:
         if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
             print(self.scube.cube[leftOperandType][operator][rightOperandType])
         else:
-            if operator == "=":
-                quad = Quadruple(operator, leftOperand, self.quadruples[-1].resultTemp, self.quadruples[-1].resultTemp)
-                self.quadruples.append(quad)
-                print(operator, leftOperand, rightOperand)
-            else:
-                ## FIXME:
-                tempResult = 'X' + str(self.counter)
-                self.counter = self.counter + 1
+            ## FIXME:
+            tempResult = 'X' + str(self.counter)
+            self.counter = self.counter + 1
 
-                quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
-                self.quadruples.append(quad)
-                self.addOperand(tempResult)
-                self.addType('int')
-                print(operator, leftOperand, rightOperand, tempResult)
+            quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
+            self.quadruples.append(quad)
+            self.addOperand(tempResult)
+            self.addType('int')
+            print(operator, leftOperand, rightOperand, tempResult)
