@@ -63,7 +63,7 @@ CHAR: 'char';
 
 //Constants
 CTE_BOOL: 'true' | 'false';
-CTE_FLOAT: [0-9]+.[0-9]+;
+CTE_FLOAT: [0-9]+ '.' [0-9]+;
 CTE_INT: [0-9]+;
 CTE_CHAR: [.];
 CTE_STRING: '"' .*? '"';
@@ -87,7 +87,7 @@ vartypes
   ;
 
 constant
-  : (CTE_BOOL {compiler.addType("bool")} | CTE_FLOAT {compiler.addType("float")} | CTE_INT {compiler.addType("int")}| CTE_CHAR {compiler.addType("char")}| CTE_STRING {compiler.addType("string")})
+  : (CTE_BOOL {compiler.addType("bool")} | CTE_FLOAT {compiler.addType("float")} | CTE_INT {compiler.addType("int")} | CTE_CHAR {compiler.addType("char")}| CTE_STRING {compiler.addType("string")})
   ;
 
 arrayconstant
@@ -169,7 +169,7 @@ read
   ;
 
 write
-  : PRINT LEFT_PARENTHESIS (mexp | constant) (COMMA (mexp | constant))* RIGHT_PARENTHESIS SEMICOLON
+  : PRINT LEFT_PARENTHESIS (mexp {compiler.generateWriteQuad()}) (COMMA (mexp {compiler.generateWriteQuad()}))* RIGHT_PARENTHESIS SEMICOLON
   ;
 
 conditional

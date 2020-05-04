@@ -49,11 +49,12 @@ class Compiler:
         #print(operand)
 
     def addOperandAndType(self, operand):
-        self.operandStack.append(operand)
         if operand in self.currentFunction.varsTable:
+            self.operandStack.append(operand)
             self.addType(self.currentFunction.varsTable[operand].vartype)
             #print(operand)
         elif operand in self.functionTable["global"].varsTable:
+            self.operandStack.append(operand)
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
             #print(operand)
         else:
@@ -91,13 +92,27 @@ class Compiler:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.generateQuad()
 
-    def generateReadQuad(self, readId):
-        #print("read", readId, None, "-")
-        quad = Quadruple("read", readId, None, "-")
-        self.quadruples.append(quad)
+    def generateReadQuad(self, operand):
+        # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.
+        if operand in self.currentFunction.varsTable:
+            print("read", operand, None, "-")
+            quad = Quadruple("read", operand, None, "_")
+            self.quadruples.append(quad)
+        elif operand in self.functionTable["global"].varsTable:
+            print("read", operand, None, "-")
+            quad = Quadruple("read", operand, None, "_")
+            self.quadruples.append(quad)
+        else:
+            raise ValueError(f'The variable {operand} is not declared')
 
-    def generateWriteQuad(self, writeId):
-        print("writing")
+    def generateWriteQuad(self):
+        printedOperand = self.operandStack.pop()
+        printedType = self.typesStack.pop()
+
+        print("print", printedOperand, None, "_")
+
+        quad = Quadruple("print", printedOperand, None, "_")
+        self.quadruples.append(quad)
 
     def generateAssignQuads(self):
         #In case of multiple assignments in the same line, we use a while
