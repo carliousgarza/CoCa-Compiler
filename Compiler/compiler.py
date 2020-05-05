@@ -18,6 +18,7 @@ class Compiler:
         self.tempStack = []
         self.counter = 0
         self.scube = SemanticCube()
+        self.fromVariableStack = []
         print("compiling...")
 
     def get_operator_fn(op):
@@ -123,9 +124,13 @@ class Compiler:
         # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
         self.jumpStack.append(len(self.quadruples)-1)
 
-    def addIntOperand(self, operand):
+    def addFromVarOperand(self, operand):
+        print("agrega fromvaroperand")
         if operand in self.currentFunction.varsTable:
             if self.currentFunction.varsTable[operand].vartype == "int":
+                # Add the current operand to the From Variable Stack to keep its address for future reference.
+                # We will need its address to be able to modify it
+                self.fromVariableStack.append(operand)
                 self.operandStack.append(operand)
                 self.addType(self.currentFunction.varsTable[operand].vartype)
                 #print(operand)
@@ -133,6 +138,9 @@ class Compiler:
                 raise TypeError(f'The variable {operand} is not an int')
         elif operand in self.functionTable["global"].varsTable:
             if self.functionTable["global"].varsTable[operand].vartype == "int":
+                # Add the current operand to the From Variable Stack to keep its address for future reference.
+                # We will need its address to be able to modify it
+                self.fromVariableStack.append(operand)
                 self.operandStack.append(operand)
                 self.addType(self.functionTable["global"].varsTable[operand].vartype)
                 #print(operand)
@@ -150,15 +158,21 @@ class Compiler:
         if len(self.operandStack) != 0:
             expResult = self.operandStack.pop()
             typeExpResult = self.typesStack.pop()
+            #Get the initial variable of the from loop
+            fromVar = self.fromVariableStack[-1]
             if typeExpResult == "int":
-                quad = Quadruple("GOTOF", expResult, None, "_")
+                #Aqui vamos a tener que sacar el valor de fromVar, para poder compararlo con expResult
+                #una vez comparado, tenemos fromConditionResult y ese es el que ponemos en el quad.
+                #fromConditionResult = fromVar <= expResult
+                fromConditionResult = False
+                quad = Quadruple("GOTOF", fromConditionResult, None, "_")
                 # this quadruple's index must be saved for later
                 self.jumpStack.append(len(self.quadruples))
                 self.quadruples.append(quad)
-                print("GOTOF", expResult, None, "_")
+                print("GOTOF", fromConditionResult, None, "_")
             else:
                 raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
-    
+
     def generateEndFromQuad(self):
         print("FromEnd")
         #Get the index of the beginning of the from statute

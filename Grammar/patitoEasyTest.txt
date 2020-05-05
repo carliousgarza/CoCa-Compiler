@@ -6,11 +6,7 @@ float: valor;
 function void fact (int j, int k, bool n, bool m)
 var int: i;
 {
- while (n == m) do {
-   i = j + k;
-   //n = i < j;   <- que pedo con esto esto es bool y no sale
-   n = n==m;
- }
+ n = i < j;
 }
 
 main()
