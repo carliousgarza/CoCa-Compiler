@@ -33,8 +33,8 @@ class SemanticCube():
                     "bool": "Error, can't subtract an integer by a boolean"
                 },
                 "<":{
-                    "int": "int",
-                    "float": "float",
+                    "int": "bool",
+                    "float": "bool",
                     "char": "Error, can't compare an integer with a char",
                     "string": "Error, can't compare an integer with a string",
                     "bool": "Error, can't compare an integer with a boolean"
