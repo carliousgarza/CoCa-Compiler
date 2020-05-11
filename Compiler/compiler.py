@@ -9,28 +9,30 @@ import operator
 class Compiler:
     def __init__(self):
         self.functionTable = {}
-        self.currentFunction = Function("global", "void", {}, {})
+        self.currentFunction = Function("global", "void", [], {})
         self.quadruples = []
         self.operatorStack = []
         self.operandStack = []
         self.jumpStack = []
         self.typesStack = []
         self.tempStack = []
-        self.counter = 0
+        self.temporalCounter = 0
         self.scube = SemanticCube()
         self.fromVariableStack = []
+        self.parameterCounter = 0
         print("compiling...")
 
     def get_operator_fn(op):
         return {
-            '+' : operator.add,
-            '-' : operator.sub,
-            '*' : operator.mul,
-            '/' : operator.div,
-            '=' : operator.eq,
-            }[op]
+            '+': operator.add,
+            '-': operator.sub,
+            '*': operator.mul,
+            '/': operator.div,
+            '=': operator.eq,
+        }[op]
 
     def _add_function(self, func: Function):
+        self.currentFunction.quadrupleIndex = len(self.quadruples)
         self.functionTable[func.name] = func
         # print("Se agrego la función", func.name, "de tipo", func.returntype)
         # print("parametros:")
@@ -39,31 +41,63 @@ class Compiler:
         # print("variables (los parametros se repiten aqui) :")
         # for var in func.varsTable:
         #     print(func.varsTable[var].vartype, func.varsTable[var].name)
-    #code generator
+
+    # code generator
 
     def addType(self, vartype):
         self.typesStack.append(vartype)
-        #print(vartype)
+        # print(vartype)
 
     def addOperand(self, operand):
         self.operandStack.append(operand)
-        #print(operand)
+        # print(operand)
 
     def addOperandAndType(self, operand):
         if operand in self.currentFunction.varsTable:
             self.operandStack.append(operand)
             self.addType(self.currentFunction.varsTable[operand].vartype)
-            #print(operand)
+            # print(operand)
         elif operand in self.functionTable["global"].varsTable:
             self.operandStack.append(operand)
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
-            #print(operand)
+            # print(operand)
+        elif operand in self.functionTable:
+            if self.functionTable[operand].returntype == 'void':
+                raise TypeError(f'Cannot assign void function {operand} to value')
+            else:
+                self.operandStack.append(operand)
+                self.addType(self.functionTable[operand].returntype)
         else:
             raise ValueError(f'The variable {operand} is not declared')
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
-        #print(operator)
+        # print(operator)
+
+    def validate_void_function(self, id):
+        if id in self.functionTable:
+            if self.functionTable[id].returntype != 'void':
+                raise TypeError(f'Function {id} return value must be assigned')
+            else:
+                print(f'we inside void function {id}')
+        else:
+            raise ValueError(f'Function {id} is not declared')
+
+    def validate_parameters(self, id):
+        if len(self.functionTable[id].parametersTable) == self.parameterCounter:
+            # reversed FOR because the parametersTable is reversed in relation to operandStack
+            # example: funccall(0, 1, 2) --> passedParameter is the one we want to match with 2
+            for parameter in reversed(self.functionTable[id].parametersTable):
+                passedParameter = self.operandStack.pop()
+                passedParameterType = self.typesStack.pop()
+                if(parameter.vartype != passedParameterType):
+                    raise TypeError(f'Parameter {passedParameter} of type {passedParameterType} '
+                                    f'cannot be matched with {parameter.vartype}')
+                else:
+                    print("we gucci")
+        else:
+            raise ValueError(f'Number of parameters in call to function {id} does not match the amount declared')
+
 
     def addParenthesis(self):
         self.operatorStack.append('(')
@@ -85,13 +119,28 @@ class Compiler:
 
     def topIsComparison(self):
         if len(self.operatorStack) != 0:
-            if self.operatorStack[-1] == "==" or self.operatorStack[-1] == "!=" or self.operatorStack[-1] == ">=" or self.operatorStack[-1] == "<=" or self.operatorStack[-1] == ">" or self.operatorStack[-1] == "<":
+            if self.operatorStack[-1] == "==" or self.operatorStack[-1] == "!=" or self.operatorStack[-1] == ">=" or \
+                    self.operatorStack[-1] == "<=" or self.operatorStack[-1] == ">" or self.operatorStack[-1] == "<":
                 self.generateQuad()
 
     def topIsLogicOperator(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.generateQuad()
+
+    # QUADRUPLES
+
+    def goto_main_quad(self):
+        quad = Quadruple("GOTO", None, None, "_")
+        # 0 = the index number of the first quadruple
+        self.jumpStack.append(0)
+        self.quadruples.append(quad)
+
+    def fill_goto_main_quad(self):
+        mainQuad = self.jumpStack.pop()
+        print(f'main quad #: {mainQuad}')
+        self.quadruples[mainQuad].resultTemp = self.currentFunction.quadrupleIndex
+        print(f'main quad is jumping to {self.currentFunction.quadrupleIndex}')
 
     def generateIfQuad(self):
         # beginning of if
@@ -115,14 +164,14 @@ class Compiler:
     def generateGoToQuad(self):
         # if there was an else, you are here
         # this GOTO will redirect the end of an if block to the end of the conditional statute
-        quad = Quadruple("GOTO", None , None, "_")
+        quad = Quadruple("GOTO", None, None, "_")
         self.quadruples.append(quad)
 
         # BUT FIRST! we have to make sure that the previously saved GOTOF from the if redirects to this else
         # ALSO, we have to point the GOTO to the end of the conditional statue, as said earlier.
         self.generateEndIfQuad()
         # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
-        self.jumpStack.append(len(self.quadruples)-1)
+        self.jumpStack.append(len(self.quadruples) - 1)
 
     def addFromVarOperand(self, operand):
         print("agrega fromvaroperand")
@@ -133,7 +182,7 @@ class Compiler:
                 self.fromVariableStack.append(operand)
                 self.operandStack.append(operand)
                 self.addType(self.currentFunction.varsTable[operand].vartype)
-                #print(operand)
+                # print(operand)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         elif operand in self.functionTable["global"].varsTable:
@@ -143,7 +192,7 @@ class Compiler:
                 self.fromVariableStack.append(operand)
                 self.operandStack.append(operand)
                 self.addType(self.functionTable["global"].varsTable[operand].vartype)
-                #print(operand)
+                # print(operand)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         else:
@@ -158,12 +207,12 @@ class Compiler:
         if len(self.operandStack) != 0:
             expResult = self.operandStack.pop()
             typeExpResult = self.typesStack.pop()
-            #Get the initial variable of the from loop
+            # Get the initial variable of the from loop
             fromVar = self.fromVariableStack[-1]
             if typeExpResult == "int":
-                #Aqui vamos a tener que sacar el valor de fromVar, para poder compararlo con expResult
-                #una vez comparado, tenemos fromConditionResult y ese es el que ponemos en el quad.
-                #fromConditionResult = fromVar <= expResult
+                # Aqui vamos a tener que sacar el valor de fromVar, para poder compararlo con expResult
+                # una vez comparado, tenemos fromConditionResult y ese es el que ponemos en el quad.
+                # fromConditionResult = fromVar <= expResult
                 fromConditionResult = False
                 quad = Quadruple("GOTOF", fromConditionResult, None, "_")
                 # this quadruple's index must be saved for later
@@ -175,15 +224,16 @@ class Compiler:
 
     def generateEndFromQuad(self):
         print("FromEnd")
-        #Get the index of the beginning of the from statute
+        # Get the index of the beginning of the from statute
         fromAfterCheckIndex = self.jumpStack.pop()
         fromBeforeCheckIndex = self.jumpStack.pop()
-        #Append the current GOTO quadruple, to go back to the beginning of the from
+        # Append the current GOTO quadruple, to go back to the beginning of the from
         quad = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
         print("GOTO", None, None, fromBeforeCheckIndex)
         self.quadruples.append(quad)
         self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
-        print(self.quadruples[fromAfterCheckIndex].operator, self.quadruples[fromAfterCheckIndex].leftOp, self.quadruples[fromAfterCheckIndex].rightOp, self.quadruples[fromAfterCheckIndex].resultTemp)
+        print(self.quadruples[fromAfterCheckIndex].operator, self.quadruples[fromAfterCheckIndex].leftOp,
+              self.quadruples[fromAfterCheckIndex].rightOp, self.quadruples[fromAfterCheckIndex].resultTemp)
         # NOTE: We need to add 1 to the counter variable in here
 
     def generateWhileBeforeCheck(self):
@@ -206,15 +256,16 @@ class Compiler:
 
     def generateWhileEnd(self):
         print("WhileEnd")
-        #Get the index of the beginning of the while statute
+        # Get the index of the beginning of the while statute
         whileAfterCheckIndex = self.jumpStack.pop()
         whileBeforeCheckIndex = self.jumpStack.pop()
-        #Append the current GOTO quadruple, to go back to the beginning of the while
+        # Append the current GOTO quadruple, to go back to the beginning of the while
         quad = Quadruple("GOTO", None, None, whileBeforeCheckIndex)
         print("GOTO", None, None, whileBeforeCheckIndex)
         self.quadruples.append(quad)
         self.quadruples[whileAfterCheckIndex].resultTemp = len(self.quadruples)
-        print(self.quadruples[whileAfterCheckIndex].operator, self.quadruples[whileAfterCheckIndex].leftOp, self.quadruples[whileAfterCheckIndex].rightOp, self.quadruples[whileAfterCheckIndex].resultTemp)
+        print(self.quadruples[whileAfterCheckIndex].operator, self.quadruples[whileAfterCheckIndex].leftOp,
+              self.quadruples[whileAfterCheckIndex].rightOp, self.quadruples[whileAfterCheckIndex].resultTemp)
 
     def generateReadQuad(self, operand):
         # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.
@@ -239,7 +290,7 @@ class Compiler:
         self.quadruples.append(quad)
 
     def generateAssignQuads(self):
-        #In case of multiple assignments in the same line, we use a while
+        # In case of multiple assignments in the same line, we use a while
         while self.operatorStack and self.operatorStack[-1] == "=":
             rightOperand = self.operandStack.pop()
             leftOperand = self.operandStack.pop()
@@ -249,7 +300,7 @@ class Compiler:
             rightOperandType = self.typesStack.pop()
             leftOperandType = self.typesStack.pop()
 
-            #Semantic Cube Error
+            # Semantic Cube Error
             if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
                 raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
 
@@ -270,22 +321,22 @@ class Compiler:
         rightOperandType = self.typesStack.pop()
         leftOperandType = self.typesStack.pop()
 
-        #Check with semantic cube to see if operation is possible
+        # Check with semantic cube to see if operation is possible
         if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
             raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
         else:
             ## FIXME: create real address for temporal variable
-            tempResult = 'X' + str(self.counter)
-            self.counter = self.counter + 1
+            tempResult = 'X' + str(self.temporalCounter)
+            self.temporalCounter = self.temporalCounter + 1
 
-            #Create Quad and add it to Quadruples Stack
+            # Create Quad and add it to Quadruples Stack
             quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
             self.quadruples.append(quad)
 
-            #Add result back to the Operand Stack
+            # Add result back to the Operand Stack
             self.addOperand(tempResult)
 
-            #Look up result type and add it to type stack
+            # Look up result type and add it to type stack
             self.addType(self.scube.cube[leftOperandType][operator][rightOperandType])
 
             print(operator, leftOperand, rightOperand, tempResult)
