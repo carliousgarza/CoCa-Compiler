@@ -19,6 +19,7 @@ class Compiler:
         self.temporalCounter = 0
         self.scube = SemanticCube()
         self.fromVariableStack = []
+        self.functionStack = []
         print("compiling...")
 
     def get_operator_fn(op):
@@ -31,7 +32,7 @@ class Compiler:
         }[op]
 
     def _add_function(self, func: Function):
-        self.currentFunction.quadrupleIndex = len(self.quadruples)
+        self.currentFunction.startQuadruple = len(self.quadruples)
         self.functionTable[func.name] = func
         # print("Se agrego la función", func.name, "de tipo", func.returntype)
         # print("parametros:")
@@ -60,14 +61,15 @@ class Compiler:
             self.operandStack.append(operand)
             self.addType(self.functionTable["global"].varsTable[operand].vartype)
             # print(operand)
-        elif operand in self.functionTable:
-            if self.functionTable[operand].returntype == 'void':
-                raise TypeError(f'Cannot assign void function {operand} to value')
-            else:
-                self.operandStack.append(operand)
-                self.addType(self.functionTable[operand].returntype)
         else:
             raise ValueError(f'The variable {operand} is not declared')
+
+    def addFuncOperandAndType(self, operand):
+        if self.functionTable[operand].returntype == 'void':
+            raise TypeError(f'Cannot assign void function {operand} to value')
+        else:
+            self.operandStack.append(operand)
+            self.addType(self.functionTable[operand].returntype)
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
@@ -83,7 +85,6 @@ class Compiler:
             raise ValueError(f'Function {id} is not declared')
 
     def validate_parameters(self, id, currentCounter):
-        print("cCounter", currentCounter)
         if len(self.functionTable[id].parametersTable) == currentCounter:
             # reversed FOR because the parametersTable is reversed in relation to operandStack
             # example: funccall(0, 1, 2) --> passedParameter is the one we want to match with 2
@@ -94,10 +95,22 @@ class Compiler:
                     raise TypeError(f'Parameter {passedParameter} of type {passedParameterType} '
                                     f'cannot be matched with {parameter.vartype}')
                 else:
+                    # tenemos que asignar a memoria aqui passedParameter con su type
                     print("we gucci")
         else:
             raise ValueError(f'Number of parameters in call to function {id} does not match the amount declared')
 
+    def goto_function_quad(self, id):
+        quad = Quadruple('GOTO', None, None, self.functionTable[id].startQuadruple)
+        # self.quadruples[self.functionTable[id].endQuadruple].resultTemp = len(self.quadruples)
+        self.quadruples.append(quad)
+        # self.functionStack.append({'function': self.currentFunction, 'quad': len(self.quadruples)})
+        # self.currentFunction = self.functionTable[id]
+
+    def create_endfunc_goto(self):
+        self.currentFunction.endQuadruple = len(self.quadruples)
+        quad = Quadruple('GOTO', None, None, '_')
+        self.quadruples.append(quad)
 
     def addParenthesis(self):
         self.operatorStack.append('(')
@@ -139,8 +152,8 @@ class Compiler:
     def fill_goto_main_quad(self):
         mainQuad = self.jumpStack.pop()
         print(f'main quad #: {mainQuad}')
-        self.quadruples[mainQuad].resultTemp = self.currentFunction.quadrupleIndex
-        print(f'main quad is jumping to {self.currentFunction.quadrupleIndex}')
+        self.quadruples[mainQuad].resultTemp = self.currentFunction.startQuadruple
+        print(f'main quad is jumping to {self.currentFunction.startQuadruple}')
 
     def generateIfQuad(self):
         # beginning of if

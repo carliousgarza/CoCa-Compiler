@@ -17,6 +17,6 @@ function int adobe()
 main()
 {
   print("main");
-  i = illustrator(2, illustrator(2, 3, false, true), false, true);
+  i = illustrator(2, illustrator(2, 2, false, true), false, true );
   i = adobe();
 }

@@ -8,7 +8,8 @@ class Function:
         self.returntype = returntype
         self.parametersTable = parameters
         self.varsTable = varsTable
-        self.quadrupleIndex = -1
+        self.startQuadruple = -1
+        self.endQuadruple = -1
         self.varsCount = 0
 
     def _update_parameters(self, id, vartype):

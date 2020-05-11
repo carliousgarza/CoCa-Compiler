@@ -99,7 +99,7 @@ functions
   ;
 
 function
-  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY
+  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY {compiler.create_endfunc_goto()}
   ;
 
 functiontype
@@ -138,8 +138,8 @@ factor
     ID {compiler.addOperandAndType($ID.text)} ( |
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_PARENTHESIS {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS))
+      LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET ) |
+    ID {compiler.addFuncOperandAndType($ID.text)} LEFT_PARENTHESIS {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.goto_function_quad($ID.text)} {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS)
   ;
 
 statute
@@ -157,7 +157,7 @@ voidcall
   ;
 
 returncall
-  : RETURN LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS SEMICOLON
+  : RETURN LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS SEMICOLON {compiler.create_endfunc_goto()}
   ;
 
 indexvariable
