@@ -3,13 +3,20 @@ var int: i, p;
 int: arreglo[10], otroArreglo[10];
 float: valor;
 
-function void fact (int j, int k, bool n, bool m)
+function int illustrator (int j, int k, bool n, bool m)
 var int: i;
 {
  n = i < j;
 }
 
+function int adobe()
+{
+ print("adobe");
+}
+
 main()
 {
   print("main");
+  i = illustrator(2, illustrator(2, 3, false, true), false, true);
+  i = adobe();
 }

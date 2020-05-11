@@ -71,7 +71,7 @@ VOID: 'void';
 ID: [_A-Za-z]([_A-Za-z0-9])*;
 
 program
-  : PROGRAM ID SEMICOLON declarevars {compiler._add_function(compiler.currentFunction)} functions mainfunc
+  : PROGRAM ID SEMICOLON declarevars {compiler._add_function(compiler.currentFunction)} {compiler.goto_main_quad()} functions mainfunc
   ;
 
 declarevars
@@ -99,7 +99,7 @@ functions
   ;
 
 function
-  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, {}, {})} LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY
+  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY
   ;
 
 functiontype
@@ -139,7 +139,7 @@ factor
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
       LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_PARENTHESIS {compiler.addParenthesis()} ( | mexp (COMMA mexp)*) RIGHT_PARENTHESIS {compiler.popParenthesis()} ))
+      LEFT_PARENTHESIS ( | mexp {compiler.parameterCounter += 1} (COMMA mexp {compiler.parameterCounter += 1})*) {compiler.validate_parameters($ID.text)} {compiler.parameterCounter = 0} RIGHT_PARENTHESIS))
   ;
 
 statute
@@ -153,7 +153,7 @@ assignation
   ;
 
 voidcall
-  : ID LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON
+  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON
   ;
 
 returncall
@@ -185,5 +185,5 @@ fromloop
   ;
 
 mainfunc
-  : MAIN {compiler.currentFunction=Function("main", "void", {}, {})} LEFT_PARENTHESIS RIGHT_PARENTHESIS {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute RIGHT_CURLY
+  : MAIN {compiler.currentFunction=Function("main", "void", [], {})} LEFT_PARENTHESIS RIGHT_PARENTHESIS {compiler._add_function(compiler.currentFunction)} LEFT_CURLY {compiler.fill_goto_main_quad()} statute RIGHT_CURLY
   ;
