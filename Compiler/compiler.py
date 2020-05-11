@@ -19,7 +19,6 @@ class Compiler:
         self.temporalCounter = 0
         self.scube = SemanticCube()
         self.fromVariableStack = []
-        self.parameterCounter = 0
         print("compiling...")
 
     def get_operator_fn(op):
@@ -83,8 +82,9 @@ class Compiler:
         else:
             raise ValueError(f'Function {id} is not declared')
 
-    def validate_parameters(self, id):
-        if len(self.functionTable[id].parametersTable) == self.parameterCounter:
+    def validate_parameters(self, id, currentCounter):
+        print("cCounter", currentCounter)
+        if len(self.functionTable[id].parametersTable) == currentCounter:
             # reversed FOR because the parametersTable is reversed in relation to operandStack
             # example: funccall(0, 1, 2) --> passedParameter is the one we want to match with 2
             for parameter in reversed(self.functionTable[id].parametersTable):

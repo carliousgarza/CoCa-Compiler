@@ -139,7 +139,7 @@ factor
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
       LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_PARENTHESIS ( | mexp {compiler.parameterCounter += 1} (COMMA mexp {compiler.parameterCounter += 1})*) {compiler.validate_parameters($ID.text)} {compiler.parameterCounter = 0} RIGHT_PARENTHESIS))
+      LEFT_PARENTHESIS {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS))
   ;
 
 statute
