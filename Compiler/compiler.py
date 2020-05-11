@@ -102,6 +102,7 @@ class Compiler:
 
     def goto_function_quad(self, id):
         quad = Quadruple('GOTO', None, None, self.functionTable[id].startQuadruple)
+        print('GOTO', 'None', 'None', self.functionTable[id].startQuadruple)
         # self.quadruples[self.functionTable[id].endQuadruple].resultTemp = len(self.quadruples)
         self.quadruples.append(quad)
         # self.functionStack.append({'function': self.currentFunction, 'quad': len(self.quadruples)})
@@ -110,6 +111,7 @@ class Compiler:
     def create_endfunc_goto(self):
         self.currentFunction.endQuadruple = len(self.quadruples)
         quad = Quadruple('GOTO', None, None, '_')
+        print('ENDGOTO', None, None, '_')
         self.quadruples.append(quad)
 
     def addParenthesis(self):
