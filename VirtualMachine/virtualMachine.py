@@ -1,6 +1,6 @@
-from Memory.memory import Memory
-
-
 class VirtualMachine:
     def __init__(self):
-        self.memory = Memory()
+        self.GLOBAL = []
+        self.LOCAL = []
+        self.CONSTANT = []
+        self.TEMPORAL = []
