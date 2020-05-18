@@ -2,8 +2,9 @@ program littleDuck2020CorrectFileTest;
 var int: i, j, p, a, b, c, d, e, f;
 int: arreglo[10], otroArreglo[10];
 float: valor;
+bool: lol;
 
-function void fact (int j, float k, bool n)
+function int fact (int j, float k, bool n)
 var int: i;
 {
   i = j * 2;
@@ -15,14 +16,16 @@ var int: i;
   }
   else
   {
-    return(j*fact(j-1));
+    return (1);
   }
 }
 
 function int fact2 (float j)
 var int: i;
 {
-  i = j + (p-j*2+j);
+  i = 5 + 7 + 8;
+  lol = true;
+  valor = 1.3203;
 
   if(j==1) then
   {
@@ -30,12 +33,12 @@ var int: i;
   }
   else
   {
-    return(j*fact(j-1));
+    return(j*fact(i-1, 1.5, true));
   }
 }
 
 main()
 {
-  read(p);
+  input(p);
   j=p*2;
 }

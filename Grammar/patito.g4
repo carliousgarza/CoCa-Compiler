@@ -71,7 +71,7 @@ VOID: 'void';
 ID: [_A-Za-z]([_A-Za-z0-9])*;
 
 program
-  : PROGRAM ID SEMICOLON declarevars {compiler._add_function(compiler.currentFunction)} {compiler.goto_main_quad()} functions mainfunc
+  : PROGRAM ID {compiler._add_function(compiler.currentFunction)} SEMICOLON declarevars {compiler.goto_main_quad()} functions mainfunc
   ;
 
 declarevars
@@ -79,7 +79,7 @@ declarevars
   ;
 
 variables
-  : vartypes COLON ID arrayconstant? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)} (COMMA ID arrayconstant? {compiler.currentFunction._update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
+  : vartypes COLON ID arrayconstant? {compiler.update_vars_table($ID.text, $vartypes.text)} (COMMA ID arrayconstant? {compiler.update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
   ;
 
 vartypes
@@ -87,7 +87,7 @@ vartypes
   ;
 
 constant
-  : (CTE_BOOL {compiler.addType("bool")} | CTE_FLOAT {compiler.addType("float")} | CTE_INT {compiler.addType("int")} | CTE_CHAR {compiler.addType("char")}| CTE_STRING {compiler.addType("string")})
+  : (CTE_BOOL {compiler.addOperand($CTE_BOOL.text)} {compiler.addConstantToTypeStackAndTable("bool")} | CTE_FLOAT {compiler.addOperand($CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | CTE_INT {compiler.addOperand($CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_CHAR {compiler.addOperand($CTE_CHAR.text)} {compiler.addConstantToTypeStackAndTable("char")}| CTE_STRING {compiler.addOperand($CTE_STRING.text)} {compiler.addConstantToTypeStackAndTable("string")})
   ;
 
 arrayconstant
@@ -99,7 +99,7 @@ functions
   ;
 
 function
-  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY {compiler.create_endfunc_goto()}
+  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})} {compiler.clear_local_memory()}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY {compiler.create_endfunc_goto()}
   ;
 
 functiontype
@@ -107,7 +107,7 @@ functiontype
   ;
 
 parameters
-  : vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)} (COMMA vartypes ID {compiler.currentFunction._update_parameters($ID.text, $vartypes.text)})*
+  : vartypes ID {compiler.update_parameters($ID.text, $vartypes.text)} (COMMA vartypes ID {compiler.update_parameters($ID.text, $vartypes.text)})*
   ;
 
 mexp
@@ -133,7 +133,7 @@ term
   ;
 
 factor
-  : (constant {compiler.addOperand($constant.text)} |
+  : (constant |
     LEFT_PARENTHESIS {compiler.addParenthesis()} mexp RIGHT_PARENTHESIS {compiler.popParenthesis()} |
     ID {compiler.addOperandAndType($ID.text)} ( |
       (DETERMINANT | TRANSPOSE | INVERSE) |

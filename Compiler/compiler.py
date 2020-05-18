@@ -3,6 +3,8 @@ from Compiler.function import *
 from Compiler.variable import *
 from Compiler.quadruple import *
 from Compiler.semanticCube import *
+from Compiler.constant import *
+from Memory.memory import Memory
 import operator
 
 
@@ -10,16 +12,18 @@ class Compiler:
     def __init__(self):
         self.functionTable = {}
         self.currentFunction = Function("global", "void", [], {})
+        self.constantTable = {}
         self.quadruples = []
         self.operatorStack = []
         self.operandStack = []
         self.jumpStack = []
         self.typesStack = []
         self.tempStack = []
-        self.temporalCounter = 0
         self.scube = SemanticCube()
         self.fromVariableStack = []
         self.functionStack = []
+        self.memory = Memory()
+        self.temporalStack = []
         print("compiling...")
 
     def get_operator_fn(op):
@@ -43,6 +47,13 @@ class Compiler:
         #     print(func.varsTable[var].vartype, func.varsTable[var].name)
 
     # code generator
+
+    def addConstantToTypeStackAndTable(self, vartype):
+        self.typesStack.append(vartype)
+        if self.operandStack[-1] not in self.constantTable:
+            self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant)
+            print(f'added constant {vartype} {self.operandStack[-1]} to {self.memory.mem_constant}')
+            self.memory.mem_constant += 1
 
     def addType(self, vartype):
         self.typesStack.append(vartype)
@@ -74,6 +85,103 @@ class Compiler:
     def addOperator(self, operator):
         self.operatorStack.append(operator)
         # print(operator)
+
+    def update_parameters(self, id, vartype):
+        if id not in self.currentFunction.parametersTable:
+            self.currentFunction.parametersTable.append(Variable(id, vartype, None, -1))
+            self.update_vars_table(id, vartype)
+        else:
+            print("You can't have two or more parameters with the same name")
+
+    def update_vars_table(self, id, vartype):
+        if id not in self.currentFunction.varsTable:
+            if self.currentFunction.name is "global":
+                if vartype == "int":
+                    if self.memory.mem_global_int == 12000:
+                        raise Exception("Stack Overflow on global integer variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_int)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_int}')
+                    self.memory.mem_global_int += 1
+                elif vartype == "float":
+                    if self.memory.mem_global_int == 14000:
+                        raise Exception("Stack Overflow on global float variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_float)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_float}')
+                    self.memory.mem_global_float += 1
+                elif vartype == "string":
+                    if self.memory.mem_global_int == 16000:
+                        raise Exception("Stack Overflow on global string variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_string)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_string}')
+                    self.memory.mem_global_string += 1
+                elif vartype == "bool":
+                    if self.memory.mem_global_int == 18000:
+                        raise Exception("Stack Overflow on global bool variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_bool)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_bool}')
+                    self.memory.mem_global_bool += 1
+                elif vartype == "char":
+                    if self.memory.mem_global_int == 20000:
+                        raise Exception("Stack Overflow on global char variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_char)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_char}')
+                    self.memory.mem_global_char += 1
+
+            else:
+                if vartype == "int":
+                    if self.memory.mem_local_int == 22000:
+                        raise Exception("Stack Overflow on local integer variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_int)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_int}')
+                    self.memory.mem_local_int += 1
+                elif vartype == "float":
+                    if self.memory.mem_local_float == 24000:
+                        raise Exception("Stack Overflow on local float variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_float)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_float}')
+                    self.memory.mem_local_float += 1
+                elif vartype == "string":
+                    if self.memory.mem_local_string == 26000:
+                        raise Exception("Stack Overflow on local string variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_string)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_string}')
+                    self.memory.mem_local_string += 1
+                elif vartype == "bool":
+                    if self.memory.mem_local_bool == 28000:
+                        raise Exception("Stack Overflow on local bool variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_bool)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_bool}')
+                    self.memory.mem_local_bool += 1
+                elif vartype == "char":
+                    if self.memory.mem_local_char == 30000:
+                        raise Exception("Stack Overflow on local char variables")
+                    self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_char)
+                    self.currentFunction.varsCount += 1
+                    print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_char}')
+                    self.memory.mem_local_char += 1
+        else:
+            print("You can't have two or more variables with the same name")
+
+    def clear_local_memory(self):
+        self.memory.mem_local_int = 20000
+        self.memory.mem_local_float = 2000
+        self.memory.mem_local_bool = 24000
+        self.memory.mem_local_string = 26000
+        self.memory.mem_local_char = 28000
+        self.memory.mem_temp_int = 0
+        self.memory.mem_temp_float = 2000
+        self.memory.mem_temp_bool = 4000
+        self.memory.mem_temp_string = 6000
+        self.memory.mem_temp_char = 8000
 
     def validate_void_function(self, id):
         if id in self.functionTable:
@@ -341,8 +449,39 @@ class Compiler:
             raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
         else:
             ## FIXME: create real address for temporal variable
-            tempResult = 'X' + str(self.temporalCounter)
-            self.temporalCounter = self.temporalCounter + 1
+            tempResult = 'X' + str(len(self.temporalStack))
+
+            temptype = self.scube.cube[leftOperandType][operator][rightOperandType]
+            if temptype == "int":
+                if self.memory.mem_temp_int == 2000:
+                    raise Exception("Stack Overflow on temporal integer variables")
+                self.temporalStack.append(self.memory.mem_temp_int)
+                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_int}')
+                self.memory.mem_temp_int += 1
+            elif temptype == "float":
+                if self.memory.mem_temp_float == 4000:
+                    raise Exception("Stack Overflow on temporal float variables")
+                self.temporalStack.append(self.memory.mem_temp_float)
+                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_float}')
+                self.memory.mem_temp_float += 1
+            elif temptype == "string":
+                if self.memory.mem_local_string == 6000:
+                    raise Exception("Stack Overflow on temporal string variables")
+                self.temporalStack.append(self.memory.mem_temp_string)
+                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_string}')
+                self.memory.mem_temp_string += 1
+            elif temptype == "bool":
+                if self.memory.mem_local_bool == 8000:
+                    raise Exception("Stack Overflow on temporal bool variables")
+                self.temporalStack.append(self.memory.mem_temp_bool)
+                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_bool}')
+                self.memory.mem_temp_bool += 1
+            elif temptype == "char":
+                if self.memory.mem_local_char == 10000:
+                    raise Exception("Stack Overflow on temporal char variables")
+                self.temporalStack.append(self.memory.mem_temp_char)
+                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_char}')
+                self.memory.mem_temp_char += 1
 
             # Create Quad and add it to Quadruples Stack
             quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
@@ -351,7 +490,7 @@ class Compiler:
             # Add result back to the Operand Stack
             self.addOperand(tempResult)
 
-            # Look up result type and add it to type stack
-            self.addType(self.scube.cube[leftOperandType][operator][rightOperandType])
+            # Add type to type stack
+            self.addType(temptype)
 
             print(operator, leftOperand, rightOperand, tempResult)
