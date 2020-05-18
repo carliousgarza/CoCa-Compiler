@@ -96,7 +96,7 @@ class Compiler:
                                     f'cannot be matched with {parameter.vartype}')
                 else:
                     # tenemos que asignar a memoria aqui passedParameter con su type
-                    print("we gucci")
+                    print("parametro bueno")
         else:
             raise ValueError(f'Number of parameters in call to function {id} does not match the amount declared')
 
