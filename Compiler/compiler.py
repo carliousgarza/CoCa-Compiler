@@ -173,7 +173,7 @@ class Compiler:
 
     def clear_local_memory(self):
         self.memory.mem_local_int = 20000
-        self.memory.mem_local_float = 2000
+        self.memory.mem_local_float = 22000
         self.memory.mem_local_bool = 24000
         self.memory.mem_local_string = 26000
         self.memory.mem_local_char = 28000
@@ -216,11 +216,24 @@ class Compiler:
         # self.functionStack.append({'function': self.currentFunction, 'quad': len(self.quadruples)})
         # self.currentFunction = self.functionTable[id]
 
-    def create_endfunc_goto(self):
-        self.currentFunction.endQuadruple = len(self.quadruples)
-        quad = Quadruple('GOTO', None, None, '_')
-        print('ENDGOTO', None, None, '_')
-        self.quadruples.append(quad)
+    def create_return_endfunc_goto(self):
+        if self.currentFunction.returntype != "void":
+            self.currentFunction.endQuadruple = len(self.quadruples)
+            quad = Quadruple('GOTO', None, None, '_')
+            print('ENDGOTO', None, None, '_')
+            self.quadruples.append(quad)
+        else:
+            raise TypeError(f'Void function {self.currentFunction.name} cannot have a return statement')
+
+    def create_void_endfunc_goto(self):
+        if self.currentFunction.returntype == "void":
+            self.currentFunction.endQuadruple = len(self.quadruples)
+            quad = Quadruple('GOTO', None, None, '_')
+            print('ENDGOTO', None, None, '_')
+            self.quadruples.append(quad)
+        else:
+            raise TypeError(f'No return value in function {self.currentFunction.name} of type {self.currentFunction.returntype}')
+
 
     def addParenthesis(self):
         self.operatorStack.append('(')

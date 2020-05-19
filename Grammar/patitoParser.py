@@ -989,7 +989,7 @@ class patitoParser ( Parser ):
 
             self.state = 140
             self.match(patitoParser.RIGHT_CURLY)
-            compiler.create_endfunc_goto()
+            compiler.create_void_endfunc_goto()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2126,7 +2126,7 @@ class patitoParser ( Parser ):
             self.match(patitoParser.RIGHT_PARENTHESIS)
             self.state = 335
             self.match(patitoParser.SEMICOLON)
-            compiler.create_endfunc_goto()
+            compiler.create_return_endfunc_goto()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

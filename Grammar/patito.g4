@@ -99,7 +99,7 @@ functions
   ;
 
 function
-  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})} {compiler.clear_local_memory()}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY {compiler.create_endfunc_goto()}
+  : FUNCTION functiontype ID {compiler.currentFunction=Function($ID.text, $functiontype.text, [], {})} {compiler.clear_local_memory()}  LEFT_PARENTHESIS parameters? RIGHT_PARENTHESIS declarevars? {compiler._add_function(compiler.currentFunction)} LEFT_CURLY statute? RIGHT_CURLY {compiler.create_void_endfunc_goto()}
   ;
 
 functiontype
@@ -157,7 +157,7 @@ voidcall
   ;
 
 returncall
-  : RETURN LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS SEMICOLON {compiler.create_endfunc_goto()}
+  : RETURN LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS SEMICOLON {compiler.create_return_endfunc_goto()}
   ;
 
 indexvariable
