@@ -87,7 +87,7 @@ vartypes
   ;
 
 constant
-  : (CTE_BOOL {compiler.addOperand($CTE_BOOL.text)} {compiler.addConstantToTypeStackAndTable("bool")} | CTE_FLOAT {compiler.addOperand($CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | CTE_INT {compiler.addOperand($CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_CHAR {compiler.addOperand($CTE_CHAR.text)} {compiler.addConstantToTypeStackAndTable("char")}| CTE_STRING {compiler.addOperand($CTE_STRING.text)} {compiler.addConstantToTypeStackAndTable("string")})
+  : (CTE_BOOL {compiler.addOperand($CTE_BOOL.text)} {compiler.addConstantToTypeStackAndTable("bool")} | SUB CTE_FLOAT {compiler.addOperand("-" + $CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | CTE_FLOAT {compiler.addOperand($CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | SUB CTE_INT {compiler.addOperand("-" + $CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_INT {compiler.addOperand($CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_CHAR {compiler.addOperand($CTE_CHAR.text)} {compiler.addConstantToTypeStackAndTable("char")}| CTE_STRING {compiler.addOperand($CTE_STRING.text)} {compiler.addConstantToTypeStackAndTable("string")})
   ;
 
 arrayconstant

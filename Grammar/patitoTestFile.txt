@@ -7,16 +7,16 @@ bool: lol;
 function int fact (int j, float k, bool n)
 var int: i;
 {
-  i = j * 2;
+  i = j * -2;
   a = b * (c * d) * e * f;
   a = b + c * d + e + f;
   if(j==1) then
   {
-    return(j);
+    i = j * 2;
   }
   else
   {
-    return (1);
+    i = j * 2;
   }
 }
 
@@ -27,7 +27,7 @@ var int: i;
   lol = true;
   valor = 1.3203;
 
-  if(j==1) then
+  if(j==2) then
   {
     return(j);
   }
@@ -35,6 +35,7 @@ var int: i;
   {
     return(j*fact(i-1, 1.5, true));
   }
+  return (2);
 }
 
 main()

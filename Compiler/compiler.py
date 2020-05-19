@@ -231,8 +231,6 @@ class Compiler:
             quad = Quadruple('GOTO', None, None, '_')
             print('ENDGOTO', None, None, '_')
             self.quadruples.append(quad)
-        else:
-            raise TypeError(f'No return value in function {self.currentFunction.name} of type {self.currentFunction.returntype}')
 
 
     def addParenthesis(self):
