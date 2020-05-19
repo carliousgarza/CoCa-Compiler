@@ -79,8 +79,40 @@ class Compiler:
         if self.functionTable[operand].returntype == 'void':
             raise TypeError(f'Cannot assign void function {operand} to value')
         else:
-            self.operandStack.append(operand)
-            self.addType(self.functionTable[operand].returntype)
+            tempResult = 'X' + str(len(self.temporalStack))
+            tempType = self.functionTable[operand].returntype
+            self.operandStack.append(tempResult)
+            self.addType(tempType)
+            if tempType == "int":
+                if self.memory.mem_temp_int == 2000:
+                    raise Exception("Stack Overflow on temporal integer variables")
+                self.temporalStack.append(self.memory.mem_temp_int)
+                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_int}')
+                self.memory.mem_temp_int += 1
+            elif tempType == "float":
+                if self.memory.mem_temp_float == 4000:
+                    raise Exception("Stack Overflow on temporal float variables")
+                self.temporalStack.append(self.memory.mem_temp_float)
+                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_float}')
+                self.memory.mem_temp_float += 1
+            elif tempType == "string":
+                if self.memory.mem_local_string == 6000:
+                    raise Exception("Stack Overflow on temporal string variables")
+                self.temporalStack.append(self.memory.mem_temp_string)
+                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_string}')
+                self.memory.mem_temp_string += 1
+            elif tempType == "bool":
+                if self.memory.mem_local_bool == 8000:
+                    raise Exception("Stack Overflow on temporal bool variables")
+                self.temporalStack.append(self.memory.mem_temp_bool)
+                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_bool}')
+                self.memory.mem_temp_bool += 1
+            elif tempType == "char":
+                if self.memory.mem_local_char == 10000:
+                    raise Exception("Stack Overflow on temporal char variables")
+                self.temporalStack.append(self.memory.mem_temp_char)
+                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_char}')
+                self.memory.mem_temp_char += 1
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
@@ -282,7 +314,17 @@ class Compiler:
             conditionVar = self.operandStack.pop()
             typeConditionVar = self.typesStack.pop()
             if typeConditionVar == "bool":
-                quad = Quadruple("GOTOF", conditionVar, None, "_")
+                conditionAddress = None
+                if conditionVar in self.currentFunction.varsTable:
+                    conditionAddress = self.currentFunction.varsTable[conditionVar].address
+                elif conditionVar in self.functionTable["global"].varsTable:
+                    conditionAddress = self.functionTable["global"].varsTable[conditionVar].address
+                elif conditionVar in self.constantTable:
+                    conditionAddress = self.constantTable[conditionVar].address
+                else:
+                    conditionAddress = self.temporalStack[-1]
+                print(f'GOTOF, {conditionVar} {conditionAddress} None "_')
+                quad = Quadruple("GOTOF", conditionAddress, None, "_")
                 # this quadruple's index must be saved for later
                 self.jumpStack.append(len(self.quadruples))
                 self.quadruples.append(quad)
@@ -293,27 +335,33 @@ class Compiler:
         # popping
         false = self.jumpStack.pop()
         # fill the previous quadruple's GOTOF value with the current quadruple index
+        print(f'filled endif quadruple {false} with {len(self.quadruples)}')
         self.quadruples[false].resultTemp = len(self.quadruples)
 
     def generateGoToQuad(self):
         # if there was an else, you are here
         # this GOTO will redirect the end of an if block to the end of the conditional statute
+        print(f'Created GOTO at the end of the if block: GOTO None None _')
         quad = Quadruple("GOTO", None, None, "_")
         self.quadruples.append(quad)
 
         # BUT FIRST! we have to make sure that the previously saved GOTOF from the if redirects to this else
         # ALSO, we have to point the GOTO to the end of the conditional statue, as said earlier.
         self.generateEndIfQuad()
-        # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having popped the other jump previously saved
+
+        # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having
+        # popped the other jump previously saved
         self.jumpStack.append(len(self.quadruples) - 1)
 
     def addFromVarOperand(self, operand):
         print("agrega fromvaroperand")
         if operand in self.currentFunction.varsTable:
             if self.currentFunction.varsTable[operand].vartype == "int":
+                operandAddress = self.currentFunction.varsTable[operand].address
+
                 # Add the current operand to the From Variable Stack to keep its address for future reference.
                 # We will need its address to be able to modify it
-                self.fromVariableStack.append(operand)
+                self.fromVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.currentFunction.varsTable[operand].vartype)
                 # print(operand)
@@ -321,9 +369,11 @@ class Compiler:
                 raise TypeError(f'The variable {operand} is not an int')
         elif operand in self.functionTable["global"].varsTable:
             if self.functionTable["global"].varsTable[operand].vartype == "int":
+                operandAddress = self.functionTable["global"].varsTable[operand].address
+
                 # Add the current operand to the From Variable Stack to keep its address for future reference.
                 # We will need its address to be able to modify it
-                self.fromVariableStack.append(operand)
+                self.fromVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.functionTable["global"].varsTable[operand].vartype)
                 # print(operand)
@@ -333,42 +383,76 @@ class Compiler:
             raise ValueError(f'The variable {operand} is not declared')
 
     def generateFromBeforeCheck(self):
-        print("FromBeginning")
+        print("From Before Check")
         self.jumpStack.append(len(self.quadruples))
 
     def generateFromAfterCheck(self):
-        print("FromAfter")
+        print("From After Check")
         if len(self.operandStack) != 0:
             expResult = self.operandStack.pop()
             typeExpResult = self.typesStack.pop()
             # Get the initial variable of the from loop
-            fromVar = self.fromVariableStack[-1]
+            fromVarAddress = self.fromVariableStack[-1]
             if typeExpResult == "int":
+                expResultAddress = None
+                if expResult in self.currentFunction.varsTable:
+                    expResultAddress = self.currentFunction.varsTable[expResult].address
+                elif expResult in self.functionTable["global"].varsTable:
+                    expResultAddress = self.functionTable["global"].varsTable[expResult].address
+                elif expResult in self.constantTable:
+                    expResultAddress = self.constantTable[expResult].address
+                else:
+                    expResultAddress = self.temporalStack[-1]
+
+                tempResult = 'X' + str(len(self.temporalStack))
+
+                if self.memory.mem_local_bool == 8000:
+                    raise Exception("Stack Overflow on temporal bool variables")
+                self.temporalStack.append(self.memory.mem_temp_bool)
+                print(f'temporal {tempResult} of type bool assigned to {self.memory.mem_temp_bool}')
+                self.memory.mem_temp_bool += 1
+
                 # Aqui vamos a tener que sacar el valor de fromVar, para poder compararlo con expResult
                 # una vez comparado, tenemos fromConditionResult y ese es el que ponemos en el quad.
                 # fromConditionResult = fromVar <= expResult
-                fromConditionResult = False
-                quad = Quadruple("GOTOF", fromConditionResult, None, "_")
+                quad1 = Quadruple('<', fromVarAddress, expResultAddress, self.temporalStack[-1])
+                print(f'< (from index) {fromVarAddress} {expResult} {expResultAddress} {tempResult} {self.temporalStack[-1]}')
+                self.quadruples.append(quad1)
+
+                print(f'GOTOF {tempResult} {self.temporalStack[-1]} None _')
+                quad2 = Quadruple("GOTOF", self.temporalStack[-1], None, "_")
                 # this quadruple's index must be saved for later
                 self.jumpStack.append(len(self.quadruples))
-                self.quadruples.append(quad)
-                print("GOTOF", fromConditionResult, None, "_")
+                self.quadruples.append(quad2)
             else:
                 raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
 
     def generateEndFromQuad(self):
-        print("FromEnd")
+        print("From End")
         # Get the index of the beginning of the from statute
         fromAfterCheckIndex = self.jumpStack.pop()
         fromBeforeCheckIndex = self.jumpStack.pop()
+
+        # add 1 to the from index
+        tempResult = 'X' + str(len(self.temporalStack))
+        if self.memory.mem_local_int == 2000:
+            raise Exception("Stack Overflow on temporal int variables")
+        self.temporalStack.append(self.memory.mem_temp_int)
+        print(f'temporal {tempResult} of type int assigned to {self.memory.mem_temp_int}')
+        self.memory.mem_temp_int += 1
+        print(f'+ (from index) {self.fromVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
+        quad1 = Quadruple("+", self.fromVariableStack[-1], "1", self.temporalStack[-1])
+        self.quadruples.append(quad1)
+
         # Append the current GOTO quadruple, to go back to the beginning of the from
-        quad = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
-        print("GOTO", None, None, fromBeforeCheckIndex)
-        self.quadruples.append(quad)
+        quad2 = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
+        print("GOTO BEGIN OF FROM", None, None, fromBeforeCheckIndex)
+        self.quadruples.append(quad2)
+        print(f'FILLING Quad After checking from index {fromAfterCheckIndex} GOTO to {len(self.quadruples)}')
         self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
-        print(self.quadruples[fromAfterCheckIndex].operator, self.quadruples[fromAfterCheckIndex].leftOp,
-              self.quadruples[fromAfterCheckIndex].rightOp, self.quadruples[fromAfterCheckIndex].resultTemp)
-        # NOTE: We need to add 1 to the counter variable in here
+        self.fromVariableStack.pop()
+
+
 
     def generateWhileBeforeCheck(self):
         print("WhileBeginning")
@@ -404,24 +488,39 @@ class Compiler:
     def generateReadQuad(self, operand):
         # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.
         if operand in self.currentFunction.varsTable:
-            print("read", operand, None, "-")
-            quad = Quadruple("read", operand, None, "_")
+            print("read", operand, self.currentFunction.varsTable[operand].address, None, "-")
+            quad = Quadruple("read", self.currentFunction.varsTable[operand].address, None, "_")
             self.quadruples.append(quad)
         elif operand in self.functionTable["global"].varsTable:
-            print("read", operand, None, "-")
-            quad = Quadruple("read", operand, None, "_")
+            print("read", operand, self.functionTable["global"].varsTable[operand].address, None, "-")
+            quad = Quadruple("read", self.functionTable["global"].varsTable[operand].address, None, "_")
             self.quadruples.append(quad)
         else:
             raise ValueError(f'The variable {operand} is not declared')
 
     def generateWriteQuad(self):
+        if len(self.operandStack) == 0:
+            raise Exception("Empty print statement")
         printedOperand = self.operandStack.pop()
-        printedType = self.typesStack.pop()
+        self.typesStack.pop()
 
-        print("print", printedOperand, None, "_")
+        if printedOperand in self.currentFunction.varsTable:
+            print("print", printedOperand, self.currentFunction.varsTable[printedOperand].address, None, "_")
+            quad = Quadruple("print", self.currentFunction.varsTable[printedOperand].address, None, "_")
+            self.quadruples.append(quad)
+        elif printedOperand in self.functionTable["global"].varsTable:
+            print("print", printedOperand, self.functionTable["global"].varsTable[printedOperand].address, None, "_")
+            quad = Quadruple("print", self.functionTable["global"].varsTable[printedOperand].address, None, "_")
+            self.quadruples.append(quad)
+        elif printedOperand in self.constantTable:
+            print("print", printedOperand, self.constantTable[printedOperand].address, None, "_")
+            quad = Quadruple("print", self.constantTable[printedOperand].address, None, "_")
+            self.quadruples.append(quad)
+        else:
+            print("print", printedOperand, self.temporalStack[-1], None, "_")
+            quad = Quadruple("print", self.temporalStack[-1], None, "_")
+            self.quadruples.append(quad)
 
-        quad = Quadruple("print", printedOperand, None, "_")
-        self.quadruples.append(quad)
 
     def generateAssignQuads(self):
         # In case of multiple assignments in the same line, we use a while
@@ -438,12 +537,30 @@ class Compiler:
             if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
                 raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
 
-            quad = Quadruple(operator, leftOperand, rightOperand, "_")
+            roAddress = None
+            if rightOperand in self.currentFunction.varsTable:
+                roAddress = self.currentFunction.varsTable[rightOperand].address
+            elif rightOperand in self.functionTable["global"].varsTable:
+                roAddress = self.functionTable["global"].varsTable[rightOperand].address
+            elif rightOperand in self.constantTable:
+                roAddress = self.constantTable[rightOperand].address
+            else:
+                roAddress = self.temporalStack[-1]
+
+            loAddress = None
+            if leftOperand in self.currentFunction.varsTable:
+                loAddress = self.currentFunction.varsTable[leftOperand].address
+            elif leftOperand in self.functionTable["global"].varsTable:
+                loAddress = self.functionTable["global"].varsTable[leftOperand].address
+            elif leftOperand in self.constantTable:
+                loAddress = self.constantTable[leftOperand].address
+
+            quad = Quadruple(operator, loAddress, roAddress, "_")
             self.quadruples.append(quad)
 
             self.operandStack.append(leftOperand)
             self.typesStack.append(leftOperandType)
-            print(operator, leftOperand, rightOperand, "_")
+            print(operator, leftOperand, loAddress, rightOperand, roAddress)
 
         self.operandStack.pop()
         self.typesStack.pop()
@@ -459,7 +576,28 @@ class Compiler:
         if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
             raise ValueError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
         else:
-            ## FIXME: create real address for temporal variable
+
+            # Get the operands' addresses
+            roAddress = None
+            if rightOperand in self.currentFunction.varsTable:
+                roAddress = self.currentFunction.varsTable[rightOperand].address
+            elif rightOperand in self.functionTable["global"].varsTable:
+                roAddress = self.functionTable["global"].varsTable[rightOperand].address
+            elif rightOperand in self.constantTable:
+                roAddress = self.constantTable[rightOperand].address
+            else:
+                roAddress = self.temporalStack[int(rightOperand[1:])]
+
+            loAddress = None
+            if leftOperand in self.currentFunction.varsTable:
+                loAddress = self.currentFunction.varsTable[leftOperand].address
+            elif leftOperand in self.functionTable["global"].varsTable:
+                loAddress = self.functionTable["global"].varsTable[leftOperand].address
+            elif leftOperand in self.constantTable:
+                loAddress = self.constantTable[leftOperand].address
+            else:
+                loAddress = self.temporalStack[int(leftOperand[1:])]
+
             tempResult = 'X' + str(len(self.temporalStack))
 
             temptype = self.scube.cube[leftOperandType][operator][rightOperandType]
@@ -473,29 +611,30 @@ class Compiler:
                 if self.memory.mem_temp_float == 4000:
                     raise Exception("Stack Overflow on temporal float variables")
                 self.temporalStack.append(self.memory.mem_temp_float)
-                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_float}')
+                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_float}')
                 self.memory.mem_temp_float += 1
             elif temptype == "string":
                 if self.memory.mem_local_string == 6000:
                     raise Exception("Stack Overflow on temporal string variables")
                 self.temporalStack.append(self.memory.mem_temp_string)
-                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_string}')
+                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_string}')
                 self.memory.mem_temp_string += 1
             elif temptype == "bool":
                 if self.memory.mem_local_bool == 8000:
                     raise Exception("Stack Overflow on temporal bool variables")
                 self.temporalStack.append(self.memory.mem_temp_bool)
-                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_bool}')
+                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_bool}')
                 self.memory.mem_temp_bool += 1
             elif temptype == "char":
                 if self.memory.mem_local_char == 10000:
                     raise Exception("Stack Overflow on temporal char variables")
                 self.temporalStack.append(self.memory.mem_temp_char)
-                print(f'variable {tempResult} of type {temptype} assigned to {self.memory.mem_temp_char}')
+                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_char}')
                 self.memory.mem_temp_char += 1
 
             # Create Quad and add it to Quadruples Stack
-            quad = Quadruple(operator, leftOperand, rightOperand, tempResult)
+            quad = Quadruple(operator, loAddress, roAddress, self.temporalStack[-1])
+            print(operator, leftOperand, loAddress, rightOperand, roAddress, tempResult, self.temporalStack[-1])
             self.quadruples.append(quad)
 
             # Add result back to the Operand Stack
@@ -503,5 +642,3 @@ class Compiler:
 
             # Add type to type stack
             self.addType(temptype)
-
-            print(operator, leftOperand, rightOperand, tempResult)

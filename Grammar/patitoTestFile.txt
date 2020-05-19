@@ -7,11 +7,24 @@ bool: lol;
 function int fact (int j, float k, bool n)
 var int: i;
 {
+  print(2+1);
+  print(fact(1, 1.5, true));
+  i = j = p = a = b = 2;
+  input(i);
   i = j * -2;
+  i = j - -2;
   a = b * (c * d) * e * f;
   a = b + c * d + e + f;
   if(j==1) then
   {
+    if(i==1) then
+    {
+      from i = 0 to 2 do {
+        from j = 0 to 3 do {
+             j = 2*1;
+        }
+      }
+    }
     i = j * 2;
   }
   else
@@ -23,6 +36,8 @@ var int: i;
 function int fact2 (float j)
 var int: i;
 {
+  i = 555555 + 44444;
+  i = f + fact(b-1, 1.5, true) + 8;
   i = 5 + 7 + 8;
   lol = true;
   valor = 1.3203;
@@ -33,7 +48,8 @@ var int: i;
   }
   else
   {
-    return(fact(i-1, 1.5, true));
+    i = f + fact(i-1, 1.5, true) + 8;
+    return(j*fact(i-1, 1.5, true));
   }
   return (2);
 }
