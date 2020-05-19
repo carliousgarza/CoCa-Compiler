@@ -168,12 +168,12 @@ class patitoListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by patitoParser#voidcall.
-    def enterVoidcall(self, ctx:patitoParser.VoidcallContext):
+    # Enter a parse tree produced by patitoParser#funccall.
+    def enterFunccall(self, ctx:patitoParser.FunccallContext):
         pass
 
-    # Exit a parse tree produced by patitoParser#voidcall.
-    def exitVoidcall(self, ctx:patitoParser.VoidcallContext):
+    # Exit a parse tree produced by patitoParser#funccall.
+    def exitFunccall(self, ctx:patitoParser.FunccallContext):
         pass
 
 

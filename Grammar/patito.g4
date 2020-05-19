@@ -139,20 +139,20 @@ factor
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
       LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET ) |
-    ID {compiler.addFuncOperandAndType($ID.text)} LEFT_PARENTHESIS {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.goto_function_quad($ID.text)} {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS)
+    ID {compiler.addFuncOperandAndType($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.goto_function_quad($ID.text)} {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
   ;
 
 statute
-  : (assignation | voidcall | returncall | read | write | conditional | whileloop | fromloop)*
+  : (assignation | funccall | returncall | read | write | conditional | whileloop | fromloop)*
   ;
 
 assignation
-  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}
-    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*
-    (ID {compiler.addOperandAndType($ID.text)} | mexp) SEMICOLON {compiler.generateAssignQuads()}
+  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}  // a =
+    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*             // b = | b[1]= | b[1][2]=
+    (mexp) SEMICOLON {compiler.generateAssignQuads()}                                                                   // b; | 2+1;
   ;
 
-voidcall
+funccall
   : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON
   ;
 

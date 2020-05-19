@@ -33,7 +33,7 @@ var int: i;
   }
   else
   {
-    return(j*fact(i-1, 1.5, true));
+    return(fact(i-1, 1.5, true));
   }
   return (2);
 }

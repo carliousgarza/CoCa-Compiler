@@ -1,22 +1,14 @@
 program littleDuck2020CorrectFileTest;
 var int: i, p;
-int: arreglo[10], otroArreglo[10];
-float: valor;
 
-function int illustrator (int j, int k, bool n, bool m)
+function int illustrator (int j)
 var int: i;
 {
- n = i < j;
-}
-
-function int adobe()
-{
- print("adobe");
+  return(1);
 }
 
 main()
 {
-  print("main");
-  i = illustrator(2, illustrator(2, 2, false, true), false, true );
-  i = adobe();
+  //p = 2 * (2 + 1);
+  i = p + illustrator(i);
 }
