@@ -127,7 +127,7 @@ class Compiler:
 
     def update_vars_table(self, id, vartype):
         if id not in self.currentFunction.varsTable:
-            if self.currentFunction.name is "global":
+            if self.currentFunction.name == "global":
                 if vartype == "int":
                     if self.memory.mem_global_int == 12000:
                         raise Exception("Stack Overflow on global integer variables")
@@ -364,7 +364,6 @@ class Compiler:
                 self.fromVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.currentFunction.varsTable[operand].vartype)
-                # print(operand)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         elif operand in self.functionTable["global"].varsTable:
@@ -376,7 +375,6 @@ class Compiler:
                 self.fromVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.functionTable["global"].varsTable[operand].vartype)
-                # print(operand)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         else:
@@ -384,6 +382,35 @@ class Compiler:
 
     def generateFromBeforeCheck(self):
         print("From Before Check")
+        self.jumpStack.append(len(self.quadruples))
+
+    def generateEndFromQuad(self):
+        print("From End")
+        # Get the index of the beginning of the from statute
+        fromAfterCheckIndex = self.jumpStack.pop()
+        fromBeforeCheckIndex = self.jumpStack.pop()
+
+        # add 1 to the from index
+        tempResult = 'X' + str(len(self.temporalStack))
+        if self.memory.mem_local_int == 2000:
+            raise Exception("Stack Overflow on temporal int variables")
+        self.temporalStack.append(self.memory.mem_temp_int)
+        print(f'temporal {tempResult} of type int assigned to {self.memory.mem_temp_int}')
+        self.memory.mem_temp_int += 1
+        print(f'+ (from index) {self.fromVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
+        quad1 = Quadruple("+", self.fromVariableStack[-1], "1", self.temporalStack[-1])
+        self.quadruples.append(quad1)
+
+        # Append the current GOTO quadruple, to go back to the beginning of the from
+        quad2 = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
+        print("GOTO BEGIN OF FROM", None, None, fromBeforeCheckIndex)
+        self.quadruples.append(quad2)
+        print(f'FILLING Quad After checking from index {fromAfterCheckIndex} GOTO to {len(self.quadruples)}')
+        self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
+        self.fromVariableStack.pop()
+
+    def generateWhileBeforeCheck(self):
+        print("While Before Check")
         self.jumpStack.append(len(self.quadruples))
 
     def generateFromAfterCheck(self):
@@ -427,50 +454,49 @@ class Compiler:
             else:
                 raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
 
-    def generateEndFromQuad(self):
-        print("From End")
-        # Get the index of the beginning of the from statute
-        fromAfterCheckIndex = self.jumpStack.pop()
-        fromBeforeCheckIndex = self.jumpStack.pop()
-
-        # add 1 to the from index
-        tempResult = 'X' + str(len(self.temporalStack))
-        if self.memory.mem_local_int == 2000:
-            raise Exception("Stack Overflow on temporal int variables")
-        self.temporalStack.append(self.memory.mem_temp_int)
-        print(f'temporal {tempResult} of type int assigned to {self.memory.mem_temp_int}')
-        self.memory.mem_temp_int += 1
-        print(f'+ (from index) {self.fromVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
-        quad1 = Quadruple("+", self.fromVariableStack[-1], "1", self.temporalStack[-1])
-        self.quadruples.append(quad1)
-
-        # Append the current GOTO quadruple, to go back to the beginning of the from
-        quad2 = Quadruple("GOTO", None, None, fromBeforeCheckIndex)
-        print("GOTO BEGIN OF FROM", None, None, fromBeforeCheckIndex)
-        self.quadruples.append(quad2)
-        print(f'FILLING Quad After checking from index {fromAfterCheckIndex} GOTO to {len(self.quadruples)}')
-        self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
-        self.fromVariableStack.pop()
-
-
-
-    def generateWhileBeforeCheck(self):
-        print("WhileBeginning")
-        self.jumpStack.append(len(self.quadruples))
-
     def generateWhileAfterCheck(self):
-        print("WhileQuad")
+        print("While After Check")
         if len(self.operandStack) != 0:
             conditionVar = self.operandStack.pop()
             typeConditionVar = self.typesStack.pop()
             if typeConditionVar == "bool":
-                quad = Quadruple("GOTOF", conditionVar, None, "_")
+                print(f"CONDITIONVAR: {conditionVar}")
+                self.addWhileVarOperand(conditionVar)
+                whileVarAddress = self.fromVariableStack[-1]
+                print(f'whileVarAddress {self.fromVariableStack[-1]}')
+                quad = Quadruple("GOTOF", whileVarAddress, None, "_")
                 # this quadruple's index must be saved for later
                 self.jumpStack.append(len(self.quadruples))
                 self.quadruples.append(quad)
-                print("GOTOF", conditionVar, None, "_")
+                print("GOTOF", conditionVar, whileVarAddress, None, "_")
             else:
                 raise TypeError(f'Error: {conditionVar} is not a boolean')
+
+    def addWhileVarOperand(self, operand):
+        if operand in self.currentFunction.varsTable:
+            operandAddress = self.currentFunction.varsTable[operand].address
+
+            # Add the current operand to the From Variable Stack to keep its address for future reference.
+            # We will need its address to be able to modify it
+            self.fromVariableStack.append(operandAddress)
+            #self.operandStack.append(operand)
+            #self.addType(self.currentFunction.varsTable[operand].vartype)
+            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
+        elif operand in self.functionTable["global"].varsTable:
+            operandAddress = self.functionTable["global"].varsTable[operand].address
+
+            # Add the current operand to the From Variable Stack to keep its address for future reference.
+            # We will need its address to be able to modify it
+            self.fromVariableStack.append(operandAddress)
+            #self.operandStack.append(operand)
+            #self.addType(self.functionTable["global"].varsTable[operand].vartype)
+            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
+        else:
+            operandAddress = self.temporalStack[-1]
+            self.fromVariableStack.append(operandAddress)
+            #self.operandStack.append(operand)
+            #self.addType("bool")
+            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
 
     def generateWhileEnd(self):
         print("WhileEnd")
