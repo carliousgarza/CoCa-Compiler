@@ -81,52 +81,48 @@ class Compiler:
         else:
             raise ValueError(f'The variable {operand} is not declared')
 
-    def addFuncOperandAndType(self, operand):
+    def validate_function_expression(self, operand):
         if self.functionTable[operand].returntype == 'void':
             raise TypeError(f'Cannot assign void function {operand} to value')
-        else:
-            tempResult = 'X' + str(len(self.temporalStack))
-            tempType = self.functionTable[operand].returntype
-            self.operandStack.append(tempResult)
-            self.addType(tempType)
-            quad = Quadruple("ERA",None,None,operand)
-            self.quadruples.append(quad)
-            print(f'ERA, None, None, {operand}')
-            if tempType == "int":
-                if self.memory.mem_temp_int == 2000:
-                    raise Exception("Stack Overflow on temporal integer variables")
-                self.temporalStack.append(self.memory.mem_temp_int)
-                self.functionTable[operand].tempAddress.append(self.memory.mem_temp_int)
-                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_int}')
-                self.memory.mem_temp_int += 1
-            elif tempType == "float":
-                if self.memory.mem_temp_float == 4000:
-                    raise Exception("Stack Overflow on temporal float variables")
-                self.temporalStack.append(self.memory.mem_temp_float)
-                self.functionTable[operand].tempAddress.append(self.memory.mem_temp_float)
-                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_float}')
-                self.memory.mem_temp_float += 1
-            elif tempType == "string":
-                if self.memory.mem_local_string == 6000:
-                    raise Exception("Stack Overflow on temporal string variables")
-                self.temporalStack.append(self.memory.mem_temp_string)
-                self.functionTable[operand].tempAddress.append(self.memory.mem_temp_string)
-                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_string}')
-                self.memory.mem_temp_string += 1
-            elif tempType == "bool":
-                if self.memory.mem_local_bool == 8000:
-                    raise Exception("Stack Overflow on temporal bool variables")
-                self.temporalStack.append(self.memory.mem_temp_bool)
-                self.functionTable[operand].tempAddress.append(self.memory.mem_temp_bool)
-                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_bool}')
-                self.memory.mem_temp_bool += 1
-            elif tempType == "char":
-                if self.memory.mem_local_char == 10000:
-                    raise Exception("Stack Overflow on temporal char variables")
-                self.temporalStack.append(self.memory.mem_temp_char)
-                self.functionTable[operand].tempAddress.append(self.memory.mem_temp_char)
-                print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_char}')
-                self.memory.mem_temp_char += 1
+        quad = Quadruple("ERA", None, None, operand)
+        self.quadruples.append(quad)
+        print(f'ERA, None, None, {operand}')
+
+    def add_func_operand_and_type(self, operand):
+        tempResult = 'X' + str(len(self.temporalStack))
+        tempType = self.functionTable[operand].returntype
+        self.operandStack.append(tempResult)
+        self.addType(tempType)
+        if tempType == "int":
+            if self.memory.mem_temp_int == 2000:
+                raise Exception("Stack Overflow on temporal integer variables")
+            self.temporalStack.append(self.memory.mem_temp_int)
+            print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_int}')
+            self.memory.mem_temp_int += 1
+        elif tempType == "float":
+            if self.memory.mem_temp_float == 4000:
+                raise Exception("Stack Overflow on temporal float variables")
+            self.temporalStack.append(self.memory.mem_temp_float)
+            print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_float}')
+            self.memory.mem_temp_float += 1
+        elif tempType == "string":
+            if self.memory.mem_local_string == 6000:
+                raise Exception("Stack Overflow on temporal string variables")
+            self.temporalStack.append(self.memory.mem_temp_string)
+            print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_string}')
+            self.memory.mem_temp_string += 1
+        elif tempType == "bool":
+            if self.memory.mem_local_bool == 8000:
+                raise Exception("Stack Overflow on temporal bool variables")
+            self.temporalStack.append(self.memory.mem_temp_bool)
+            print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_bool}')
+            self.memory.mem_temp_bool += 1
+        elif tempType == "char":
+            if self.memory.mem_local_char == 10000:
+                raise Exception("Stack Overflow on temporal char variables")
+            self.temporalStack.append(self.memory.mem_temp_char)
+            print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_char}')
+            self.memory.mem_temp_char += 1
 
     def addOperator(self, operator):
         self.operatorStack.append(operator)
@@ -240,6 +236,7 @@ class Compiler:
 
     def validate_parameters(self, id, currentCounter):
         if len(self.functionTable[id].parametersTable) == currentCounter:
+            temporalsTaken = 0
             # reversed FOR because the parametersTable is reversed in relation to operandStack
             # example: funccall(0, 1, 2) --> passedParameter is the one we want to match with 2
             for idx,parameter in enumerate(reversed(self.functionTable[id].parametersTable)):
@@ -261,7 +258,8 @@ class Compiler:
                     elif passedParameter in self.constantTable:
                         parameterAddress = self.constantTable[passedParameter].address
                     else:
-                        parameterAddress = self.temporalStack[-1]
+                        parameterAddress = self.temporalStack[len(self.temporalStack)-1-temporalsTaken]
+                        temporalsTaken += 1
 
                     quad = Quadruple("param",parameterAddress,None,f'par{currentCounter-idx-1}')
                     self.quadruples.append(quad)
@@ -273,28 +271,32 @@ class Compiler:
     def goto_function_quad(self, id):
         quad = Quadruple('GOSUB', None, None, self.functionTable[id].startQuadruple)
         print('GOSUB', 'None', 'None', self.functionTable[id].startQuadruple)
-        # self.quadruples[self.functionTable[id].endQuadruple].resultTemp = len(self.quadruples)
         self.quadruples.append(quad)
-        # self.functionStack.append({'function': self.currentFunction, 'quad': len(self.quadruples)})
-        # self.currentFunction = self.functionTable[id]
+
 
     def create_return_endfunc_goto(self):
-
         #checar que el tipo del operando sea el mismo que el de la function
         #checar en donde esta el operando (global, local, temporal, constante, etc.)
         #obtener la direccion del operando
         #regresar la direccion del operando
 
-
         if self.currentFunction.returntype != "void":
-            self.currentFunction.endQuadruple = len(self.quadruples)
-            tempAddress = self.currentFunction.tempAddress.pop()
             result = self.operandStack.pop()
-            
-            quad1 = Quadruple('=', tempAddress, result, None)
+            resultType = self.typesStack.pop()
+            if resultType != self.currentFunction.returntype:
+                raise TypeError(f'Cannot return type {resultType} in function {self.currentFunction.name}')
+            resultAddress = None
+            if result in self.currentFunction.varsTable:
+                resultAddress = self.currentFunction.varsTable[result].address
+            elif result in self.functionTable["global"].varsTable:
+                resultAddress = self.functionTable["global"].varsTable[result].address
+            elif result in self.constantTable:
+                resultAddress = self.constantTable[result].address
+            else:
+                resultAddress = self.temporalStack[-1]
 
-            quad = Quadruple('RETURN', None, None, '_')
-            print('RETURN', None, None, '_')
+            quad = Quadruple('RETURN', None, None, resultAddress)
+            print('RETURN', None, None, resultAddress)
             self.quadruples.append(quad)
         else:
             raise TypeError(f'Void function {self.currentFunction.name} cannot have a return statement.')

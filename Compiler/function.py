@@ -11,4 +11,4 @@ class Function:
         self.startQuadruple = -1
         self.endQuadruple = -1
         self.varsCount = 0
-        self.tempAddress = []
+        self.parchesGuadalupanos = {}

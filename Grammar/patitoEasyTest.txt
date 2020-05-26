@@ -2,9 +2,12 @@ program littleDuck2020CorrectFileTest;
 var int: i, j;
 bool: lol;
 
+
 function int uno (int m, int n, int o)
 {
-  return(m+1);
+    if (i == 0) then
+        {return(uno(i-1, i-2, o));}
+    return (2);
 }
 
 function int dos (int x, int z)
