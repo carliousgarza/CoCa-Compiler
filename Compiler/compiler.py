@@ -86,6 +86,9 @@ class Compiler:
             tempType = self.functionTable[operand].returntype
             self.operandStack.append(tempResult)
             self.addType(tempType)
+            quad = Quadruple("ERA",None,None,operand)
+            self.quadruples.append(quad)
+            print(f'ERA, None, None, {operand}')
             if tempType == "int":
                 if self.memory.mem_temp_int == 2000:
                     raise Exception("Stack Overflow on temporal integer variables")
@@ -244,8 +247,8 @@ class Compiler:
             raise ValueError(f'Number of parameters in call to function {id} does not match the amount declared')
 
     def goto_function_quad(self, id):
-        quad = Quadruple('GOTO', None, None, self.functionTable[id].startQuadruple)
-        print('GOTO', 'None', 'None', self.functionTable[id].startQuadruple)
+        quad = Quadruple('GOSUB', None, None, self.functionTable[id].startQuadruple)
+        print('GOSUB', 'None', 'None', self.functionTable[id].startQuadruple)
         # self.quadruples[self.functionTable[id].endQuadruple].resultTemp = len(self.quadruples)
         self.quadruples.append(quad)
         # self.functionStack.append({'function': self.currentFunction, 'quad': len(self.quadruples)})

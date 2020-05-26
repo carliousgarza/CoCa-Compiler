@@ -139,7 +139,7 @@ factor
       (DETERMINANT | TRANSPOSE | INVERSE) |
       LEFT_BRACKET mexp RIGHT_BRACKET |
       LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET ) |
-    ID {compiler.addFuncOperandAndType($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.goto_function_quad($ID.text)} {compiler.validate_parameters($ID.text, currentCounter)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
+    ID {compiler.addFuncOperandAndType($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_function_quad($ID.text)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
   ;
 
 statute

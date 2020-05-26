@@ -1733,8 +1733,8 @@ class patitoParser ( Parser ):
                 else:
                     raise NoViableAltException(self)
 
-                self.compiler.goto_function_quad((None if localctx._ID is None else localctx._ID.text))
                 self.compiler.validate_parameters((None if localctx._ID is None else localctx._ID.text), currentCounter)
+                self.compiler.goto_function_quad((None if localctx._ID is None else localctx._ID.text))
                 self.state = 282
                 self.match(patitoParser.RIGHT_PARENTHESIS)
                 self.compiler.popParenthesis()
