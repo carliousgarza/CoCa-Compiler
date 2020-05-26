@@ -26,6 +26,9 @@ class Compiler:
         self.temporalStack = []
         print("compiling...")
 
+    def get_quadruples(self):
+        return self.quadruples
+
     def get_operator_fn(op):
         return {
             '+': operator.add,
