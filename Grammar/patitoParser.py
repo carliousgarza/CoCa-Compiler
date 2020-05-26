@@ -1021,7 +1021,7 @@ class patitoParser ( Parser ):
 
             self.state = 150
             self.match(patitoParser.RIGHT_CURLY)
-            self.compiler.create_void_endfunc_goto()
+            self.compiler.create_endfunc()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

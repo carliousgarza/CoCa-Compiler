@@ -2,12 +2,22 @@ program littleDuck2020CorrectFileTest;
 var int: i, j;
 bool: lol;
 
-function int fact (int j, int i)
+function int uno (int m, int n, int o)
 {
-  return(j+1);
+  return(m+1);
+}
+
+function int dos (int x, int z)
+{
+  return(x);
+}
+
+function void tres(int x, int z)
+{
+  i = 1;
 }
 
 main()
 {
-  i = fact(fact(i,j),i);
+  i = uno(uno(i,i,i), uno(j,j,j), i);
 }
