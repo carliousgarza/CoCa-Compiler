@@ -1,14 +1,13 @@
 program littleDuck2020CorrectFileTest;
-var int: i, p;
-
-function int illustrator (int j)
-var int: i;
-{
-  return(1);
-}
+var int: i, j;
+bool: lol;
 
 main()
 {
-  //p = 2 * (2 + 1);
-  i = p + illustrator(i);
+  while (lol) do {
+    while (i>0) do {
+      i = i + 1;
+    }
+  }
+
 }
