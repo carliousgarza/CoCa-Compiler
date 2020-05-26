@@ -20,7 +20,7 @@ class Compiler:
         self.typesStack = []
         self.tempStack = []
         self.scube = SemanticCube()
-        self.fromVariableStack = []
+        self.loopVariableStack = []
         self.functionStack = []
         self.memory = Memory()
         self.temporalStack = []
@@ -364,7 +364,7 @@ class Compiler:
 
                 # Add the current operand to the From Variable Stack to keep its address for future reference.
                 # We will need its address to be able to modify it
-                self.fromVariableStack.append(operandAddress)
+                self.loopVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.currentFunction.varsTable[operand].vartype)
             else:
@@ -375,7 +375,7 @@ class Compiler:
 
                 # Add the current operand to the From Variable Stack to keep its address for future reference.
                 # We will need its address to be able to modify it
-                self.fromVariableStack.append(operandAddress)
+                self.loopVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
                 self.addType(self.functionTable["global"].varsTable[operand].vartype)
             else:
@@ -400,8 +400,8 @@ class Compiler:
         self.temporalStack.append(self.memory.mem_temp_int)
         print(f'temporal {tempResult} of type int assigned to {self.memory.mem_temp_int}')
         self.memory.mem_temp_int += 1
-        print(f'+ (from index) {self.fromVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
-        quad1 = Quadruple("+", self.fromVariableStack[-1], "1", self.temporalStack[-1])
+        print(f'+ (from index) {self.loopVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
+        quad1 = Quadruple("+", self.loopVariableStack[-1], "1", self.temporalStack[-1])
         self.quadruples.append(quad1)
 
         # Append the current GOTO quadruple, to go back to the beginning of the from
@@ -410,11 +410,7 @@ class Compiler:
         self.quadruples.append(quad2)
         print(f'FILLING Quad After checking from index {fromAfterCheckIndex} GOTO to {len(self.quadruples)}')
         self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
-        self.fromVariableStack.pop()
-
-    def generateWhileBeforeCheck(self):
-        print("While Before Check")
-        self.jumpStack.append(len(self.quadruples))
+        self.loopVariableStack.pop()
 
     def generateFromAfterCheck(self):
         print("From After Check")
@@ -422,7 +418,7 @@ class Compiler:
             expResult = self.operandStack.pop()
             typeExpResult = self.typesStack.pop()
             # Get the initial variable of the from loop
-            fromVarAddress = self.fromVariableStack[-1]
+            fromVarAddress = self.loopVariableStack[-1]
             if typeExpResult == "int":
                 expResultAddress = None
                 if expResult in self.currentFunction.varsTable:
@@ -457,6 +453,10 @@ class Compiler:
             else:
                 raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
 
+    def generateWhileBeforeCheck(self):
+        print("While Before Check", len(self.quadruples))
+        self.jumpStack.append(len(self.quadruples))
+
     def generateWhileAfterCheck(self):
         print("While After Check")
         if len(self.operandStack) != 0:
@@ -465,8 +465,8 @@ class Compiler:
             if typeConditionVar == "bool":
                 print(f"CONDITIONVAR: {conditionVar}")
                 self.addWhileVarOperand(conditionVar)
-                whileVarAddress = self.fromVariableStack[-1]
-                print(f'whileVarAddress {self.fromVariableStack[-1]}')
+                whileVarAddress = self.loopVariableStack[-1]
+                print(f'whileVarAddress {self.loopVariableStack[-1]}')
                 quad = Quadruple("GOTOF", whileVarAddress, None, "_")
                 # this quadruple's index must be saved for later
                 self.jumpStack.append(len(self.quadruples))
@@ -481,7 +481,7 @@ class Compiler:
 
             # Add the current operand to the From Variable Stack to keep its address for future reference.
             # We will need its address to be able to modify it
-            self.fromVariableStack.append(operandAddress)
+            self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
             #self.addType(self.currentFunction.varsTable[operand].vartype)
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
@@ -490,16 +490,20 @@ class Compiler:
 
             # Add the current operand to the From Variable Stack to keep its address for future reference.
             # We will need its address to be able to modify it
-            self.fromVariableStack.append(operandAddress)
+            self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
             #self.addType(self.functionTable["global"].varsTable[operand].vartype)
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
-        else:
+        elif operand != "true" and operand != "false":
             operandAddress = self.temporalStack[-1]
-            self.fromVariableStack.append(operandAddress)
+            self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
             #self.addType("bool")
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
+        else:
+            if operand == "true" or operand == "false":
+                raise TypeError(f'Error: constant {operand} will cause infinite execution of while loop.')
+            raise TypeError(f'Error: variable {operand} does not exist.')
 
     def generateWhileEnd(self):
         print("WhileEnd")

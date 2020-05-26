@@ -23,7 +23,7 @@ class VirtualMachine:
         self.TEMPORAL = []
 
     def begin(self):
-        counter = 1
+        counter = 0
         for quad in self.programQuadruples:
             print(f'{counter} - {quad.operator},{quad.leftOp}.{quad.rightOp}.{quad.resultTemp}')
             counter+=1
