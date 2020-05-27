@@ -132,9 +132,9 @@ factor
   : (constant |
     LEFT_PARENTHESIS {compiler.addParenthesis()} mexp RIGHT_PARENTHESIS {compiler.popParenthesis()} |
     ID {compiler.addOperandAndType($ID.text)} ( |
-      (DETERMINANT | TRANSPOSE | INVERSE) |
-      LEFT_BRACKET mexp RIGHT_BRACKET |
-      LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp RIGHT_BRACKET ) |
+      (DETERMINANT {compiler.generate_determinant_quad($ID.text)} | TRANSPOSE{compiler.generate_transpose_quad($ID.text)} | INVERSE{compiler.generate_inverse_quad($ID.text)}) |
+      LEFT_BRACKET mexp {compiler.verify_first_index($ID.text)} RIGHT_BRACKET |
+      LEFT_BRACKET mexp {compiler.verify_first_index($ID.text)} RIGHT_BRACKET LEFT_BRACKET mexp {compiler.verify_second_index($ID.text)} RIGHT_BRACKET ) |
     ID {compiler.validate_function_expression($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.add_func_operand_and_type($ID.text)} {compiler.goto_function_quad($ID.text)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
   ;
 

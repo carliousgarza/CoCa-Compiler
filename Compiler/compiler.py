@@ -314,6 +314,20 @@ class Compiler:
                     raise Exception("Stack Overflow on local char variables")
                 self.memory.mem_local_char += (memory_size)
 
+    def verify_first_index(self, id):
+        print("verify_first_index cuh", id)
+
+    def verify_second_index(self, id):
+        print("verify_second_index cuh", id)
+
+    def generate_determinant_quad(self, id):
+        print("determinant cuh", id)
+
+    def generate_transpose_quad(self, id):
+        print("transpose cuh", id)
+
+    def generate_inverse_quad(self, id):
+        print("inverse cuh", id)
 
     def clear_local_memory(self):
         self.memory.mem_local_int = 20000
