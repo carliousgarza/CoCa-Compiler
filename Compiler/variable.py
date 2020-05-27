@@ -11,3 +11,5 @@ class Variable:
         self.isArray = False
         self.isMatrix = False
         self.size = 1
+        self.first_index = -1
+        self.second_index = -1

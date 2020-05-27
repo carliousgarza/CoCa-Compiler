@@ -216,6 +216,7 @@ class Compiler:
     def update_array_variable(self, id, index, vartype):
         index_num = int(index)
         self.currentFunction.varsTable[id].isArray = True
+        self.currentFunction.varsTable[id].size = index_num
         self.currentFunction.varsCount += (index_num-1)
         if self.currentFunction.name == "global":
             if vartype == "int":
@@ -264,7 +265,10 @@ class Compiler:
     def update_matrix_variable(self, id, first_index, second_index, vartype):
         memory_size = (int(first_index) * int(second_index)) - 1
         self.currentFunction.varsTable[id].isMatrix = True
-        self.currentFunction.varsCount += (memory_size)
+        self.currentFunction.varsTable[id].size = memory_size+1
+        self.currentFunction.varsTable[id].first_index = int(first_index)
+        self.currentFunction.varsTable[id].second_index = int(second_index)
+        self.currentFunction.varsCount += memory_size
 
         if self.currentFunction.name == "global":
             if vartype == "int":
