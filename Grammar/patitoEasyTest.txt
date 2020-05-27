@@ -1,18 +1,19 @@
 program littleDuck2020CorrectFileTest;
-var int: i, j;
+var
 bool: lol;
+int: array[5], i, matrix[10][20], j;
 
 
 function int uno (int m, int n, int o)
 {
     if (i == 0) then
-        {return(uno(i-1, i-2, o));}
+        {return(j* uno(i-1, i-2, o));}
     return (2);
 }
 
 function int dos (int x, int z)
 {
-  return(x);
+ i = 2;
 }
 
 function void tres(int x, int z)

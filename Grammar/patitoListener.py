@@ -60,15 +60,6 @@ class patitoListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by patitoParser#arrayconstant.
-    def enterArrayconstant(self, ctx:patitoParser.ArrayconstantContext):
-        pass
-
-    # Exit a parse tree produced by patitoParser#arrayconstant.
-    def exitArrayconstant(self, ctx:patitoParser.ArrayconstantContext):
-        pass
-
-
     # Enter a parse tree produced by patitoParser#functions.
     def enterFunctions(self, ctx:patitoParser.FunctionsContext):
         pass

@@ -146,28 +146,28 @@ class Compiler:
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_int}')
                     self.memory.mem_global_int += 1
                 elif vartype == "float":
-                    if self.memory.mem_global_int == 14000:
+                    if self.memory.mem_global_float == 14000:
                         raise Exception("Stack Overflow on global float variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_float)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_float}')
                     self.memory.mem_global_float += 1
                 elif vartype == "string":
-                    if self.memory.mem_global_int == 16000:
+                    if self.memory.mem_global_string == 16000:
                         raise Exception("Stack Overflow on global string variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_string)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_string}')
                     self.memory.mem_global_string += 1
                 elif vartype == "bool":
-                    if self.memory.mem_global_int == 18000:
+                    if self.memory.mem_global_bool == 18000:
                         raise Exception("Stack Overflow on global bool variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_bool)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_bool}')
                     self.memory.mem_global_bool += 1
                 elif vartype == "char":
-                    if self.memory.mem_global_int == 20000:
+                    if self.memory.mem_global_char == 20000:
                         raise Exception("Stack Overflow on global char variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_char)
                     self.currentFunction.varsCount += 1
@@ -213,6 +213,104 @@ class Compiler:
         else:
             print("You can't have two or more variables with the same name")
 
+    def update_array_variable(self, id, index, vartype):
+        index_num = int(index)
+        self.currentFunction.varsTable[id].isArray = True
+        self.currentFunction.varsCount += (index_num-1)
+        if self.currentFunction.name == "global":
+            if vartype == "int":
+                if self.memory.mem_global_int + (index_num-1) >= 12000:
+                    raise Exception("Stack Overflow on global integer variables")
+                self.memory.mem_global_int += (index_num-1)
+            elif vartype == "float":
+                if self.memory.mem_global_float + (index_num - 1) >= 14000:
+                    raise Exception("Stack Overflow on global float variables")
+                self.memory.mem_global_float += (index_num - 1)
+            elif vartype == "string":
+                if self.memory.mem_global_string + (index_num - 1) >= 16000:
+                    raise Exception("Stack Overflow on global string variables")
+                self.memory.mem_global_string += (index_num - 1)
+            elif vartype == "bool":
+                if self.memory.mem_global_bool + (index_num - 1) >= 18000:
+                    raise Exception("Stack Overflow on global bool variables")
+                self.memory.mem_global_bool += (index_num - 1)
+            elif vartype == "char":
+                if self.memory.mem_global_char + (index_num - 1) >= 20000:
+                    raise Exception("Stack Overflow on global char variables")
+                self.memory.mem_global_char += (index_num - 1)
+
+        else:
+            if vartype == "int":
+                if self.memory.mem_local_int + (index_num - 1) >= 22000:
+                    raise Exception("Stack Overflow on local integer variables")
+                self.memory.mem_local_int += (index_num - 1)
+            elif vartype == "float":
+                if self.memory.mem_local_float + (index_num - 1) >= 24000:
+                    raise Exception("Stack Overflow on local float variables")
+                self.memory.mem_local_float += (index_num - 1)
+            elif vartype == "string":
+                if self.memory.mem_local_string + (index_num - 1) >= 26000:
+                    raise Exception("Stack Overflow on local string variables")
+                self.memory.mem_local_string += (index_num - 1)
+            elif vartype == "bool":
+                if self.memory.mem_local_bool + (index_num - 1) >= 28000:
+                    raise Exception("Stack Overflow on local bool variables")
+                self.memory.mem_local_bool += (index_num - 1)
+            elif vartype == "char":
+                if self.memory.mem_local_char + (index_num - 1) >= 30000:
+                    raise Exception("Stack Overflow on local char variables")
+                self.memory.mem_local_char += (index_num - 1)
+
+    def update_matrix_variable(self, id, first_index, second_index, vartype):
+        memory_size = (int(first_index) * int(second_index)) - 1
+        self.currentFunction.varsTable[id].isMatrix = True
+        self.currentFunction.varsCount += (memory_size)
+
+        if self.currentFunction.name == "global":
+            if vartype == "int":
+                if self.memory.mem_global_int + (memory_size) >= 12000:
+                    raise Exception("Stack Overflow on global integer variables")
+                self.memory.mem_global_int += (memory_size)
+            elif vartype == "float":
+                if self.memory.mem_global_float + (memory_size) >= 14000:
+                    raise Exception("Stack Overflow on global float variables")
+                self.memory.mem_global_float += (memory_size)
+            elif vartype == "string":
+                if self.memory.mem_global_string + (memory_size) >= 16000:
+                    raise Exception("Stack Overflow on global string variables")
+                self.memory.mem_global_string += (memory_size)
+            elif vartype == "bool":
+                if self.memory.mem_global_bool + (memory_size) >= 18000:
+                    raise Exception("Stack Overflow on global bool variables")
+                self.memory.mem_global_bool += (memory_size)
+            elif vartype == "char":
+                if self.memory.mem_global_char + (memory_size) >= 20000:
+                    raise Exception("Stack Overflow on global char variables")
+                self.memory.mem_global_char += (memory_size)
+
+        else:
+            if vartype == "int":
+                if self.memory.mem_local_int + (memory_size) >= 22000:
+                    raise Exception("Stack Overflow on local integer variables")
+                self.memory.mem_local_int += (memory_size)
+            elif vartype == "float":
+                if self.memory.mem_local_float + (memory_size) >= 24000:
+                    raise Exception("Stack Overflow on local float variables")
+                self.memory.mem_local_float += (memory_size)
+            elif vartype == "string":
+                if self.memory.mem_local_string + (memory_size) >= 26000:
+                    raise Exception("Stack Overflow on local string variables")
+                self.memory.mem_local_string += (memory_size)
+            elif vartype == "bool":
+                if self.memory.mem_local_bool + (memory_size) >= 28000:
+                    raise Exception("Stack Overflow on local bool variables")
+                self.memory.mem_local_bool += (memory_size)
+            elif vartype == "char":
+                if self.memory.mem_local_char + (memory_size) >= 30000:
+                    raise Exception("Stack Overflow on local char variables")
+                self.memory.mem_local_char += (memory_size)
+
+
     def clear_local_memory(self):
         self.memory.mem_local_int = 20000
         self.memory.mem_local_float = 22000
@@ -246,10 +344,6 @@ class Compiler:
                     raise TypeError(f'Parameter {passedParameter} of type {passedParameterType} '
                                     f'cannot be matched with {parameter.vartype}')
                 else:
-                    # tenemos que asignar a memoria aqui passedParameter con su type
-                    #tenemos que hacer la validación de en que
-                    #tabla de variables esta el parametro que estamos pasando
-
                     parameterAddress = None
                     if passedParameter in self.currentFunction.varsTable:
                         parameterAddress = self.currentFunction.varsTable[passedParameter].address
@@ -302,7 +396,6 @@ class Compiler:
             raise TypeError(f'Void function {self.currentFunction.name} cannot have a return statement.')
 
     def create_endfunc(self):
-        self.currentFunction.endQuadruple = len(self.quadruples)
         quad = Quadruple('ENDFUNC', None, None, None)
         print('ENDFUNC', None, None, None)
         self.quadruples.append(quad)

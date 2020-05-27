@@ -9,6 +9,4 @@ class Function:
         self.parametersTable = parameters
         self.varsTable = varsTable
         self.startQuadruple = -1
-        self.endQuadruple = -1
         self.varsCount = 0
-        self.parchesGuadalupanos = {}

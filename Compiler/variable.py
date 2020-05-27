@@ -8,3 +8,6 @@ class Variable:
         self.vartype = vartype
         self.value = value
         self.address = address
+        self.isArray = False
+        self.isMatrix = False
+        self.size = 1

@@ -79,7 +79,7 @@ declarevars
   ;
 
 variables
-  : vartypes COLON ID arrayconstant? {compiler.update_vars_table($ID.text, $vartypes.text)} (COMMA ID arrayconstant? {compiler.update_vars_table($ID.text, $vartypes.text)})* SEMICOLON
+  : vartypes COLON ID {compiler.update_vars_table($ID.text, $vartypes.text)} (LEFT_BRACKET CTE_INT RIGHT_BRACKET {compiler.update_array_variable($ID.text, $CTE_INT.text, $vartypes.text)}| LEFT_BRACKET first_index=CTE_INT RIGHT_BRACKET LEFT_BRACKET second_index=CTE_INT RIGHT_BRACKET {compiler.update_matrix_variable($ID.text, $first_index.text, $second_index.text, $vartypes.text)})? (COMMA ID {compiler.update_vars_table($ID.text, $vartypes.text)} (LEFT_BRACKET CTE_INT RIGHT_BRACKET {compiler.update_array_variable($ID.text, $CTE_INT.text, $vartypes.text)}| LEFT_BRACKET first_index=CTE_INT RIGHT_BRACKET LEFT_BRACKET second_index=CTE_INT RIGHT_BRACKET {compiler.update_matrix_variable($ID.text, $first_index.text, $second_index.text, $vartypes.text)})?)* SEMICOLON
   ;
 
 vartypes
@@ -88,10 +88,6 @@ vartypes
 
 constant
   : (CTE_BOOL {compiler.addOperand($CTE_BOOL.text)} {compiler.addConstantToTypeStackAndTable("bool")} | SUB CTE_FLOAT {compiler.addOperand("-" + $CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | CTE_FLOAT {compiler.addOperand($CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | SUB CTE_INT {compiler.addOperand("-" + $CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_INT {compiler.addOperand($CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_CHAR {compiler.addOperand($CTE_CHAR.text)} {compiler.addConstantToTypeStackAndTable("char")}| CTE_STRING {compiler.addOperand($CTE_STRING.text)} {compiler.addConstantToTypeStackAndTable("string")})
-  ;
-
-arrayconstant
-  : LEFT_BRACKET CTE_INT RIGHT_BRACKET | LEFT_BRACKET CTE_INT RIGHT_BRACKET LEFT_BRACKET CTE_INT RIGHT_BRACKET
   ;
 
 functions
