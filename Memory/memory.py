@@ -3,6 +3,12 @@ from antlr4 import *
 
 class Memory:
     def __init__(self):
+        self.mem_temp_int = 0
+        self.mem_temp_float = 2000
+        self.mem_temp_bool = 4000
+        self.mem_temp_string = 6000
+        self.mem_temp_char = 8000
+
         self.mem_global_int = 10000
         self.mem_global_float = 12000
         self.mem_global_bool = 14000
@@ -17,8 +23,4 @@ class Memory:
 
         self.mem_constant = 30000
 
-        self.mem_temp_int = 0
-        self.mem_temp_float = 2000
-        self.mem_temp_bool = 4000
-        self.mem_temp_string = 6000
-        self.mem_temp_char = 8000
+        self.mem_pointers = 40000

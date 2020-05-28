@@ -363,30 +363,31 @@ class Compiler:
         elif indexOperand in self.functionTable["global"].varsTable:
             indexOperandAddress = self.functionTable["global"].varsTable[indexOperand].address
         elif indexOperand in self.constantTable:
-            indexOperandAddress = self.constantTable[indexOperand]
+            indexOperandAddress = self.constantTable[indexOperand].address
         else:
             indexOperandAddress = self.temporalStack[-1]
 
-        verifyQuad = Quadruple('VERIF', indexOperandAddress, self.constantTable['0'], self.constantTable[str(int(dimSize) - 1)])
+        verifyQuad = Quadruple('VERIF', indexOperandAddress, self.constantTable['0'].address, self.constantTable[str(int(dimSize) - 1)].address)
         print(f'VERIF {indexOperand} {indexOperandAddress} between 0 and {int(dimSize)-1}')
         self.quadruples.append(verifyQuad)
 
-        tempResult = 'X' + str(len(self.temporalStack))
-        if self.memory.mem_temp_int == 2000:
-            raise Exception("Stack Overflow on temporal integer variables")
-        self.temporalStack.append(self.memory.mem_temp_int)
-        print(f'temporal {tempResult} of type array index assigned to {self.memory.mem_temp_int}')
-        self.memory.mem_temp_int += 1
+        pointerResult = 'P' + str(len(self.temporalStack))
+        if self.memory.mem_pointers == 50000:
+            raise Exception("Stack Overflow on temporal pointer variables")
+        self.temporalStack.append(self.memory.mem_pointers)
+        print(f'temporal pointer {pointerResult} of type array index assigned to {self.memory.mem_pointers}')
+        self.memory.mem_pointers += 1
 
-        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress], indexOperandAddress, self.temporalStack[-1])
-        print(f'+ {baseAddress} {self.constantTable[baseAddress]} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
+        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress].address, indexOperandAddress, self.temporalStack[-1])
+        print(f'+ {baseAddress} {self.constantTable[baseAddress].address} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
         self.quadruples.append(baseAddressQuad)
-        self.addOperand(tempResult)
+        self.addOperand(pointerResult)
         self.addType(arrayType)
 
 
     def verify_two_indexes(self, id):
-        print("verify_second_index cuh", id)
+
+        # GET THE INFO OF  MATRIX
         baseAddress = None
         dimSize = None
         matrixType = None
@@ -406,6 +407,10 @@ class Compiler:
             secondIndex = self.functionTable["global"].varsTable[id].second_index
         else:
             raise Exception(f'Matrix {id} is not declared')
+
+
+        # IF THESE VALUES ARE NOT ALLOCATED IN MEMORY, THEY MUST BE ALLOCATED NOW
+        # AS THEY WILL BE NEEDED FOR OPERATIONS
 
         if baseAddress not in self.constantTable:
             if self.memory.mem_constant < 40000:
@@ -432,17 +437,23 @@ class Compiler:
             else:
                 raise Exception(f'StackOverflow on constants')
 
+
+        # POPPING OUT THE RESULTS FOR SECOND AND FIRST INDEX OPERANDS AND TYPECHECKING THEM
+
         secondIndexOperand = self.operandStack.pop()
         secondIndexType = self.typesStack.pop()
 
         if secondIndexType != 'int':
-            raise TypeError(f'Index value for array {id} is not an integer')
+            raise TypeError(f'Second index value for array {id} is not an integer')
 
         firstIndexOperand = self.operandStack.pop()
         firstIndexType = self.typesStack.pop()
 
         if firstIndexType != 'int':
-            raise TypeError(f'Index value for array {id} is not an integer')
+            raise TypeError(f'First index value for array {id} is not an integer')
+
+
+        # GET THE ADDRESS OF THE SECOND AND FIRST INDEX OPERANDS, BE IT A LOCAL VAR, GLOBAL VAR, TEMPORAL, OR CONSTANT
 
         firstIndexOperandAddress = None
         if firstIndexOperand in self.currentFunction.varsTable:
@@ -450,7 +461,7 @@ class Compiler:
         elif firstIndexOperand in self.functionTable["global"].varsTable:
             firstIndexOperandAddress = self.functionTable["global"].varsTable[firstIndexOperand].address
         elif firstIndexOperand in self.constantTable:
-            firstIndexOperandAddress = self.constantTable[firstIndexOperand]
+            firstIndexOperandAddress = self.constantTable[firstIndexOperand].address
         else:
             firstIndexOperandAddress = self.temporalStack[-1]
 
@@ -460,38 +471,69 @@ class Compiler:
         elif secondIndexOperand in self.functionTable["global"].varsTable:
             secondIndexOperandAddress = self.functionTable["global"].varsTable[secondIndexOperand].address
         elif secondIndexOperand in self.constantTable:
-            secondIndexOperandAddress = self.constantTable[secondIndexOperand]
+            secondIndexOperandAddress = self.constantTable[secondIndexOperand].address
         else:
             secondIndexOperandAddress = self.temporalStack[-1]
 
-        verifyFirstQuad = Quadruple('VERIF', firstIndexOperandAddress, self.constantTable['0'], self.constantTable[str(int(firstIndex)-1)])
-        print(f'VERIF {firstIndex} {firstIndexOperandAddress.address} between 0 and {self.constantTable[str(int(firstIndex)-1)].address}')
+
+        # CREATE A VERIFICATION QUAD FOR THE FIRST INDEX
+        # FIRST INDEX OPERAND MUST BE BETWEEN 0 AND THE FIRST DIMENSION SIZE - 1. THE 0 AND FIRST DIMENSION SIZE ARE STORED NOW IN CONSTANT TABLE
+
+        verifyFirstQuad = Quadruple('VERIF', firstIndexOperandAddress, self.constantTable['0'].address, self.constantTable[str(int(firstIndex)-1)].address)
+        print(f'VERIF {firstIndexOperand} {firstIndexOperandAddress} between 0 and {int(firstIndex)-1}')
         self.quadruples.append(verifyFirstQuad)
 
-        verifySecondQuad = Quadruple('VERIF', secondIndexOperandAddress, self.constantTable['0'], self.constantTable[str(int(secondIndex)-1)])
-        print(f'VERIF {secondIndex} {secondIndexOperandAddress.address} between 0 and {self.constantTable[str(int(secondIndex)-1)].address}')
+        # SAME BUT FOR SECOND INDEX OPERAND
+
+        verifySecondQuad = Quadruple('VERIF', secondIndexOperandAddress, self.constantTable['0'].address, self.constantTable[str(int(secondIndex)-1)].address)
+        print(f'VERIF {secondIndexOperand} {secondIndexOperandAddress} between 0 and {int(secondIndex)-1}')
         self.quadruples.append(verifySecondQuad)
 
-        tempResult = 'X' + str(len(self.temporalStack))
+        # NOW WE NAVIGATE TO THE LOCATION OF OUR FIRST INDEX BY MULTIPLYING THE FIRST INDEX OPERAND BY ITS DIMENSION'S SIZE
+        # WE GENERATE A QUAD FOR THAT, OF COURSE
+
+        firstIndexLocationTemp = 'X' + str(len(self.temporalStack))
         if self.memory.mem_temp_int == 2000:
-            raise Exception("Stack Overflow on temporal integer variables")
+            raise Exception("Stack Overflow on temporal int variables")
+        firstIndexLocationQuad = Quadruple('*', self.constantTable[str(int(firstIndex)-1)].address, firstIndexOperandAddress, self.memory.mem_temp_int)
+        print(f'* {self.constantTable[str(int(firstIndex)-1)].address} {firstIndexOperandAddress} {self.memory.mem_temp_int}')
+        print(f'temporal {firstIndexLocationTemp} of type int assigned to {self.memory.mem_temp_int}')
         self.temporalStack.append(self.memory.mem_temp_int)
-        print(f'temporal {tempResult} of type matrix index assigned to {self.memory.mem_temp_int}')
         self.memory.mem_temp_int += 1
 
-        ##############################################################################################################################
 
-        #AQUI ESTA EL PEDO
-        #TENGO QUE HACER LA MAMADA DE M0 M1 -K Y ESAS CHINGADERAS
-        #PARA PODER LLEGAR EXACTAMENTE AL ADDRESS QUE QUIERE INDEXAR EL USUARIO
+        # NOW WE NAVIGATE TO THE LOCATION OF OUR SECOND INDEX OPERAND BY ADDING THE PREVIOUS MULTIPLICATION TO OUR SECOND INDEX OPERAND
+        # AND WE MAKE THE QUAD
 
-        # baseAddressQuad = Quadruple('+', self.constantTable[baseAddress], indexOperandAddress, self.temporalStack[-1])
-        # print(f'+ {baseAddress} {self.constantTable[baseAddress]} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
-        # self.quadruples.append(baseAddressQuad)
-        # self.addOperand(tempResult)
-        # self.addType(arrayType)
-        
-        ##############################################################################################################################
+        secondIndexLocationTemp = 'X' + str(len(self.temporalStack))
+        if self.memory.mem_temp_int == 2000:
+            raise Exception("Stack Overflow on temporal int variables")
+        secondIndexLocationQuad = Quadruple('+', self.temporalStack[-1], secondIndexOperandAddress, self.memory.mem_temp_int)
+        print(f'+ {self.temporalStack[-1]} {secondIndexOperandAddress} {self.memory.mem_temp_int}')
+        print(f'temporal {secondIndexLocationTemp} of type int assigned to {self.memory.mem_temp_int}')
+        self.temporalStack.append(self.memory.mem_temp_int)
+        self.memory.mem_temp_int += 1
+
+        # THE PREVIOUS ADDITION IS NOW ADDED TO THE BASE ADDRESS AND WE MAKE A QUAD FOR IT TOO
+
+        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress].address, self.temporalStack[-1], self.memory.mem_pointers)
+        print(f'+ {baseAddress} {self.constantTable[baseAddress].address} {secondIndexLocationTemp} {self.temporalStack[-1]} {self.memory.mem_pointers}')
+        self.quadruples.append(baseAddressQuad)
+
+        # WE STORE THE WHOLE RESULT IN POINTER MEMORY, AS THE RESULT IS A MEMORY VALUE ALLOCATED TO A MEMORY ADDRESS.
+
+        pointerResult = 'P' + str(len(self.temporalStack))
+        if self.memory.mem_pointers == 50000:
+            raise Exception("Stack Overflow on temporal pointer variables")
+        print(f'temporal pointer {pointerResult} of type matrix index assigned to {self.memory.mem_pointers}')
+        self.temporalStack.append(self.memory.mem_pointers)
+        self.memory.mem_pointers += 1
+
+        # THE RESULTING ADDRESS MUST BE ADDED TO THE OPERAND STACK NOW, WITH THE MATRIX TYPE, FOR WHATEVER THE NEXT STEP IS
+
+        self.addOperand(pointerResult)
+        self.addType(matrixType)
+
 
 
 
@@ -572,6 +614,7 @@ class Compiler:
         self.memory.mem_temp_bool = 4000
         self.memory.mem_temp_string = 6000
         self.memory.mem_temp_char = 8000
+        self.memory.mem_pointers = 40000
 
     def validate_void_function(self, id):
         if id in self.functionTable:
