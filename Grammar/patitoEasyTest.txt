@@ -1,7 +1,7 @@
 program littleDuck2020CorrectFileTest;
 var
-bool: lol;
-int: array[5], i, matrix[10][20], j;
+bool: lol, belinda[20][10], drake[20][10];
+int: array[5], i, matrix[10][10], j, john[10][10], mary[2][10], gloriatrevi[10][10];
 
 
 function int uno (int m, int n, int o)
@@ -13,7 +13,7 @@ function int uno (int m, int n, int o)
 
 function int dos (int x, int z)
 {
- i = matrix$;
+ i = uno(john, i, i);
 }
 
 function void tres(int x, int z)

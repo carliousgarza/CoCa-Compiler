@@ -256,27 +256,27 @@ class patitoParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
-                     "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='",
-                     "'&&'", "'||'", "'+'", "'-'", "'*'", "'/'", "'('",
-                     "')'", "'['", "']'", "'{'", "'}'", "'$'", "'\u00A1'",
-                     "'?'", "','", "':'", "';'", "'program'", "'main'",
-                     "'function'", "'return'", "'input'", "'print'", "'if'",
-                     "'then'", "'else'", "'while'", "'do'", "'from'", "'to'",
-                     "'var'", "'bool'", "'int'", "'float'", "'string'",
-                     "'char'", "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
+                     "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='", 
+                     "'&&'", "'||'", "'+'", "'-'", "'*'", "'/'", "'('", 
+                     "')'", "'['", "']'", "'{'", "'}'", "'$'", "'#'", "'?'", 
+                     "','", "':'", "';'", "'program'", "'main'", "'function'", 
+                     "'return'", "'input'", "'print'", "'if'", "'then'", 
+                     "'else'", "'while'", "'do'", "'from'", "'to'", "'var'", 
+                     "'bool'", "'int'", "'float'", "'string'", "'char'", 
+                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "'void'" ]
 
-    symbolicNames = [ "<INVALID>", "COMMENT", "LINE_COMMENT", "WS", "LESS",
-                      "GREATER", "LESS_EQUAL", "GREATER_EQUAL", "EQUAL",
-                      "NOT_EQUAL", "ASSIGN", "AND", "OR", "ADD", "SUB",
-                      "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS",
-                      "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY",
-                      "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON",
-                      "SEMICOLON", "PROGRAM", "MAIN", "FUNCTION", "RETURN",
-                      "INPUT", "PRINT", "IF", "THEN", "ELSE", "WHILE", "DO",
-                      "FROM", "TO", "VAR", "BOOL", "INT", "FLOAT", "STRING",
-                      "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", "CTE_CHAR",
+    symbolicNames = [ "<INVALID>", "COMMENT", "LINE_COMMENT", "WS", "LESS", 
+                      "GREATER", "LESS_EQUAL", "GREATER_EQUAL", "EQUAL", 
+                      "NOT_EQUAL", "ASSIGN", "AND", "OR", "ADD", "SUB", 
+                      "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+                      "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY", 
+                      "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON", 
+                      "SEMICOLON", "PROGRAM", "MAIN", "FUNCTION", "RETURN", 
+                      "INPUT", "PRINT", "IF", "THEN", "ELSE", "WHILE", "DO", 
+                      "FROM", "TO", "VAR", "BOOL", "INT", "FLOAT", "STRING", 
+                      "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", "CTE_CHAR", 
                       "CTE_STRING", "VOID", "ID" ]
 
     RULE_program = 0
@@ -305,10 +305,10 @@ class patitoParser ( Parser ):
     RULE_fromloop = 23
     RULE_mainfunc = 24
 
-    ruleNames =  [ "program", "declarevars", "variables", "vartypes", "constant",
-                   "functions", "function", "functiontype", "parameters",
-                   "mexp", "sexp", "exp", "term", "factor", "statute", "assignation",
-                   "funccall", "returncall", "indexvariable", "read", "write",
+    ruleNames =  [ "program", "declarevars", "variables", "vartypes", "constant", 
+                   "functions", "function", "functiontype", "parameters", 
+                   "mexp", "sexp", "exp", "term", "factor", "statute", "assignation", 
+                   "funccall", "returncall", "indexvariable", "read", "write", 
                    "conditional", "whileloop", "fromloop", "mainfunc" ]
 
     EOF = Token.EOF
@@ -373,6 +373,7 @@ class patitoParser ( Parser ):
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
         self.compiler = compiler
+
 
 
 
@@ -492,13 +493,13 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 61
             self.match(patitoParser.VAR)
-            self.state = 63
+            self.state = 63 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 62
                 self.variables()
-                self.state = 65
+                self.state = 65 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.BOOL) | (1 << patitoParser.INT) | (1 << patitoParser.FLOAT) | (1 << patitoParser.STRING) | (1 << patitoParser.CHAR))) != 0)):
@@ -879,13 +880,13 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 135
+            self.state = 135 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 134
                 self.function()
-                self.state = 137
+                self.state = 137 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==patitoParser.FUNCTION):
@@ -1547,6 +1548,9 @@ class patitoParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
             self._ID = None # Token
+            self._DETERMINANT = None # Token
+            self._TRANSPOSE = None # Token
+            self._INVERSE = None # Token
 
         def constant(self):
             return self.getTypedRuleContext(patitoParser.ConstantContext,0)
@@ -1651,18 +1655,18 @@ class patitoParser ( Parser ):
                     token = self._input.LA(1)
                     if token in [patitoParser.DETERMINANT]:
                         self.state = 254
-                        self.match(patitoParser.DETERMINANT)
-                        self.compiler.generate_determinant_quad((None if localctx._ID is None else localctx._ID.text))
+                        localctx._DETERMINANT = self.match(patitoParser.DETERMINANT)
+                        self.compiler.generate_matrix_operation_quad((None if localctx._DETERMINANT is None else localctx._DETERMINANT.text))
                         pass
                     elif token in [patitoParser.TRANSPOSE]:
                         self.state = 256
-                        self.match(patitoParser.TRANSPOSE)
-                        self.compiler.generate_transpose_quad((None if localctx._ID is None else localctx._ID.text))
+                        localctx._TRANSPOSE = self.match(patitoParser.TRANSPOSE)
+                        self.compiler.generate_matrix_operation_quad((None if localctx._TRANSPOSE is None else localctx._TRANSPOSE.text))
                         pass
                     elif token in [patitoParser.INVERSE]:
                         self.state = 258
-                        self.match(patitoParser.INVERSE)
-                        self.compiler.generate_inverse_quad((None if localctx._ID is None else localctx._ID.text))
+                        localctx._INVERSE = self.match(patitoParser.INVERSE)
+                        self.compiler.generate_matrix_operation_quad((None if localctx._INVERSE is None else localctx._INVERSE.text))
                         pass
                     else:
                         raise NoViableAltException(self)
@@ -2798,3 +2802,8 @@ class patitoParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
+
+
+
+
