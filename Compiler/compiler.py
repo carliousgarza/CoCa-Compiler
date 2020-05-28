@@ -325,7 +325,7 @@ class Compiler:
             baseAddress = self.currentFunction.varsTable[id].address
             dimSize = self.currentFunction.varsTable[id].size
             arrayType = self.currentFunction.varsTable[id].vartype
-        elif id in self.functionTable["global"].varsTable[id].address:
+        elif id in self.functionTable["global"].varsTable:
             baseAddress = self.functionTable["global"].varsTable[id].address
             dimSize = self.functionTable["global"].varsTable[id].size
             arrayType = self.functionTable["global"].varsTable[id].vartype
@@ -385,10 +385,115 @@ class Compiler:
         self.addType(arrayType)
 
 
-
-
     def verify_two_indexes(self, id):
         print("verify_second_index cuh", id)
+        baseAddress = None
+        dimSize = None
+        matrixType = None
+        firstIndex = None
+        secondIndex = None
+        if id in self.currentFunction.varsTable:
+            baseAddress = self.currentFunction.varsTable[id].address
+            dimSize = self.currentFunction.varsTable[id].size
+            matrixType = self.currentFunction.varsTable[id].vartype
+            firstIndex = self.currentFunction.varsTable[id].first_index
+            secondIndex = self.currentFunction.varsTable[id].second_index
+        elif id in self.functionTable["global"].varsTable:
+            baseAddress = self.functionTable["global"].varsTable[id].address
+            dimSize = self.functionTable["global"].varsTable[id].size
+            matrixType = self.functionTable["global"].varsTable[id].vartype
+            firstIndex = self.functionTable["global"].varsTable[id].first_index
+            secondIndex = self.functionTable["global"].varsTable[id].second_index
+        else:
+            raise Exception(f'Matrix {id} is not declared')
+
+        if baseAddress not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if '0' not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable['0'] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if str(int(firstIndex)-1) not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[str(int(firstIndex)-1)] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if str(int(secondIndex)-1) not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[str(int(secondIndex)-1)] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+
+        secondIndexOperand = self.operandStack.pop()
+        secondIndexType = self.typesStack.pop()
+
+        if secondIndexType != 'int':
+            raise TypeError(f'Index value for array {id} is not an integer')
+
+        firstIndexOperand = self.operandStack.pop()
+        firstIndexType = self.typesStack.pop()
+
+        if firstIndexType != 'int':
+            raise TypeError(f'Index value for array {id} is not an integer')
+
+        firstIndexOperandAddress = None
+        if firstIndexOperand in self.currentFunction.varsTable:
+            firstIndexOperandAddress = self.currentFunction.varsTable[firstIndexOperand].address
+        elif firstIndexOperand in self.functionTable["global"].varsTable:
+            firstIndexOperandAddress = self.functionTable["global"].varsTable[firstIndexOperand].address
+        elif firstIndexOperand in self.constantTable:
+            firstIndexOperandAddress = self.constantTable[firstIndexOperand]
+        else:
+            firstIndexOperandAddress = self.temporalStack[-1]
+
+        secondIndexOperandAddress = None
+        if secondIndexOperand in self.currentFunction.varsTable:
+            secondIndexOperandAddress = self.currentFunction.varsTable[secondIndexOperand].address
+        elif secondIndexOperand in self.functionTable["global"].varsTable:
+            secondIndexOperandAddress = self.functionTable["global"].varsTable[secondIndexOperand].address
+        elif secondIndexOperand in self.constantTable:
+            secondIndexOperandAddress = self.constantTable[secondIndexOperand]
+        else:
+            secondIndexOperandAddress = self.temporalStack[-1]
+
+        verifyFirstQuad = Quadruple('VERIF', firstIndexOperandAddress, self.constantTable['0'], self.constantTable[str(int(firstIndex)-1)])
+        print(f'VERIF {firstIndex} {firstIndexOperandAddress.address} between 0 and {self.constantTable[str(int(firstIndex)-1)].address}')
+        self.quadruples.append(verifyFirstQuad)
+
+        verifySecondQuad = Quadruple('VERIF', secondIndexOperandAddress, self.constantTable['0'], self.constantTable[str(int(secondIndex)-1)])
+        print(f'VERIF {secondIndex} {secondIndexOperandAddress.address} between 0 and {self.constantTable[str(int(secondIndex)-1)].address}')
+        self.quadruples.append(verifySecondQuad)
+
+        tempResult = 'X' + str(len(self.temporalStack))
+        if self.memory.mem_temp_int == 2000:
+            raise Exception("Stack Overflow on temporal integer variables")
+        self.temporalStack.append(self.memory.mem_temp_int)
+        print(f'temporal {tempResult} of type matrix index assigned to {self.memory.mem_temp_int}')
+        self.memory.mem_temp_int += 1
+
+        ##############################################################################################################################
+
+        #AQUI ESTA EL PEDO
+        #TENGO QUE HACER LA MAMADA DE M0 M1 -K Y ESAS CHINGADERAS
+        #PARA PODER LLEGAR EXACTAMENTE AL ADDRESS QUE QUIERE INDEXAR EL USUARIO
+
+        # baseAddressQuad = Quadruple('+', self.constantTable[baseAddress], indexOperandAddress, self.temporalStack[-1])
+        # print(f'+ {baseAddress} {self.constantTable[baseAddress]} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
+        # self.quadruples.append(baseAddressQuad)
+        # self.addOperand(tempResult)
+        # self.addType(arrayType)
+        
+        ##############################################################################################################################
+
+
 
     def generate_matrix_operation_quad(self, operator):
         operand = self.operandStack.pop()

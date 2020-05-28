@@ -18,7 +18,7 @@ function int dos (int x, int z)
 
 function void tres(int x, int z)
 {
-  i = 1;
+  i = john[1][2];
 }
 
 main()
