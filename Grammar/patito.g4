@@ -133,8 +133,8 @@ factor
     LEFT_PARENTHESIS {compiler.addParenthesis()} mexp RIGHT_PARENTHESIS {compiler.popParenthesis()} |
     ID {compiler.addOperandAndType($ID.text)} ( |
       (DETERMINANT {compiler.generate_matrix_operation_quad($DETERMINANT.text)} | TRANSPOSE  {compiler.generate_matrix_operation_quad($TRANSPOSE.text)} | INVERSE  {compiler.generate_matrix_operation_quad($INVERSE.text)}) |
-      LEFT_BRACKET mexp {compiler.verify_first_index($ID.text)} RIGHT_BRACKET |
-      LEFT_BRACKET mexp {compiler.verify_first_index($ID.text)} RIGHT_BRACKET LEFT_BRACKET mexp {compiler.verify_second_index($ID.text)} RIGHT_BRACKET ) |
+      LEFT_BRACKET mexp {compiler.verify_one_index($ID.text)} RIGHT_BRACKET |
+      LEFT_BRACKET mexp RIGHT_BRACKET LEFT_BRACKET mexp {compiler.verify_two_indexes($ID.text)} RIGHT_BRACKET ) |
     ID {compiler.validate_function_expression($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.add_func_operand_and_type($ID.text)} {compiler.goto_function_quad($ID.text)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
   ;
 

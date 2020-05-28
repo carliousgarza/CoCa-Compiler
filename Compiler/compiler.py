@@ -57,9 +57,12 @@ class Compiler:
     def addConstantToTypeStackAndTable(self, vartype):
         self.typesStack.append(vartype)
         if self.operandStack[-1] not in self.constantTable:
-            self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant)
-            print(f'added constant {vartype} {self.operandStack[-1]} to {self.memory.mem_constant}')
-            self.memory.mem_constant += 1
+            if self.memory.mem_constant < 40000:
+                self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant)
+                print(f'added constant {vartype} {self.operandStack[-1]} to {self.memory.mem_constant}')
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
 
     def addType(self, vartype):
         self.typesStack.append(vartype)
@@ -314,10 +317,77 @@ class Compiler:
                     raise Exception("Stack Overflow on local char variables")
                 self.memory.mem_local_char += (memory_size)
 
-    def verify_first_index(self, id):
-        print("verify_first_index cuh", id)
+    def verify_one_index(self, id):
+        baseAddress = None
+        dimSize = None
+        arrayType = None
+        if id in self.currentFunction.varsTable:
+            baseAddress = self.currentFunction.varsTable[id].address
+            dimSize = self.currentFunction.varsTable[id].size
+            arrayType = self.currentFunction.varsTable[id].vartype
+        elif id in self.functionTable["global"].varsTable[id].address:
+            baseAddress = self.functionTable["global"].varsTable[id].address
+            dimSize = self.functionTable["global"].varsTable[id].size
+            arrayType = self.functionTable["global"].varsTable[id].vartype
+        else:
+            raise Exception(f'List {id} is not declared')
 
-    def verify_second_index(self, id):
+        if baseAddress not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if '0' not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable['0'] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if str(int(dimSize)-1) not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[str(int(dimSize)-1)] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+
+        indexOperand = self.operandStack.pop()
+        indexType = self.typesStack.pop()
+
+        if indexType != 'int':
+            raise TypeError(f'Index value for array {id} is not an integer')
+
+        indexOperandAddress = None
+        if indexOperand in self.currentFunction.varsTable:
+            indexOperandAddress = self.currentFunction.varsTable[indexOperand].address
+        elif indexOperand in self.functionTable["global"].varsTable:
+            indexOperandAddress = self.functionTable["global"].varsTable[indexOperand].address
+        elif indexOperand in self.constantTable:
+            indexOperandAddress = self.constantTable[indexOperand]
+        else:
+            indexOperandAddress = self.temporalStack[-1]
+
+        verifyQuad = Quadruple('VERIF', indexOperandAddress, self.constantTable['0'], self.constantTable[str(int(dimSize) - 1)])
+        print(f'VERIF {indexOperand} {indexOperandAddress} between 0 and {int(dimSize)-1}')
+        self.quadruples.append(verifyQuad)
+
+        tempResult = 'X' + str(len(self.temporalStack))
+        if self.memory.mem_temp_int == 2000:
+            raise Exception("Stack Overflow on temporal integer variables")
+        self.temporalStack.append(self.memory.mem_temp_int)
+        print(f'temporal {tempResult} of type array index assigned to {self.memory.mem_temp_int}')
+        self.memory.mem_temp_int += 1
+
+        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress], indexOperandAddress, self.temporalStack[-1])
+        print(f'+ {baseAddress} {self.constantTable[baseAddress]} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
+        self.quadruples.append(baseAddressQuad)
+        self.addOperand(tempResult)
+        self.addType(arrayType)
+
+
+
+
+    def verify_two_indexes(self, id):
         print("verify_second_index cuh", id)
 
     def generate_matrix_operation_quad(self, operator):
