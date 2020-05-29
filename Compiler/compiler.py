@@ -4,6 +4,7 @@ from Compiler.variable import *
 from Compiler.quadruple import *
 from Compiler.semanticCube import *
 from Compiler.constant import *
+from Compiler.temporalDimensionVariable import *
 from Memory.memory import Memory
 import operator
 
@@ -18,12 +19,12 @@ class Compiler:
         self.operandStack = []
         self.jumpStack = []
         self.typesStack = []
-        self.tempStack = []
         self.scube = SemanticCube()
         self.loopVariableStack = []
         self.functionStack = []
         self.memory = Memory()
         self.temporalStack = []
+        self.temporalDimensionVariableStack = []
         print("compiling...")
 
     def get_quadruples(self):
@@ -317,18 +318,21 @@ class Compiler:
                     raise Exception("Stack Overflow on local char variables")
                 self.memory.mem_local_char += (memory_size)
 
-    def verify_one_index(self, id):
+    def verify_one_index(self):
+        id = self.operandStack.pop(-2)
+        arrayType = self.typesStack.pop()
         baseAddress = None
         dimSize = None
-        arrayType = None
         if id in self.currentFunction.varsTable:
+            if not self.currentFunction.varsTable[id].isArray:
+                raise Exception(f'Error: wrong dimensions entered in {id}')
             baseAddress = self.currentFunction.varsTable[id].address
             dimSize = self.currentFunction.varsTable[id].size
-            arrayType = self.currentFunction.varsTable[id].vartype
         elif id in self.functionTable["global"].varsTable:
+            if not self.functionTable["global"].varsTable[id].isArray:
+                raise Exception(f'Error: wrong dimensions entered in {id}')
             baseAddress = self.functionTable["global"].varsTable[id].address
             dimSize = self.functionTable["global"].varsTable[id].size
-            arrayType = self.functionTable["global"].varsTable[id].vartype
         else:
             raise Exception(f'List {id} is not declared')
 
@@ -385,24 +389,25 @@ class Compiler:
         self.addType(arrayType)
 
 
-    def verify_two_indexes(self, id):
-
-        # GET THE INFO OF  MATRIX
+    def verify_two_indexes(self):
+        id = self.operandStack.pop(-3)
+        matrixType = self.typesStack.pop()
         baseAddress = None
         dimSize = None
-        matrixType = None
         firstIndex = None
         secondIndex = None
         if id in self.currentFunction.varsTable:
+            if not self.currentFunction.varsTable[id].isMatrix:
+                raise Exception(f'Error: wrong dimensions entered in {id}')
             baseAddress = self.currentFunction.varsTable[id].address
             dimSize = self.currentFunction.varsTable[id].size
-            matrixType = self.currentFunction.varsTable[id].vartype
             firstIndex = self.currentFunction.varsTable[id].first_index
             secondIndex = self.currentFunction.varsTable[id].second_index
         elif id in self.functionTable["global"].varsTable:
+            if not self.functionTable["global"].varsTable[id].isMatrix:
+                raise Exception(f'Error: wrong dimensions entered in {id}')
             baseAddress = self.functionTable["global"].varsTable[id].address
             dimSize = self.functionTable["global"].varsTable[id].size
-            matrixType = self.functionTable["global"].varsTable[id].vartype
             firstIndex = self.functionTable["global"].varsTable[id].first_index
             secondIndex = self.functionTable["global"].varsTable[id].second_index
         else:
@@ -430,9 +435,21 @@ class Compiler:
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
+        if firstIndex not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[firstIndex] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
         if str(int(secondIndex)-1) not in self.constantTable:
             if self.memory.mem_constant < 40000:
                 self.constantTable[str(int(secondIndex)-1)] = Constant('int', self.memory.mem_constant)
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+        if secondIndex not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable[secondIndex] = Constant('int', self.memory.mem_constant)
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -489,17 +506,18 @@ class Compiler:
         print(f'VERIF {secondIndexOperand} {secondIndexOperandAddress} between 0 and {int(secondIndex)-1}')
         self.quadruples.append(verifySecondQuad)
 
-        # NOW WE NAVIGATE TO THE LOCATION OF OUR FIRST INDEX BY MULTIPLYING THE FIRST INDEX OPERAND BY ITS DIMENSION'S SIZE
+        # NOW WE NAVIGATE TO THE LOCATION OF OUR FIRST INDEX BY MULTIPLYING THE FIRST INDEX OPERAND BY THE SECOND DIMENSION'S SIZE
         # WE GENERATE A QUAD FOR THAT, OF COURSE
 
         firstIndexLocationTemp = 'X' + str(len(self.temporalStack))
         if self.memory.mem_temp_int == 2000:
             raise Exception("Stack Overflow on temporal int variables")
-        firstIndexLocationQuad = Quadruple('*', self.constantTable[str(int(firstIndex)-1)].address, firstIndexOperandAddress, self.memory.mem_temp_int)
-        print(f'* {self.constantTable[str(int(firstIndex)-1)].address} {firstIndexOperandAddress} {self.memory.mem_temp_int}')
+        firstIndexLocationQuad = Quadruple('*', self.constantTable[secondIndex].address, firstIndexOperandAddress, self.memory.mem_temp_int)
+        print(f'* {secondIndex} {self.constantTable[secondIndex].address} {firstIndexOperand} {firstIndexOperandAddress} {self.memory.mem_temp_int}')
         print(f'temporal {firstIndexLocationTemp} of type int assigned to {self.memory.mem_temp_int}')
         self.temporalStack.append(self.memory.mem_temp_int)
         self.memory.mem_temp_int += 1
+        self.quadruples.append(firstIndexLocationQuad)
 
 
         # NOW WE NAVIGATE TO THE LOCATION OF OUR SECOND INDEX OPERAND BY ADDING THE PREVIOUS MULTIPLICATION TO OUR SECOND INDEX OPERAND
@@ -509,10 +527,11 @@ class Compiler:
         if self.memory.mem_temp_int == 2000:
             raise Exception("Stack Overflow on temporal int variables")
         secondIndexLocationQuad = Quadruple('+', self.temporalStack[-1], secondIndexOperandAddress, self.memory.mem_temp_int)
-        print(f'+ {self.temporalStack[-1]} {secondIndexOperandAddress} {self.memory.mem_temp_int}')
+        print(f'+ {firstIndexLocationTemp} {self.temporalStack[-1]} {secondIndexOperand} {secondIndexOperandAddress} {self.memory.mem_temp_int}')
         print(f'temporal {secondIndexLocationTemp} of type int assigned to {self.memory.mem_temp_int}')
         self.temporalStack.append(self.memory.mem_temp_int)
         self.memory.mem_temp_int += 1
+        self.quadruples.append(secondIndexLocationQuad)
 
         # THE PREVIOUS ADDITION IS NOW ADDED TO THE BASE ADDRESS AND WE MAKE A QUAD FOR IT TOO
 
@@ -543,50 +562,70 @@ class Compiler:
         size = None
         address = None
         isMatrix = False
+        firstIndex = None
+        secondIndex = None
 
         if operand in self.currentFunction.varsTable:
             size = self.currentFunction.varsTable[operand].size
             address= self.currentFunction.varsTable[operand].address
             isMatrix = self.currentFunction.varsTable[operand].isMatrix
+            if isMatrix:
+                firstIndex = self.currentFunction.varsTable[operand].first_index
+                secondIndex = self.currentFunction.varsTable[operand].second_index
+
         elif operand in self.functionTable["global"].varsTable:
             size = self.functionTable["global"].varsTable[operand].size
             address = self.functionTable["global"].varsTable[operand].address
             isMatrix = self.functionTable["global"].varsTable[operand].isMatrix
+            if isMatrix:
+                firstIndex = self.functionTable["global"].varsTable[operand].first_index
+                secondIndex = self.functionTable["global"].varsTable[operand].second_index
         else:
             raise Exception(f'{operand} is not declared')
 
+        newFirstIndex = firstIndex
+        newSecondIndex = secondIndex
+
+        if operator == '#':
+            newFirstIndex = secondIndex
+            newSecondIndex = firstIndex
 
         if isMatrix:
-            tempResult = 'X' + str(len(self.temporalStack))
+            tempResult = 'M' + str(len(self.temporalDimensionVariableStack))
             if operandType == "int":
                 if self.memory.mem_temp_int+size >= 2000:
                     raise Exception("Stack Overflow on temporal integer variables")
-                self.temporalStack.append(self.memory.mem_temp_int)
                 print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_int}')
+                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                     (self.memory.mem_temp_int, newFirstIndex, newSecondIndex, operandType, size))
                 self.memory.mem_temp_int += size
             elif operandType == "float":
                 if self.memory.mem_temp_float+size >= 4000:
                     raise Exception("Stack Overflow on temporal float variables")
-                self.temporalStack.append(self.memory.mem_temp_float)
                 print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_float}')
+                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                     (self.memory.mem_temp_float, newFirstIndex, newSecondIndex, operandType, size))
                 self.memory.mem_temp_float += size
             elif operandType == "string":
                 if self.memory.mem_temp_string+size >= 6000:
                     raise Exception("Stack Overflow on temporal string variables")
-                self.temporalStack.append(self.memory.mem_temp_string)
                 print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_string}')
+                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                     (self.memory.mem_temp_string, newFirstIndex, newSecondIndex, operandType, size))
                 self.memory.mem_temp_string += size
             elif operandType == "bool":
                 if self.memory.mem_temp_bool + size >= 8000:
                     raise Exception("Stack Overflow on temporal bool variables")
-                self.temporalStack.append(self.memory.mem_temp_bool)
                 print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_bool}')
+                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                     (self.memory.mem_temp_bool, newFirstIndex, newSecondIndex, operandType, size))
                 self.memory.mem_temp_bool += size
             elif operandType == "char":
                 if self.memory.mem_temp_char + size >= 10000:
                     raise Exception("Stack Overflow on temporal char variables")
-                self.temporalStack.append(self.memory.mem_temp_char)
                 print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_char}')
+                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                     (self.memory.mem_temp_char, newFirstIndex, newSecondIndex, operandType, size))
                 self.memory.mem_temp_char += size
 
             # Add result to the Operand Stack
@@ -595,8 +634,8 @@ class Compiler:
             # Add matrix type to type stack
             self.addType(operandType)
 
-            quad = Quadruple(operator, address, None, self.temporalStack[-1])
-            print(operator, operand, address, tempResult, self.temporalStack[-1])
+            quad = Quadruple(operator, address, None, self.temporalDimensionVariableStack[-1].address)
+            print(operator, operand, address, tempResult, self.temporalDimensionVariableStack[-1].address)
             self.quadruples.append(quad)
         else:
             raise TypeError(f'{operator} operand can only be applied to a matrix')
@@ -633,7 +672,7 @@ class Compiler:
             for idx,parameter in enumerate(reversed(self.functionTable[id].parametersTable)):
                 passedParameter = self.operandStack.pop()
                 passedParameterType = self.typesStack.pop()
-                if(parameter.vartype != passedParameterType):
+                if parameter.vartype != passedParameterType:
                     raise TypeError(f'Parameter {passedParameter} of type {passedParameterType} '
                                     f'cannot be matched with {parameter.vartype}')
                 else:
@@ -708,23 +747,23 @@ class Compiler:
     def topIsMultOrDiv(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "*" or self.operatorStack[-1] == "/":
-                self.generateQuad()
+                self.check_for_array_or_matrix()
 
     def topIsAddOrSub(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "+" or self.operatorStack[-1] == "-":
-                self.generateQuad()
+                self.check_for_array_or_matrix()
 
     def topIsComparison(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "==" or self.operatorStack[-1] == "!=" or self.operatorStack[-1] == ">=" or \
                     self.operatorStack[-1] == "<=" or self.operatorStack[-1] == ">" or self.operatorStack[-1] == "<":
-                self.generateQuad()
+                self.check_for_array_or_matrix()
 
     def topIsLogicOperator(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
-                self.generateQuad()
+                self.check_for_array_or_matrix()
 
     # QUADRUPLES
 
@@ -947,19 +986,25 @@ class Compiler:
         print(self.quadruples[whileAfterCheckIndex].operator, self.quadruples[whileAfterCheckIndex].leftOp,
               self.quadruples[whileAfterCheckIndex].rightOp, self.quadruples[whileAfterCheckIndex].resultTemp)
 
-    def generateReadQuad(self, operand):
-        # NOTE: If we need the type in the future, we could assign it here in either the 3rd or 4th position of the quad.
+    def generateReadQuad(self):
+        operand = self.operandStack.pop()
+        operandType = self.typesStack.pop()
+
         if operand in self.currentFunction.varsTable:
             if self.currentFunction.varsTable[operand].isMatrix or self.currentFunction.varsTable[operand].isArray:
                 raise Exception('You cannot write into a whole matrix/array')
-            print("read", operand, self.currentFunction.varsTable[operand].address, None, "-")
-            quad = Quadruple("read", self.currentFunction.varsTable[operand].address, None, "_")
+            print("read", operand, self.currentFunction.varsTable[operand].address, operandType, "-")
+            quad = Quadruple("read", self.currentFunction.varsTable[operand].address, operandType, "_")
             self.quadruples.append(quad)
         elif operand in self.functionTable["global"].varsTable:
             if self.functionTable["global"].varsTable[operand].isMatrix or self.functionTable["global"].varsTable[operand].isArray:
                 raise Exception('You cannot write into a whole matrix/array')
-            print("read", operand, self.functionTable["global"].varsTable[operand].address, None, "-")
-            quad = Quadruple("read", self.functionTable["global"].varsTable[operand].address, None, "_")
+            print("read", operand, self.functionTable["global"].varsTable[operand].address, operandType, "-")
+            quad = Quadruple("read", self.functionTable["global"].varsTable[operand].address, operandType, "_")
+            self.quadruples.append(quad)
+        elif int(self.temporalStack[-1] >= 40000):
+            print("read", operand, self.temporalStack[-1], operandType, "-")
+            quad = Quadruple("read", self.temporalStack[-1], operandType, "_")
             self.quadruples.append(quad)
         else:
             raise ValueError(f'The variable {operand} is not declared')
@@ -993,9 +1038,7 @@ class Compiler:
         while self.operatorStack and self.operatorStack[-1] == "=":
             rightOperand = self.operandStack.pop()
             leftOperand = self.operandStack.pop()
-
             operator = self.operatorStack.pop()
-
             rightOperandType = self.typesStack.pop()
             leftOperandType = self.typesStack.pop()
 
@@ -1003,139 +1046,78 @@ class Compiler:
             if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
                 raise TypeError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
 
-            # BEFORE PROCEEDING WITH REGULAR ASSIGNMENT, WE MUST
-            # CHECK FOR TRANSPOSE/DETERMINANT/INVERSE ASSIGNMENT.
-            if self.quadruples[-1].operator == '#':
-                if leftOperand in self.currentFunction.varsTable and self.currentFunction.varsTable[leftOperand].isMatrix is False:
-                    raise TypeError(f'{leftOperand} of type {leftOperandType} cannot be assigned a transposed matrix')
-                elif leftOperand in self.functionTable["global"].varsTable and self.functionTable["global"].varsTable[leftOperand].isMatrix is False:
-                    raise TypeError(f'{leftOperand} of type {leftOperandType} cannot be assigned a transposed matrix')
+            # Applying semantics to matrixes and arrays
+            # this includes transpose, determinant and inverse operations
+            leftOperandVariable = None
+            rightOperandVariable = None
+            if leftOperand in self.currentFunction.varsTable:
+                leftOperandVariable = self.currentFunction.varsTable[leftOperand]
+            elif leftOperand in self.functionTable["global"].varsTable:
+                leftOperandVariable = self.functionTable["global"].varsTable[leftOperand]
+            if rightOperand in self.currentFunction.varsTable:
+                rightOperandVariable = self.currentFunction.varsTable[rightOperand]
+            elif rightOperand in self.functionTable["global"].varsTable:
+                rightOperandVariable = self.functionTable["global"].varsTable[rightOperand]
 
-                transposedOperandAddress = self.quadruples[-1].leftOp
-                transposedOperand = None
-                for var in self.currentFunction.varsTable:
-                    if self.currentFunction.varsTable[var].address == transposedOperandAddress:
-                        transposedOperand = self.currentFunction.varsTable[var].name
-                        break
-                if transposedOperand is None:
-                    for var in self.functionTable["global"].varsTable:
-                        if self.functionTable["global"].varsTable[var].address == transposedOperandAddress:
-                            transposedOperand = self.functionTable["global"].varsTable[var].name
-                            break
-                if transposedOperand in self.currentFunction.varsTable:
-                    if leftOperand in self.currentFunction.varsTable:
-                        if self.currentFunction.varsTable[transposedOperand].first_index == self.currentFunction.varsTable[leftOperand].second_index and self.currentFunction.varsTable[transposedOperand].second_index == self.currentFunction.varsTable[leftOperand].first_index:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be opposite of the indexes in {transposedOperand} for it to be transposed')
-                    elif leftOperand in self.functionTable["global"].varsTable:
-                        if self.currentFunction.varsTable[transposedOperand].first_index == self.functionTable["global"].varsTable[leftOperand].second_index and self.currentFunction.varsTable[transposedOperand].second_index == self.functionTable["global"].varsTable[leftOperand].first_index:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be opposite of the indexes in {transposedOperand} for it to be transposed')
-                elif transposedOperand in self.functionTable["global"].varsTable:
-                    if leftOperand in self.currentFunction.varsTable:
-                        if self.functionTable["global"].varsTable[transposedOperand].first_index == self.currentFunction.varsTable[leftOperand].second_index and self.functionTable["global"].varsTable[transposedOperand].second_index == self.currentFunction.varsTable[leftOperand].first_index:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be opposite of the indexes in {transposedOperand} for it to be transposed')
-                    elif leftOperand in self.functionTable["global"].varsTable:
-                        if self.functionTable["global"].varsTable[transposedOperand].first_index == self.functionTable["global"].varsTable[leftOperand].second_index and self.functionTable["global"].varsTable[transposedOperand].second_index == self.functionTable["global"].varsTable[leftOperand].first_index:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be opposite of the indexes in {transposedOperand} for it to be transposed')
+            # two variables in play... they must match if we are dealing with matrix/arrays
+            if leftOperandVariable is not None and rightOperandVariable is not None:
+                if leftOperandVariable.isMatrix:
+                    if rightOperandVariable.isMatrix is False:
+                        raise TypeError(f'Cannot assign {rightOperand} to a matrix')
+                    elif leftOperandVariable.first_index != rightOperandVariable.first_index or leftOperandVariable.second_index != rightOperandVariable.second_index:
+                        raise Exception(f'Cannot assign lists of different dimensions')
+                elif leftOperandVariable.isArray:
+                    if rightOperandVariable.isArray is False:
+                        raise TypeError(f'Cannot assign {rightOperand} to an array')
+                    elif leftOperandVariable.size != rightOperandVariable.size:
+                        raise Exception(f'Cannot assign lists of different dimensions')
+                elif rightOperandVariable.isMatrix or rightOperandVariable.isArray:
+                    raise TypeError(f'Cannot assign {rightOperand} to a non-dimensional variable')
 
-            elif self.quadruples[-1].operator == '?' or self.quadruples[-1].operator == '$':
-                if leftOperand in self.currentFunction.varsTable and self.currentFunction.varsTable[leftOperand].isMatrix is False:
-                    raise TypeError(f'{leftOperand} of type {leftOperandType} cannot be assigned a matrix')
-                elif leftOperand in self.functionTable["global"].varsTable and self.functionTable["global"].varsTable[leftOperand].isMatrix is False:
-                    raise TypeError(f'{leftOperand} of type {leftOperandType} cannot be assigned a matrix')
+            # temporal/constant assignation to a variable. The temporal may be a transpose/determinant/inverse operation
+            elif leftOperandVariable is not None and rightOperandVariable is None:
+                if rightOperand[0] == 'M':
+                    if leftOperandVariable.isMatrix is False:
+                        raise TypeError(f'A matrix cannot be assigned to {leftOperand}')
+                    rightOperandMatrix = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+                    if leftOperandVariable.first_index != rightOperandMatrix.first_index or leftOperandVariable.second_index != rightOperandMatrix.second_index:
+                        raise Exception(f'The indexes in matrix {leftOperand} do not match the ones in a temporal generated matrix')
+                elif rightOperand[0] == 'A':
+                    if leftOperandVariable.isArray is False:
+                        raise TypeError(f'An array cannot be assigned to {leftOperand}')
+                    rightOperandArray = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+                    if leftOperandVariable.size != rightOperandArray.size:
+                        raise Exception(f'The size in array {leftOperand} does not match the one in a temporal generated array')
+                elif leftOperandVariable.isMatrix or leftOperandVariable.isArray:
+                    raise TypeError(f'Cannot assign non-matrix value to {leftOperand}')
 
-                matOperandAddress = self.quadruples[-1].leftOp
-                matOperand = None
-                for var in self.currentFunction.varsTable:
-                    if self.currentFunction.varsTable[var].address == matOperandAddress:
-                        matOperand = self.currentFunction.varsTable[var].name
-                        break
-                if matOperand is None:
-                    for var in self.functionTable["global"].varsTable:
-                        if self.functionTable["global"].varsTable[var].address == matOperandAddress:
-                            matOperand = self.functionTable["global"].varsTable[var].name
-                            break
-                if matOperand in self.currentFunction.varsTable:
-                    if leftOperand in self.currentFunction.varsTable:
-                        moRightIndex = self.currentFunction.varsTable[matOperand].second_index
-                        moLeftIndex = self.currentFunction.varsTable[matOperand].first_index
-                        loRightIndex = self.currentFunction.varsTable[leftOperand].second_index
-                        loLeftIndex = self.currentFunction.varsTable[leftOperand].first_index
-
-                        if moRightIndex == moLeftIndex and moLeftIndex == loRightIndex and loRightIndex == loLeftIndex:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be equal to each other and to the indexes in {matOperand}')
-                    elif leftOperand in self.functionTable["global"].varsTable:
-                        moRightIndex = self.currentFunction.varsTable[matOperand].second_index
-                        moLeftIndex = self.currentFunction.varsTable[matOperand].first_index
-                        loRightIndex = self.functionTable["global"].varsTable[leftOperand].second_index
-                        loLeftIndex = self.functionTable["global"].varsTable[leftOperand].first_index
-
-                        if moRightIndex == moLeftIndex and moLeftIndex == loRightIndex and loRightIndex == loLeftIndex:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be equal to each other and to the indexes in {matOperand}')
-
-                elif matOperand in self.functionTable["global"].varsTable:
-                    if leftOperand in self.currentFunction.varsTable:
-                        moRightIndex = self.functionTable["global"].varsTable[matOperand].second_index
-                        moLeftIndex = self.functionTable["global"].varsTable[matOperand].first_index
-                        loRightIndex = self.currentFunction.varsTable[leftOperand].second_index
-                        loLeftIndex = self.currentFunction.varsTable[leftOperand].first_index
-
-                        if moRightIndex == moLeftIndex and moLeftIndex == loRightIndex and loRightIndex == loLeftIndex:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be equal to each other and to the indexes in {matOperand}')
-                    elif leftOperand in self.functionTable["global"].varsTable:
-                        moRightIndex = self.functionTable["global"].varsTable[matOperand].second_index
-                        moLeftIndex = self.functionTable["global"].varsTable[matOperand].first_index
-                        loRightIndex = self.functionTable["global"].varsTable[leftOperand].second_index
-                        loLeftIndex = self.functionTable["global"].varsTable[leftOperand].first_index
-
-                        if moRightIndex == moLeftIndex and moLeftIndex == loRightIndex and loRightIndex == loLeftIndex:
-                            print('good')
-                        else:
-                            raise Exception(f'The indexes in matrix {leftOperand} must be equal to each other and to the indexes in {matOperand}')
-
+            # trying to assign a value to a constant/temporal that is not the index of a list
+            elif leftOperandVariable is None and int(self.temporalStack[-1]) < 40000:
+                raise Exception(f'This operation is impossible')
 
             roAddress = None
             if rightOperand in self.currentFunction.varsTable:
-                if self.currentFunction.varsTable[rightOperand].isArray or self.currentFunction.varsTable[rightOperand].isMatrix:
-                    if self.quadruples[-1].operator != '?' and self.quadruples[-1].operator != '#' and self.quadruples[-1].operator != '$':
-                        raise TypeError('Cannot perform operations on whole arrays and matrixes')
                 roAddress = self.currentFunction.varsTable[rightOperand].address
             elif rightOperand in self.functionTable["global"].varsTable:
-                if self.functionTable["global"].varsTable[rightOperand].isArray or self.functionTable["global"].varsTable[rightOperand].isMatrix:
-                    if self.quadruples[-1].operator != '?' and self.quadruples[-1].operator != '#' and self.quadruples[-1].operator != '$':
-                        raise TypeError('Cannot perform operations on whole arrays and matrixes')
                 roAddress = self.functionTable["global"].varsTable[rightOperand].address
             elif rightOperand in self.constantTable:
                 roAddress = self.constantTable[rightOperand].address
+            elif rightOperand[0] == 'M' or rightOperand[0] == 'A':
+                roAddress = self.temporalDimensionVariableStack[-1].address
             else:
                 roAddress = self.temporalStack[-1]
 
             loAddress = None
             if leftOperand in self.currentFunction.varsTable:
-                if self.currentFunction.varsTable[leftOperand].isArray or self.currentFunction.varsTable[leftOperand].isMatrix:
-                    if self.quadruples[-1].operator != '?' and self.quadruples[-1].operator != '#' and self.quadruples[-1].operator != '$':
-                        raise TypeError('Cannot perform operations on whole arrays and matrixes')
                 loAddress = self.currentFunction.varsTable[leftOperand].address
             elif leftOperand in self.functionTable["global"].varsTable:
-                if self.functionTable["global"].varsTable[leftOperand].isArray or self.functionTable["global"].varsTable[leftOperand].isMatrix:
-                    if self.quadruples[-1].operator != '?' and self.quadruples[-1].operator != '#' and self.quadruples[-1].operator != '$':
-                        raise TypeError('Cannot perform operations on whole arrays and matrixes')
                 loAddress = self.functionTable["global"].varsTable[leftOperand].address
             elif leftOperand in self.constantTable:
-                loAddress = self.constantTable[leftOperand].address
+                raise Exception(f'This operation is impossible')
+            elif int(self.temporalStack[-1]) >= 40000:
+                loAddress = self.temporalStack[-1]
+            else:
+                raise Exception(f'This operation is impossible')
 
             quad = Quadruple(operator, loAddress, roAddress, "_")
             self.quadruples.append(quad)
@@ -1147,7 +1129,163 @@ class Compiler:
         self.operandStack.pop()
         self.typesStack.pop()
 
-    def generateQuad(self):
+    def generate_simple_operation_quad(self, rightOperand, leftOperand, operator, rightOperandType, leftOperandType):
+        roAddress = None
+        if rightOperand in self.currentFunction.varsTable:
+            roAddress = self.currentFunction.varsTable[rightOperand].address
+        elif rightOperand in self.functionTable["global"].varsTable:
+            roAddress = self.functionTable["global"].varsTable[rightOperand].address
+        elif rightOperand in self.constantTable:
+            roAddress = self.constantTable[rightOperand].address
+        else:
+            roAddress = self.temporalStack[int(rightOperand[1:])]
+
+        loAddress = None
+        if leftOperand in self.currentFunction.varsTable:
+            loAddress = self.currentFunction.varsTable[leftOperand].address
+        elif leftOperand in self.functionTable["global"].varsTable:
+            loAddress = self.functionTable["global"].varsTable[leftOperand].address
+        elif leftOperand in self.constantTable:
+            loAddress = self.constantTable[leftOperand].address
+        else:
+            loAddress = self.temporalStack[int(leftOperand[1:])]
+
+        tempResult = 'X' + str(len(self.temporalStack))
+
+        temptype = self.scube.cube[leftOperandType][operator][rightOperandType]
+        if temptype == "int":
+            if self.memory.mem_temp_int == 2000:
+                raise Exception("Stack Overflow on temporal integer variables")
+            self.temporalStack.append(self.memory.mem_temp_int)
+            print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_int}')
+            self.memory.mem_temp_int += 1
+        elif temptype == "float":
+            if self.memory.mem_temp_float == 4000:
+                raise Exception("Stack Overflow on temporal float variables")
+            self.temporalStack.append(self.memory.mem_temp_float)
+            print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_float}')
+            self.memory.mem_temp_float += 1
+        elif temptype == "string":
+            if self.memory.mem_temp_string == 6000:
+                raise Exception("Stack Overflow on temporal string variables")
+            self.temporalStack.append(self.memory.mem_temp_string)
+            print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_string}')
+            self.memory.mem_temp_string += 1
+        elif temptype == "bool":
+            if self.memory.mem_temp_bool == 8000:
+                raise Exception("Stack Overflow on temporal bool variables")
+            self.temporalStack.append(self.memory.mem_temp_bool)
+            print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_bool}')
+            self.memory.mem_temp_bool += 1
+        elif temptype == "char":
+            if self.memory.mem_temp_char == 10000:
+                raise Exception("Stack Overflow on temporal char variables")
+            self.temporalStack.append(self.memory.mem_temp_char)
+            print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_char}')
+            self.memory.mem_temp_char += 1
+
+        # Create Quad and add it to Quadruples Stack
+        quad = Quadruple(operator, loAddress, roAddress, self.temporalStack[-1])
+        print(operator, leftOperand, loAddress, rightOperand, roAddress, tempResult, self.temporalStack[-1])
+        self.quadruples.append(quad)
+
+        # Add result back to the Operand Stack
+        self.addOperand(tempResult)
+
+        # Add type to type stack
+        self.addType(temptype)
+
+    def generate_temporal_array_quad(self, leftArray, rightArray, operator):
+        tempResult = 'A' + str(len(self.temporalDimensionVariableStack))
+        if leftArray.vartype == "int":
+            if self.memory.mem_temp_int + leftArray.size >= 2000:
+                raise Exception("Stack Overflow on temporal integer variables")
+            print(f'temporal {tempResult} of type {leftArray.vartype} assigned to {self.memory.mem_temp_int}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_int, -1, -1, leftArray.vartype, leftArray.size))
+            self.memory.mem_temp_int += leftArray.size
+        elif leftArray.vartype == "float":
+            if self.memory.mem_temp_float + leftArray.size >= 4000:
+                raise Exception("Stack Overflow on temporal float variables")
+            print(f'temporal {tempResult} of type {leftArray.vartype} assigned to {self.memory.mem_temp_float}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_float, -1, -1, leftArray.vartype, leftArray.size))
+            self.memory.mem_temp_float += leftArray.size
+        elif leftArray.vartype == "string":
+            if self.memory.mem_temp_string + leftArray.size >= 6000:
+                raise Exception("Stack Overflow on temporal string variables")
+            print(f'temporal {tempResult} of type {leftArray.vartype} assigned to {self.memory.mem_temp_string}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_string, -1, -1, leftArray.vartype, leftArray.size))
+            self.memory.mem_temp_string += leftArray.size
+        elif leftArray.vartype == "bool":
+            if self.memory.mem_temp_bool + leftArray.size >= 8000:
+                raise Exception("Stack Overflow on temporal bool variables")
+            print(f'temporal {tempResult} of type {leftArray.vartype} assigned to {self.memory.mem_temp_bool}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_bool, -1, -1, leftArray.vartype, leftArray.size))
+            self.memory.mem_temp_bool += leftArray.size
+        elif leftArray.vartype == "char":
+            if self.memory.mem_temp_char + leftArray.size >= 10000:
+                raise Exception("Stack Overflow on temporal char variables")
+            print(f'temporal {tempResult} of type {leftArray.vartype} assigned to {self.memory.mem_temp_char}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_char, -1, -1, leftArray.vartype, leftArray.size))
+            self.memory.mem_temp_char += leftArray.size
+
+        # Create Quad and add it to Quadruples Stack
+        quad = Quadruple(operator, leftArray.address, rightArray.address, self.temporalDimensionVariableStack[-1].address)
+        print(operator, 'array in address', leftArray.address, 'array in address', rightArray.address, tempResult, self.temporalDimensionVariableStack[-1].address)
+        self.quadruples.append(quad)
+
+        # Add result to the Operand Stack
+        self.addOperand(tempResult)
+
+        # Add matrix type to type stack
+        self.addType(leftArray.vartype)
+
+    def generate_temporal_matrix_quad(self, leftMatrix, rightMatrix, operator):
+        tempResult = 'M' + str(len(self.temporalDimensionVariableStack))
+        if leftMatrix.vartype == "int":
+            if self.memory.mem_temp_int + leftMatrix.size >= 2000:
+                raise Exception("Stack Overflow on temporal integer variables")
+            print(f'temporal {tempResult} of type {leftMatrix.vartype} assigned to {self.memory.mem_temp_int}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_int, leftMatrix.first_index, leftMatrix.second_index, leftMatrix.vartype, leftMatrix.size))
+            self.memory.mem_temp_int += leftMatrix.size
+        elif leftMatrix.vartype == "float":
+            if self.memory.mem_temp_float + leftMatrix.size >= 4000:
+                raise Exception("Stack Overflow on temporal float variables")
+            print(f'temporal {tempResult} of type {leftMatrix.vartype} assigned to {self.memory.mem_temp_float}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_float, leftMatrix.first_index, leftMatrix.second_index, leftMatrix.vartype, leftMatrix.size))
+            self.memory.mem_temp_float += leftMatrix.size
+        elif leftMatrix.vartype == "string":
+            if self.memory.mem_temp_string + leftMatrix.size >= 6000:
+                raise Exception("Stack Overflow on temporal string variables")
+            print(f'temporal {tempResult} of type {leftMatrix.vartype} assigned to {self.memory.mem_temp_string}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_string, leftMatrix.first_index, leftMatrix.second_index, leftMatrix.vartype, leftMatrix.size))
+            self.memory.mem_temp_string += leftMatrix.size
+        elif leftMatrix.vartype == "bool":
+            if self.memory.mem_temp_bool + leftMatrix.size >= 8000:
+                raise Exception("Stack Overflow on temporal bool variables")
+            print(f'temporal {tempResult} of type {leftMatrix.vartype} assigned to {self.memory.mem_temp_bool}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_bool, leftMatrix.first_index, leftMatrix.second_index, leftMatrix.vartype, leftMatrix.size))
+            self.memory.mem_temp_bool += leftMatrix.size
+        elif leftMatrix.vartype == "char":
+            if self.memory.mem_temp_char + leftMatrix.size >= 10000:
+                raise Exception("Stack Overflow on temporal char variables")
+            print(f'temporal {tempResult} of type {leftMatrix.vartype} assigned to {self.memory.mem_temp_char}')
+            self.temporalDimensionVariableStack.append(TemporalDimensionVariable(self.memory.mem_temp_char, leftMatrix.first_index, leftMatrix.second_index, leftMatrix.vartype, leftMatrix.size))
+            self.memory.mem_temp_char += leftMatrix.size
+
+        # Create Quad and add it to Quadruples Stack
+        quad = Quadruple(operator, leftMatrix.address, rightMatrix.address, self.temporalDimensionVariableStack[-1].address)
+        print(operator, 'matrix in address', leftMatrix.address, 'matrix in address', rightMatrix.address, tempResult, self.temporalDimensionVariableStack[-1].address)
+        self.quadruples.append(quad)
+
+        # Add result to the Operand Stack
+        self.addOperand(tempResult)
+
+        # Add matrix type to type stack
+        self.addType(leftMatrix.vartype)
+
+
+
+    def check_for_array_or_matrix(self):
         rightOperand = self.operandStack.pop()
         leftOperand = self.operandStack.pop()
         operator = self.operatorStack.pop()
@@ -1157,77 +1295,97 @@ class Compiler:
         # Check with semantic cube to see if operation is possible
         if self.scube.cube[leftOperandType][operator][rightOperandType].startswith("Error"):
             raise TypeError(f'{self.scube.cube[leftOperandType][operator][rightOperandType]}')
+
+        # Applying semantics to matrixes and arrays
+        # this includes transpose, determinant and inverse operations
+        leftOperandVariable = None
+        rightOperandVariable = None
+        if leftOperand in self.currentFunction.varsTable:
+            leftOperandVariable = self.currentFunction.varsTable[leftOperand]
+        elif leftOperand in self.functionTable["global"].varsTable:
+            leftOperandVariable = self.functionTable["global"].varsTable[leftOperand]
+        if rightOperand in self.currentFunction.varsTable:
+            rightOperandVariable = self.currentFunction.varsTable[rightOperand]
+        elif rightOperand in self.functionTable["global"].varsTable:
+            rightOperandVariable = self.functionTable["global"].varsTable[rightOperand]
+
+        # two variables in play... they must match if we are dealing with matrix/arrays
+        if leftOperandVariable is not None and rightOperandVariable is not None:
+            if leftOperandVariable.isMatrix:
+                if rightOperandVariable.isMatrix is False:
+                    raise TypeError(f'{rightOperand} cannot perform operations with a matrix')
+                elif leftOperandVariable.first_index != rightOperandVariable.first_index or leftOperandVariable.second_index != rightOperandVariable.second_index:
+                    raise Exception(f'{rightOperand} cannot perform operations with a matrix of different dimensions')
+                else:
+                    self.generate_temporal_matrix_quad(leftOperandVariable, rightOperandVariable, operator)
+            elif leftOperandVariable.isArray:
+                if rightOperandVariable.isArray is False:
+                    raise TypeError(f'{rightOperand} cannot perform operations with an array')
+                elif leftOperandVariable.size != rightOperandVariable.size:
+                    raise Exception(f'{rightOperand} cannot perform operations with an array of different dimensions')
+                else:
+                    self.generate_temporal_array_quad(leftOperandVariable, rightOperandVariable, operator)
+            elif rightOperandVariable.isMatrix or rightOperandVariable.isArray:
+                raise TypeError(f'{rightOperand} cannot perform operations with a non-dimensional variable')
+            else:
+                self.generate_simple_operation_quad(rightOperand, leftOperand, operator, rightOperandType, leftOperandType)
+
+        # temporal/constant instead of a variable in rightOperand. The temporal may be a matrix operation
+        elif leftOperandVariable is not None and rightOperandVariable is None:
+            if rightOperand[0] == 'M':
+                if leftOperandVariable.isMatrix is False:
+                    raise TypeError(f'Operations cannot be performed between a matrix and {leftOperand}')
+                rightOperandMatrix = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+                if leftOperandVariable.first_index != rightOperandMatrix.first_index or leftOperandVariable.second_index != rightOperandMatrix.second_index:
+                    raise Exception(f'The indexes in matrix {leftOperand} do not match the ones in a temporal generated matrix')
+                self.generate_temporal_matrix_quad(leftOperandVariable, rightOperandMatrix, operator)
+            elif rightOperand[0] == 'A':
+                if leftOperandVariable.isArray is False:
+                    raise TypeError(f'Operations cannot be performed between an array and {leftOperand}')
+                rightOperandArray = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+                if leftOperandVariable.size != rightOperandArray.size:
+                    raise Exception(f'The size in array {leftOperand} does not match the size in a temporal generated array')
+                self.generate_temporal_array_quad(leftOperandVariable, rightOperandArray, operator)
+            elif leftOperandVariable.isMatrix or leftOperandVariable.isArray:
+                raise TypeError(f'Cannot perform operations of non-matrix value with {leftOperand}')
+            else:
+                self.generate_simple_operation_quad(rightOperand, leftOperand, operator, rightOperandType, leftOperandType)
+
+        # temporal/constant instead of a variable in leftOperand. The temporal may be a matrix operation
+        elif leftOperandVariable is None and rightOperandVariable is not None:
+            if leftOperand[0] == 'M':
+                if rightOperandVariable.isMatrix is False:
+                    raise TypeError(f'Operations cannot be performed between a matrix and {rightOperand}')
+                leftOperandMatrix = self.temporalDimensionVariableStack[int(leftOperand[1:])]
+                if rightOperandVariable.first_index != leftOperandMatrix.first_index or rightOperandVariable.second_index != leftOperandMatrix.second_index:
+                    raise Exception(f'The indexes in matrix {rightOperand} do not match the ones in a temporal generated matrix')
+                self.generate_temporal_matrix_quad(leftOperandMatrix, rightOperandVariable, operator)
+            elif leftOperand[0] == 'A':
+                if rightOperandVariable.isArray is False:
+                    raise TypeError(f'Operations cannot be performed between an array and {rightOperand}')
+                leftOperandArray = self.temporalDimensionVariableStack[int(leftOperand[1:])]
+                if leftOperandArray.size != rightOperandVariable.size:
+                    raise Exception(f'The size in array {rightOperand} does not match the size in a temporal generated array')
+                self.generate_temporal_array_quad(leftOperandArray, rightOperandVariable)
+            elif rightOperandVariable.isMatrix or rightOperandVariable.isArray:
+                raise TypeError(f'Cannot perform operations of non-matrix value with {rightOperand}')
+            else:
+                self.generate_simple_operation_quad(rightOperand, leftOperand, operator, rightOperandType, leftOperandType)
+        elif leftOperand[0] == 'M' and rightOperand[0] == 'M':
+            leftOperandMatrix = self.temporalDimensionVariableStack[int(leftOperand[1:])]
+            rightOperandMatrix = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+            if leftOperandMatrix.first_index != rightOperandMatrix.first_index or leftOperandMatrix.second_index != rightOperandMatrix.second_index:
+                raise Exception(f'Cannot perform {operator} between two different indexed matrixes')
+            self.generate_temporal_matrix_quad(leftOperandMatrix, rightOperandMatrix, operator)
+        elif leftOperand[0] == 'A' and rightOperand[0] == 'A':
+            leftOperandArray = self.temporalDimensionVariableStack[int(leftOperand[1:])]
+            rightOperandArray = self.temporalDimensionVariableStack[int(rightOperand[1:])]
+            if leftOperandArray.size != rightOperandArray.size:
+                raise Exception(f'Cannot perform {operator} between two different sized arrays')
+            self.generate_temporal_array_quad(leftOperandArray, rightOperandArray, operator)
+        elif leftOperand[0] == 'M' or rightOperand[0] == 'A' or leftOperand[0] == 'A' or rightOperand[0] == 'M':
+            raise Exception(f'There was an error trying to perform operations between variables of different dimensions')
         else:
-            # Get the operands' addresses
-            roAddress = None
-            if rightOperand in self.currentFunction.varsTable:
-                if self.currentFunction.varsTable[rightOperand].isArray or self.currentFunction.varsTable[rightOperand].isMatrix:
-                    raise TypeError('Cannot perform operations on whole arrays and/or matrixes')
-                roAddress = self.currentFunction.varsTable[rightOperand].address
-            elif rightOperand in self.functionTable["global"].varsTable:
-                if self.functionTable["global"].varsTable[rightOperand].isArray or self.functionTable["global"].varsTable[rightOperand].isMatrix:
-                    raise TypeError('Cannot perform operations on whole arrays and/or matrixes')
-                roAddress = self.functionTable["global"].varsTable[rightOperand].address
-            elif rightOperand in self.constantTable:
-                roAddress = self.constantTable[rightOperand].address
-            else:
-                roAddress = self.temporalStack[int(rightOperand[1:])]
+            self.generate_simple_operation_quad(rightOperand, leftOperand, operator, rightOperandType, leftOperandType)
 
-            loAddress = None
-            if leftOperand in self.currentFunction.varsTable:
-                if self.currentFunction.varsTable[leftOperand].isArray or self.currentFunction.varsTable[leftOperand].isMatrix:
-                    raise TypeError('Cannot perform operations on whole arrays and matrixes')
-                loAddress = self.currentFunction.varsTable[leftOperand].address
-            elif leftOperand in self.functionTable["global"].varsTable:
-                if self.functionTable["global"].varsTable[leftOperand].isArray or self.functionTable["global"].varsTable[leftOperand].isMatrix:
-                    raise TypeError('Cannot perform operations on whole arrays and matrixes')
-                loAddress = self.functionTable["global"].varsTable[leftOperand].address
-            elif leftOperand in self.constantTable:
-                loAddress = self.constantTable[leftOperand].address
-            else:
-                loAddress = self.temporalStack[int(leftOperand[1:])]
 
-            tempResult = 'X' + str(len(self.temporalStack))
-
-            temptype = self.scube.cube[leftOperandType][operator][rightOperandType]
-            if temptype == "int":
-                if self.memory.mem_temp_int == 2000:
-                    raise Exception("Stack Overflow on temporal integer variables")
-                self.temporalStack.append(self.memory.mem_temp_int)
-                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_int}')
-                self.memory.mem_temp_int += 1
-            elif temptype == "float":
-                if self.memory.mem_temp_float == 4000:
-                    raise Exception("Stack Overflow on temporal float variables")
-                self.temporalStack.append(self.memory.mem_temp_float)
-                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_float}')
-                self.memory.mem_temp_float += 1
-            elif temptype == "string":
-                if self.memory.mem_temp_string == 6000:
-                    raise Exception("Stack Overflow on temporal string variables")
-                self.temporalStack.append(self.memory.mem_temp_string)
-                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_string}')
-                self.memory.mem_temp_string += 1
-            elif temptype == "bool":
-                if self.memory.mem_temp_bool == 8000:
-                    raise Exception("Stack Overflow on temporal bool variables")
-                self.temporalStack.append(self.memory.mem_temp_bool)
-                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_bool}')
-                self.memory.mem_temp_bool += 1
-            elif temptype == "char":
-                if self.memory.mem_temp_char == 10000:
-                    raise Exception("Stack Overflow on temporal char variables")
-                self.temporalStack.append(self.memory.mem_temp_char)
-                print(f'temporal {tempResult} of type {temptype} assigned to {self.memory.mem_temp_char}')
-                self.memory.mem_temp_char += 1
-
-            # Create Quad and add it to Quadruples Stack
-            quad = Quadruple(operator, loAddress, roAddress, self.temporalStack[-1])
-            print(operator, leftOperand, loAddress, rightOperand, roAddress, tempResult, self.temporalStack[-1])
-            self.quadruples.append(quad)
-
-            # Add result back to the Operand Stack
-            self.addOperand(tempResult)
-
-            # Add type to type stack
-            self.addType(temptype)

@@ -1,27 +1,21 @@
 program littleDuck2020CorrectFileTest;
 var
 bool: lol, belinda[20][10], drake[20][10];
-int: array[5], i, matrix[10][10], j, john[10], mary[2][10], gloriatrevi[10][10];
+int: array[5], i, matrix[2][3], j, john[10], mary[2][10], gloriatrevi[3][2], cc[2][3];
 
 
-function int uno (int m, int n, int o)
+function int tres(int x, int z)
 {
-    if (i == 0) then
-        {return(j* uno(i-1, i-2, o));}
-    return (2);
-}
-
-function int dos (int x, int z)
-{
- i = uno(i, i, i);
-}
-
-function void tres(int x, int z)
-{
-  i = matrix[3][4];
+  /* matrix = matrix?;
+  i = 2*john[2]/(matrix[1][2]+30);
+  john[2] = 2;
+  print(john);
+  input(john[2]);
+  matrix = matrix + matrix; */
+  matrix = (matrix * cc) - (cc/gloriatrevi#);
 }
 
 main()
 {
-  i = uno(uno(i,i,i), uno(j,j,j), i);
+  i = tres(matrix, i);
 }
