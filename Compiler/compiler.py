@@ -13,6 +13,7 @@ class Compiler:
         self.functionTable = {}
         self.currentFunction = Function("global", "void", [], {})
         self.constantTable = {}
+        self.realConstantTable = {}
         self.quadruples = []
         self.operatorStack = []
         self.operandStack = []
@@ -28,6 +29,10 @@ class Compiler:
 
     def get_quadruples(self):
         return self.quadruples
+
+    def get_constants(self):
+        print(self.realConstantTable)
+        return self.realConstantTable
 
     def get_operator_fn(op):
         return {
@@ -60,6 +65,7 @@ class Compiler:
             if self.memory.mem_constant < 40000:
                 self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant)
                 print(f'added constant {vartype} {self.operandStack[-1]} to {self.memory.mem_constant}')
+                self.realConstantTable[self.memory.mem_constant] = Constant(vartype, self.operandStack[-1])
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -156,7 +162,7 @@ class Compiler:
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_float}')
                     self.memory.mem_global_float += 1
                 elif vartype == "string":
-                    if self.memory.mem_global_string == 16000:
+                    if self.memory.mem_global_string >= 16000:
                         raise Exception("Stack Overflow on global string variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_string)
                     self.currentFunction.varsCount += 1

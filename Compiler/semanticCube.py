@@ -301,7 +301,7 @@ class SemanticCube():
                     "int": "Error, can't add a string and an integer",
                     "float": "Error, can't add a string and a float",
                     "char": "Error, can't add a string and a char",
-                    "string": "Error, can't add a string and a string",
+                    "string": "string",
                     "bool": "Error, can't add a string and a boolean"
                 },
                 "-":{
