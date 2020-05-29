@@ -13,6 +13,6 @@ main()
   s = "ACM1PT GUACHIN";
   i = 10*5;
   f = ((10+3)-20)/i;
-  print(s);
   input(s);
+  print(s);
 }

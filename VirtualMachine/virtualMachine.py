@@ -115,18 +115,18 @@ class VirtualMachine:
         # This function receives a value and an address to store it in
 
         if value_address < 10000:
-            self.TEMPORAL.insert(value_address, value)
+            self.TEMPORAL[value_address] = value
             print(f'setting value {value} to temporal address({value_address})')
 
         elif value_address < 20000:
             print(f'setting value {value} to global address({value_address})')
             value_address -= 10000
-            self.GLOBAL.insert(value_address, value)
+            self.GLOBAL[value_address] = value
 
         elif value_address < 30000:
             print(f'setting value {value} to local address({value_address})')
             value_address -= 20000
-            self.LOCAL.insert(value_address, value)
+            self.LOCAL[value_address] = value
 
         elif value_address < 40000:
             raise Exception("You should not be assigning stuff to constant address")
@@ -134,7 +134,7 @@ class VirtualMachine:
         elif value_address < 50000:
             print(f'setting value {value} to pointer address({value_address})')
             value_address -= 40000
-            self.POINTER.insert(value_address, value)
+            self.POINTER[value_address] = value
 
         else:
             raise Exception("You should not be here man!")
@@ -265,7 +265,7 @@ class VirtualMachine:
         current_quad = self.current_quad()
         operand_address = current_quad.leftOp
 
-        operand_value =  self.check_memory(operand_address)
+        operand_value = self.check_memory(operand_address)
 
         print(operand_value)
 
