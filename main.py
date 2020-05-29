@@ -20,7 +20,8 @@ def main(argv):
     if parser.getNumberOfSyntaxErrors() == 0:
         print("PROGRAMA CORRECTO ========================================================================")
         quadruples = compiler.get_quadruples()
-        virtualMachine = VirtualMachine(quadruples)
+        constants = compiler.get_constants_table()
+        virtualMachine = VirtualMachine(quadruples, constants)
         virtualMachine.begin()
     else:
         print("PROGRAMA INCORRECTO")

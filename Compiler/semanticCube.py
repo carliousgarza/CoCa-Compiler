@@ -301,7 +301,7 @@ class SemanticCube():
                     "int": "Error, can't add a string and an integer",
                     "float": "Error, can't add a string and a float",
                     "char": "Error, can't add a string and a char",
-                    "string": "Error, can't add a string and a string",
+                    "string": "string",
                     "bool": "Error, can't add a string and a boolean"
                 },
                 "-":{
@@ -355,10 +355,10 @@ class SemanticCube():
                 },
                 "=":{
                     "int": "Error,  can't assign an integer value to a string",
-                    "float": "Error, can't assign a float value to an string",
-                    "char": "string",
+                    "float": "Error, can't assign a float value to a string",
+                    "char": "Error, can't assign a char value to a string",
                     "string": "string",
-                    "bool": "Error, can't assign a boolean value to an string"
+                    "bool": "Error, can't assign a boolean value to a string"
                 },
                 "&&":{
                     "int": "Error, logic operators can only be used with boolean values",

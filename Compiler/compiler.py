@@ -14,6 +14,7 @@ class Compiler:
         self.functionTable = {}
         self.currentFunction = Function("global", "void", [], {})
         self.constantTable = {}
+        self.realConstantTable = {}
         self.quadruples = []
         self.operatorStack = []
         self.operandStack = []
@@ -30,14 +31,8 @@ class Compiler:
     def get_quadruples(self):
         return self.quadruples
 
-    def get_operator_fn(op):
-        return {
-            '+': operator.add,
-            '-': operator.sub,
-            '*': operator.mul,
-            '/': operator.div,
-            '=': operator.eq,
-        }[op]
+    def get_constants_table(self):
+        return self.realConstantTable
 
     def _add_function(self, func: Function):
         self.currentFunction.startQuadruple = len(self.quadruples)
@@ -59,8 +54,9 @@ class Compiler:
         self.typesStack.append(vartype)
         if self.operandStack[-1] not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant)
+                self.constantTable[self.operandStack[-1]] = Constant(vartype, self.memory.mem_constant, self.operandStack[-1])
                 print(f'added constant {vartype} {self.operandStack[-1]} to {self.memory.mem_constant}')
+                self.realConstantTable[self.memory.mem_constant] = Constant(vartype, self.memory.mem_constant, self.operandStack[-1])
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -110,19 +106,19 @@ class Compiler:
             print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_float}')
             self.memory.mem_temp_float += 1
         elif tempType == "string":
-            if self.memory.mem_local_string == 6000:
+            if self.memory.mem_temp_string == 6000:
                 raise Exception("Stack Overflow on temporal string variables")
             self.temporalStack.append(self.memory.mem_temp_string)
             print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_string}')
             self.memory.mem_temp_string += 1
         elif tempType == "bool":
-            if self.memory.mem_local_bool == 8000:
+            if self.memory.mem_temp_bool == 8000:
                 raise Exception("Stack Overflow on temporal bool variables")
             self.temporalStack.append(self.memory.mem_temp_bool)
             print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_bool}')
             self.memory.mem_temp_bool += 1
         elif tempType == "char":
-            if self.memory.mem_local_char == 10000:
+            if self.memory.mem_temp_char == 10000:
                 raise Exception("Stack Overflow on temporal char variables")
             self.temporalStack.append(self.memory.mem_temp_char)
             print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_char}')
@@ -143,35 +139,35 @@ class Compiler:
         if id not in self.currentFunction.varsTable:
             if self.currentFunction.name == "global":
                 if vartype == "int":
-                    if self.memory.mem_global_int == 12000:
+                    if self.memory.mem_global_int >= 12000:
                         raise Exception("Stack Overflow on global integer variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_int)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_int}')
                     self.memory.mem_global_int += 1
                 elif vartype == "float":
-                    if self.memory.mem_global_float == 14000:
+                    if self.memory.mem_global_float >= 14000:
                         raise Exception("Stack Overflow on global float variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_float)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_float}')
                     self.memory.mem_global_float += 1
                 elif vartype == "string":
-                    if self.memory.mem_global_string == 16000:
+                    if self.memory.mem_global_string >= 16000:
                         raise Exception("Stack Overflow on global string variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_string)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_string}')
                     self.memory.mem_global_string += 1
                 elif vartype == "bool":
-                    if self.memory.mem_global_bool == 18000:
+                    if self.memory.mem_global_bool >= 18000:
                         raise Exception("Stack Overflow on global bool variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_bool)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_global_bool}')
                     self.memory.mem_global_bool += 1
                 elif vartype == "char":
-                    if self.memory.mem_global_char == 20000:
+                    if self.memory.mem_global_char >= 20000:
                         raise Exception("Stack Overflow on global char variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_global_char)
                     self.currentFunction.varsCount += 1
@@ -180,35 +176,35 @@ class Compiler:
 
             else:
                 if vartype == "int":
-                    if self.memory.mem_local_int == 22000:
+                    if self.memory.mem_local_int >= 22000:
                         raise Exception("Stack Overflow on local integer variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_int)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_int}')
                     self.memory.mem_local_int += 1
                 elif vartype == "float":
-                    if self.memory.mem_local_float == 24000:
+                    if self.memory.mem_local_float >= 24000:
                         raise Exception("Stack Overflow on local float variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_float)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_float}')
                     self.memory.mem_local_float += 1
                 elif vartype == "string":
-                    if self.memory.mem_local_string == 26000:
+                    if self.memory.mem_local_string >= 26000:
                         raise Exception("Stack Overflow on local string variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_string)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_string}')
                     self.memory.mem_local_string += 1
                 elif vartype == "bool":
-                    if self.memory.mem_local_bool == 28000:
+                    if self.memory.mem_local_bool >= 28000:
                         raise Exception("Stack Overflow on local bool variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_bool)
                     self.currentFunction.varsCount += 1
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_bool}')
                     self.memory.mem_local_bool += 1
                 elif vartype == "char":
-                    if self.memory.mem_local_char == 30000:
+                    if self.memory.mem_local_char >= 30000:
                         raise Exception("Stack Overflow on local char variables")
                     self.currentFunction.varsTable[id] = Variable(id, vartype, None, self.memory.mem_local_char)
                     self.currentFunction.varsCount += 1
@@ -338,19 +334,22 @@ class Compiler:
 
         if baseAddress not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant)
+                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant, baseAddress)
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, baseAddress)
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if '0' not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable['0'] = Constant('int', self.memory.mem_constant)
+                self.constantTable['0'] = Constant('int', self.memory.mem_constant, '0')
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, '0')
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if str(int(dimSize)-1) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[str(int(dimSize)-1)] = Constant('int', self.memory.mem_constant)
+                self.constantTable[str(int(dimSize)-1)] = Constant('int', self.memory.mem_constant, str(int(dimSize)-1))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(int(dimSize)-1))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -419,37 +418,42 @@ class Compiler:
 
         if baseAddress not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant)
+                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant, baseAddress)
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, baseAddress)
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if '0' not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable['0'] = Constant('int', self.memory.mem_constant)
+                self.constantTable['0'] = Constant('int', self.memory.mem_constant, '0')
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, '0')
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if str(int(firstIndex)-1) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[str(int(firstIndex)-1)] = Constant('int', self.memory.mem_constant)
+                self.constantTable[str(int(firstIndex)-1)] = Constant('int', self.memory.mem_constant, str(int(firstIndex)-1))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(int(firstIndex)-1))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if firstIndex not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[firstIndex] = Constant('int', self.memory.mem_constant)
+                self.constantTable[firstIndex] = Constant('int', self.memory.mem_constant, firstIndex)
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, firstIndex)
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if str(int(secondIndex)-1) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[str(int(secondIndex)-1)] = Constant('int', self.memory.mem_constant)
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(int(secondIndex)-1))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
         if secondIndex not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[secondIndex] = Constant('int', self.memory.mem_constant)
+                self.constantTable[secondIndex] = Constant('int', self.memory.mem_constant, secondIndex)
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, secondIndex)
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -645,13 +649,13 @@ class Compiler:
     def clear_local_memory(self):
         self.memory.mem_local_int = 20000
         self.memory.mem_local_float = 22000
-        self.memory.mem_local_bool = 24000
-        self.memory.mem_local_string = 26000
+        self.memory.mem_local_string = 24000
+        self.memory.mem_local_bool = 26000
         self.memory.mem_local_char = 28000
         self.memory.mem_temp_int = 0
         self.memory.mem_temp_float = 2000
-        self.memory.mem_temp_bool = 4000
-        self.memory.mem_temp_string = 6000
+        self.memory.mem_temp_string = 4000
+        self.memory.mem_temp_bool = 6000
         self.memory.mem_temp_char = 8000
         self.memory.mem_pointers = 40000
 
@@ -900,7 +904,7 @@ class Compiler:
 
                 tempResult = 'X' + str(len(self.temporalStack))
 
-                if self.memory.mem_local_bool == 8000:
+                if self.memory.mem_temp_bool == 8000:
                     raise Exception("Stack Overflow on temporal bool variables")
                 self.temporalStack.append(self.memory.mem_temp_bool)
                 print(f'temporal {tempResult} of type bool assigned to {self.memory.mem_temp_bool}')

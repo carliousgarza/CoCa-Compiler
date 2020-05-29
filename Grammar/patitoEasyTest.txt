@@ -1,21 +1,10 @@
 program littleDuck2020CorrectFileTest;
 var
-bool: lol, belinda[20][10], drake[20][10];
-int: array[5], i, matrix[2][3], j, john[10], mary[2][10], gloriatrevi[3][2], cc[2][3];
+bool: lol;
+string: s, t;
 
-
-function int tres(int x, int z)
-{
-  /* matrix = matrix?;
-  i = 2*john[2]/(matrix[1][2]+30);
-  john[2] = 2;
-  print(john);
-  input(john[2]);
-  matrix = matrix + matrix; */
-  matrix = (matrix * cc) - (cc/gloriatrevi#);
-}
 
 main()
 {
-  i = tres(matrix, i);
+  s = "hola" + "chicos";
 }
