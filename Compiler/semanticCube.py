@@ -12,7 +12,7 @@ class SemanticCube():
                     "bool": "Error, can't multiply an integer with a boolean"
                 },
                 "/":{
-                    "int": "int",
+                    "int": "float",
                     "float": "float",
                     "char": "Error, can't divide an integer by a char",
                     "string": "Error, can't divide an integer by a string",

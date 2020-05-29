@@ -994,15 +994,18 @@ class Compiler:
         operand = self.operandStack.pop()
         operandType = self.typesStack.pop()
 
+        if operandType == 'bool':
+            raise Exception('Cannot input a bool value')
+
         if operand in self.currentFunction.varsTable:
             if self.currentFunction.varsTable[operand].isMatrix or self.currentFunction.varsTable[operand].isArray:
-                raise Exception('You cannot write into a whole matrix/array')
+                raise Exception('You cannot input a whole matrix/array')
             print("read", operand, self.currentFunction.varsTable[operand].address, operandType, "-")
             quad = Quadruple("read", self.currentFunction.varsTable[operand].address, operandType, "_")
             self.quadruples.append(quad)
         elif operand in self.functionTable["global"].varsTable:
             if self.functionTable["global"].varsTable[operand].isMatrix or self.functionTable["global"].varsTable[operand].isArray:
-                raise Exception('You cannot write into a whole matrix/array')
+                raise Exception('You cannot input a whole matrix/array')
             print("read", operand, self.functionTable["global"].varsTable[operand].address, operandType, "-")
             quad = Quadruple("read", self.functionTable["global"].varsTable[operand].address, operandType, "_")
             self.quadruples.append(quad)

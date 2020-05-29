@@ -65,7 +65,7 @@ CHAR: 'char';
 CTE_BOOL: 'true' | 'false';
 CTE_FLOAT: [0-9]+ '.' [0-9]+;
 CTE_INT: [0-9]+;
-CTE_CHAR: [.];
+CTE_CHAR: '\'' . '\'';
 CTE_STRING: '"' .*? '"';
 VOID: 'void';
 ID: [_A-Za-z]([_A-Za-z0-9])*;

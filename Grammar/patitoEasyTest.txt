@@ -2,9 +2,17 @@ program littleDuck2020CorrectFileTest;
 var
 bool: lol;
 string: s, t;
+char: c;
+int: i, j;
+float: f;
 
 
 main()
 {
-  s = "hola" + "chicos";
+  s = "hola" + " chicos";
+  s = "ACM1PT GUACHIN";
+  i = 10*5;
+  f = ((10+3)-20)/i;
+  print(s);
+  input(s);
 }
