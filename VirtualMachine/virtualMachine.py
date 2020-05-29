@@ -13,8 +13,17 @@ class VirtualMachine:
             "-": self.subtract,
             "/": self.divide,
             "*": self.multiply,
-            "GOTO": self.goto,
             "=": self.assign,
+            ">": self.greater_than,
+            "<": self.less_than,
+            "==": self.equal,
+            ">=": self.greater_than_or_equal,
+            "<=": self.less_than_or_equal,
+            "!=": self.not_equal,
+            "&&": self.and_op,
+            "||": self.or_op,
+            "GOTOF": self.gotof,
+            "GOTO": self.goto,
             "print": self.print,
             "read": self.read,
         }
@@ -190,9 +199,6 @@ class VirtualMachine:
         right_operand_address = current_quad.rightOp
         result_address = current_quad.resultTemp
 
-        left_value = None
-        right_value = None
-
         # Get what type of memory left_operand_address is stored in, and get its true value
         left_value = self.check_memory(left_operand_address)
         # Get what type of memory right_operand_address is stored in, and get its true value
@@ -214,9 +220,6 @@ class VirtualMachine:
         left_operand_address = current_quad.leftOp
         right_operand_address = current_quad.rightOp
         result_address = current_quad.resultTemp
-
-        left_value = None
-        right_value = None
 
         # Get what type of memory left_operand_address is stored in, and get its true value
         left_value = self.check_memory(left_operand_address)
@@ -240,9 +243,6 @@ class VirtualMachine:
         left_operand_address = current_quad.leftOp
         right_operand_address = current_quad.rightOp
         result_address = current_quad.resultTemp
-
-        left_value = None
-        right_value = None
 
         # Get what type of memory left_operand_address is stored in, and get its true value
         left_value = self.check_memory(left_operand_address)
@@ -294,10 +294,181 @@ class VirtualMachine:
         print(f'Input {input_value} to {operand_address}')
         self.increase_current_quad_pointer()
 
+    def greater_than(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value > right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def less_than(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value < right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def equal(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value == right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def greater_than_or_equal(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value >= right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def less_than_or_equal(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value <= right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def not_equal(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value != right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def and_op(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value and right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def or_op(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory right_operand_address is stored in, and get its true value
+        right_value = self.check_memory(right_operand_address)
+
+        if left_value or right_value:
+            self.set_value('true', result_address)
+        else:
+            self.set_value('false', result_address)
+
+        self.increase_current_quad_pointer()
+
+    def gotof(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        conditional_address = current_quad.leftOp
+        quadruple_to_jump = current_quad.resultTemp
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        conditional_value = self.check_memory(conditional_address)
+
+        print(conditional_value)
+
+
+        self.increase_current_quad_pointer()
 
     def goto(self):
-        # This function resolves a goto quadruple
-
         print("goto quad")
         self.increase_current_quad_pointer()
 

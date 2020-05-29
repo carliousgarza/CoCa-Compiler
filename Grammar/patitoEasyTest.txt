@@ -10,9 +10,13 @@ float: f;
 main()
 {
   s = "hola" + " chicos";
+  i = 2;
+  j = 10;
   s = "ACM1PT GUACHIN";
-  i = 10*5;
   f = ((10+3)-20)/i;
-  input(s);
+  lol = i > j;
+  if (lol) then {
+    s = "entre al if guachin";
+  }
   print(s);
 }
