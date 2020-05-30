@@ -28,8 +28,8 @@ class VirtualMachine:
             "!=": self.not_equal,
             "&&": self.and_op,
             "||": self.or_op,
-            "print": self.print,
-            "read": self.read,
+            "PRINT": self.print,
+            "READ": self.read,
             "GOTOF": self.gotof,
             "GOTO": self.goto,
             "ERA": self.era,
@@ -38,6 +38,17 @@ class VirtualMachine:
             "ENDFUNC": self.endfunc,
             "PARAM": self.param,
             "VERIF": self.verif,
+            "?": self.inverse,
+            "#": self.transpose,
+            "$": self.determinant,
+            "+L": self.add_lists,
+            "-L": self.subtract_lists,
+            "/L": self.divide_lists,
+            "*L": self.multiply_lists,
+            "=L": self.assign_lists,
+            "==L": self.equal_lists,
+            "!=L": self.not_equal_lists,
+            "PRINTLIST": self.print_list,
         }
 
     def begin(self):
@@ -192,10 +203,11 @@ class VirtualMachine:
         # Get what type of memory right_operand_address is stored in, and get its true value
         right_value = self.check_memory(right_operand_address)
 
-        if type(left_value) is str:
+        # removes "" and '' from chars and strings
+        if type(left_value) is str and left_value.startswith("\""):
             left_value = left_value[1:-1]
-            if type(right_value) is not str:
-                raise Exception('DANGER! You should not be here')
+        # removes "" and '' from chars and strings
+        if type(right_value) is str and right_value.startswith("\""):
             right_value = right_value[1:-1]
 
         # Get the real result of adding both operands together
@@ -531,8 +543,7 @@ class VirtualMachine:
         for parameter in self.parameterStack:
             self.set_value(parameter['value'], parameter['address'])
 
-        while self.parameterStack:
-            print(self.parameterStack.pop(), "removed from parameterStack")
+        self.parameterStack.clear()
 
         print(f'Function called, going to quad {quad_to_jump}')
         self.functionStack.append({'quadruple': self.quadPointer+1, 'address': future_temporal_to_assign_return})
@@ -605,5 +616,206 @@ class VirtualMachine:
             print("The value is between the limits!")
         else:
             raise IndexError("Index out of range")
+
+        self.increase_current_quad_pointer()
+
+    def inverse(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        matrix_start = current_quad.leftOp
+        temporal_start = current_quad.resultTemp
+
+        self.increase_current_quad_pointer()
+
+    def transpose(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        matrix_start = current_quad.leftOp
+        temporal_start = current_quad.resultTemp
+
+        self.increase_current_quad_pointer()
+
+    def determinant(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        matrix_start = current_quad.leftOp
+        temporal_start = current_quad.resultTemp
+
+        self.increase_current_quad_pointer()
+
+    def add_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+
+            # removes "" and '' from chars and strings
+            if type(left_value) is str and left_value.startswith("\""):
+                left_value = left_value[1:-1]
+            # removes "" and '' from chars and strings
+            if type(right_value) is str and right_value.startswith("\""):
+                right_value = right_value[1:-1]
+
+            # Get the real result of adding both operands together
+            result = left_value + right_value
+            print(f'{left_value} + {right_value} = {result}')
+            # Check where to store the result and store it
+            self.set_value(result, result_address+x)
+
+        self.increase_current_quad_pointer()
+
+    def subtract_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+            # Get the real result of subtracting both operands together
+            result = left_value - right_value
+            print(f'{left_value} - {right_value} = {result}')
+            # Check where to store the result and store it
+            self.set_value(result, result_address+x)
+
+        self.increase_current_quad_pointer()
+
+    def divide_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+            # Get the real result of dividing both operands together
+            result = left_value / right_value
+            print(f'{left_value} / {right_value} = {result}')
+            # Check where to store the result and store it
+            self.set_value(result, result_address+x)
+
+        self.increase_current_quad_pointer()
+
+    def multiply_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+            # Get the real result of multiplying both operands together
+            result = left_value * right_value
+            print(f'{left_value} * {right_value} = {result}')
+            # Check where to store the result and store it
+            self.set_value(result, result_address+x)
+
+        self.increase_current_quad_pointer()
+
+    def assign_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        list_size = current_quad.resultTemp
+
+        for x in range(list_size):
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+            # Check where to store the result and store it
+            self.set_value(right_value, left_operand_address+x)
+
+        self.increase_current_quad_pointer()
+
+    def equal_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        result = True
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+
+            if left_value != right_value:
+                result = False
+                break
+
+        self.set_value(result, result_address)
+        self.increase_current_quad_pointer()
+
+    def not_equal_lists(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand = current_quad.leftOp
+
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        lists_size = int(current_quad.leftOp.split(".").pop())
+        left_operand_address = int(current_quad.leftOp.split(".").pop(-2))
+
+        result = False
+
+        for x in range(lists_size):
+            # Get what type of memory left_operand_address is stored in, and get its true value
+            left_value = self.check_memory(left_operand_address+x)
+            # Get what type of memory right_operand_address is stored in, and get its true value
+            right_value = self.check_memory(right_operand_address+x)
+
+            if left_value != right_value:
+                result = True
+                break
+
+        self.set_value(result, result_address)
+        self.increase_current_quad_pointer()
+
+    def print_list(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        list_address = current_quad.leftOp
+        list_size = current_quad.rightOp
+
+        for x in range(list_size):
+            value = self.check_memory(list_address+x)
+            print(value)
 
         self.increase_current_quad_pointer()

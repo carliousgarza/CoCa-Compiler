@@ -181,5 +181,5 @@ fromloop
   ;
 
 mainfunc
-  : MAIN {compiler.currentFunction=Function("main", "void", [], {})} LEFT_PARENTHESIS RIGHT_PARENTHESIS {compiler._add_function(compiler.currentFunction)} LEFT_CURLY {compiler.fill_goto_main_quad()} statute RIGHT_CURLY
+  : MAIN {compiler.currentFunction=Function("main", "void", [], {})} {compiler.clear_local_memory()} LEFT_PARENTHESIS RIGHT_PARENTHESIS {compiler._add_function(compiler.currentFunction)} LEFT_CURLY {compiler.fill_goto_main_quad()} statute RIGHT_CURLY
   ;

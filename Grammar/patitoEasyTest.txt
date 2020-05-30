@@ -1,9 +1,9 @@
 program littleDuck2020CorrectFileTest;
 var
-bool: lol, bob;
+bool: lol, bob, b[2][2];
 string: s, t;
 char: c;
-int: i, j, k, mat[10][10];
+int: i, j, k, mat[2][2], john[2][2], m[2][2];
 float: f, array[10];
 
 function int fibonacci(int o)
@@ -28,14 +28,11 @@ function void example(int i, int j, int k, int l, int m)
 
 main()
 {
-  k = 200;
-  from i = 0 to 10 do {
-    from j = 0 to 10 do {
-        mat[i][j] = k;
-        k = k+1;
+    from i = 0 to 2 do {
+       from j = 0 to 2 do {
+           mat[i][j] = 8*j;
+           john[i][j] = 100-33;
+       }
     }
-  }
-  print(mat);
-  // array[6] = 10 * 10/mat[1][2] + (mat[3][3]-20) * mat[9][9] - mat[0][0];
-  // print(array[6]);
+    print(mat + john);
 }
