@@ -71,6 +71,7 @@ class VirtualMachine:
         elif operand_address < 20000:
             operand_address -= 10000
             value = self.GLOBAL[operand_address]
+            print(self.GLOBAL[operand_address], operand_address)
             if value is None:
                 raise Exception(f'Using an operand that has not been assigned a value yet')
             true_value = self.check_type_and_return_true_value(value, operand_address, "global")
@@ -153,10 +154,14 @@ class VirtualMachine:
             raise Exception("You should not be assigning stuff to constant address")
 
         elif value_address < 50000:
-            print(f'setting value {value} to pointer address({value_address})')
             value_address -= 40000
-            self.POINTER[value_address] = value
-
+            if self.current_quad().operator != '=':
+                print(f'setting {value} to pointer {value_address + 40000}')
+                self.POINTER[value_address] = value
+            else:
+                print(f'extracting address value from pointer {value_address + 40000})')
+                new_value_address = self.POINTER[value_address]
+                self.set_value(value, new_value_address)
         else:
             raise Exception("You should not be here man!")
 
@@ -564,6 +569,9 @@ class VirtualMachine:
         for parameter in self.parameterStack:
             self.set_value(parameter['value'], parameter['address'])
 
+        while self.parameterStack:
+            print(self.parameterStack.pop(), "removed from parameterStack")
+
         print(f'Function called, going to quad {quad_to_jump}')
         self.functionStack.append({'quadruple': self.quadPointer+1, 'address': future_temporal_to_assign_return})
         self.quadPointer = quad_to_jump
@@ -620,9 +628,25 @@ class VirtualMachine:
         # Get the current quad, its operands and address
         current_quad = self.current_quad()
         left_operand_address = current_quad.leftOp
-        right_operand_address = current_quad.rightOp
-        result_address = current_quad.resultTemp
-        print('verif')
+        lower_limit_address = current_quad.rightOp
+        upper_limit_address = current_quad.resultTemp
+
+        print(f'verif {left_operand_address}, {lower_limit_address}, {upper_limit_address}')
+
+        # Get what type of memory left_operand_address is stored in, and get its true value
+        left_value = self.check_memory(left_operand_address)
+
+        # Get what type of memory lower_limit_address is stored in, and get its true value
+        lower_limit_value = self.check_memory(lower_limit_address)
+
+        # Get what type of memory upper_limit_address is stored in, and get its true value
+        upper_limit_value = self.check_memory(upper_limit_address)
+
+        print(f'verif2 {left_value}, {lower_limit_value}, {upper_limit_value}')
+
+        if left_value < upper_limit_value and left_value > lower_limit_value:
+            print("this value is correct")
+        else:
+            raise IndexError("Index out of range")
 
         self.increase_current_quad_pointer()
-

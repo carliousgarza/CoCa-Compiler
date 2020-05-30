@@ -3,7 +3,7 @@ var
 bool: lol, bob;
 string: s, t;
 char: c;
-int: i, j, k, mat[10][10];
+int: i, j, k, mat[10][10], array[10];
 float: f;
 
 function int fibonacci(int o)
@@ -21,9 +21,14 @@ function int fibonacci(int o)
    return (fibonacci(o-1)+fibonacci(o-2));
 }
 
+function void example(int i, int j, int k, int l, int m)
+{
+  print("hello world");
+}
 
 main()
 {
-  i = fibonacci(15);
+  array[6] = 10;
+  i = 10 + array[6] + 3 * 2;
   print(i);
 }

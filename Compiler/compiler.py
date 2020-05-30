@@ -1118,6 +1118,7 @@ class Compiler:
 
             # trying to assign a value to a constant/temporal that is not the index of a list
             elif leftOperandVariable is None and int(self.temporalStack[-1]) < 40000:
+                print("=====================",self.temporalStack[-2])
                 raise Exception(f'This operation is impossible')
 
             roAddress = None
@@ -1412,5 +1413,3 @@ class Compiler:
             raise Exception(f'There was an error trying to perform operations between variables of different dimensions')
         else:
             self.generate_simple_operation_quad(rightOperand, leftOperand, operator, rightOperandType, leftOperandType)
-
-
