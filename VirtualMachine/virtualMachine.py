@@ -1,7 +1,13 @@
 class VirtualMachine:
-    def __init__(self, quadruples, constantTable):
+    def __init__(self, quadruples, constantTable, functionTable):
         self.quadPointer = 0
         self.quadruples = quadruples
+        self.functionTable = functionTable
+        self.functionStack = []
+        self.localMemoryStack = []
+        self.temporalMemoryStack = []
+        self.pointerMemoryStack = []
+        self.parameterStack = []
 
         self.GLOBAL = [None] * 10000
         self.LOCAL = [None] * 10000
@@ -22,23 +28,25 @@ class VirtualMachine:
             "!=": self.not_equal,
             "&&": self.and_op,
             "||": self.or_op,
-            "GOTOF": self.gotof,
-            "GOTO": self.goto,
             "print": self.print,
             "read": self.read,
+            "GOTOF": self.gotof,
+            "GOTO": self.goto,
+            "ERA": self.era,
+            "RETURN": self.ret,
+            "GOSUB": self.gosub,
+            "ENDFUNC": self.endfunc,
+            "PARAM": self.param,
+            "VERIF": self.verif,
         }
 
     def begin(self):
         # This function begins running and executing all quadruples in the program
         counter = 0
-        stackOverflow = 0
         for quad in self.quadruples:
             print(f'{counter} - {quad.operator}.{quad.leftOp}.{quad.rightOp}.{quad.resultTemp}')
             counter+=1
         while self.quadPointer < len(self.quadruples):
-            stackOverflow += 1
-            if stackOverflow == 200000:
-                raise Exception("STACK OVERFLOW!!!!!!!!!!!")
             currentQuad = self.current_quad()
             operator = currentQuad.operator
             self.operators.get(operator)()
@@ -203,6 +211,7 @@ class VirtualMachine:
         right_operand_address = current_quad.rightOp
         result_address = current_quad.resultTemp
 
+        print(self.LOCAL[left_operand_address-20000])
         # Get what type of memory left_operand_address is stored in, and get its true value
         left_value = self.check_memory(left_operand_address)
         # Get what type of memory right_operand_address is stored in, and get its true value
@@ -478,4 +487,142 @@ class VirtualMachine:
         quadruple_to_jump = current_quad.resultTemp
 
         self.quadPointer = quadruple_to_jump
+
+    def era(self):
+        self.increase_current_quad_pointer()
+
+    # def check_previous_memory(self, passed_param_address):
+    #     if passed_param_address < 10000:
+    #         value = self.temporalMemoryStack[-1][passed_param_address]
+    #         if value is None:
+    #             raise Exception(f'Using an operand that has not been assigned a value yet')
+    #         true_value = self.check_type_and_return_true_value(value, passed_param_address, "temporal")
+    #         return true_value
+    #     elif passed_param_address < 20000:
+    #         passed_param_address -= 10000
+    #         value = self.GLOBAL[passed_param_address]
+    #         if value is None:
+    #             raise Exception(f'Using an operand that has not been assigned a value yet')
+    #         true_value = self.check_type_and_return_true_value(value, passed_param_address, "global")
+    #         return true_value
+    #     elif passed_param_address < 30000:
+    #         passed_param_address -= 20000
+    #         value = self.localMemoryStack[-1][passed_param_address]
+    #         if value is None:
+    #             raise Exception(f'Using an operand that has not been assigned a value yet')
+    #         true_value = self.check_type_and_return_true_value(value, passed_param_address, "local")
+    #         return true_value
+    #     elif passed_param_address < 40000:
+    #         value = self.CONSTANT[passed_param_address].operand
+    #         if value is None:
+    #             raise Exception(f'Using an operand that has not been assigned a value yet')
+    #         true_value = self.check_type_and_return_true_value(value, passed_param_address, "constant")
+    #         return true_value
+    #     elif passed_param_address < 50000:
+    #         passed_param_address -= 40000
+    #         addressValue = int(self.pointerMemoryStack[-1][passed_param_address])
+    #         if addressValue is None:
+    #             raise Exception(f'Using an operand that has not been assigned a value yet')
+    #         return self.check_previous_memory(addressValue)
+    #     else:
+    #         raise Exception("Danger zone, something is wrong")
+
+    def param(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        passed_param_address = current_quad.leftOp
+        parameter_address = current_quad.resultTemp
+
+        # gets the param value from previous memory, as we have migrated for now
+        passed_param_value = self.check_memory(passed_param_address)
+
+        # appends it so gosub can empty it
+        self.parameterStack.append({'value': passed_param_value, 'address': parameter_address})
+
+        self.increase_current_quad_pointer()
+
+    def gosub(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        future_temporal_to_assign_return = current_quad.leftOp
+        quad_to_jump = current_quad.resultTemp
+
+        # Changing context
+        # this was previously on the troublesome and useless ERA
+        l = [None] * 10000
+        t = [None] * 10000
+        p = [None] * 10000
+
+        self.localMemoryStack.append(self.LOCAL)
+        self.pointerMemoryStack.append(self.POINTER)
+        self.temporalMemoryStack.append(self.TEMPORAL)
+
+        self.LOCAL = l
+        self.TEMPORAL = t
+        self.POINTER = p
+
+        for parameter in self.parameterStack:
+            self.set_value(parameter['value'], parameter['address'])
+
+        print(f'Function called, going to quad {quad_to_jump}')
+        self.functionStack.append({'quadruple': self.quadPointer+1, 'address': future_temporal_to_assign_return})
+        self.quadPointer = quad_to_jump
+        print('gosub')
+
+    def ret(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        return_value_address = current_quad.resultTemp
+
+        # Get the return real value while we are still in the returning function's context
+        return_value = self.check_memory(return_value_address)
+
+        # Change context
+        previous_local_memory = self.localMemoryStack.pop()
+        previous_temporal_memory = self.temporalMemoryStack.pop()
+        previous_pointer_memory = self.pointerMemoryStack.pop()
+        previous_function = self.functionStack.pop()
+        self.LOCAL = previous_local_memory
+        self.TEMPORAL = previous_temporal_memory
+        self.POINTER = previous_pointer_memory
+
+        go_back_quadruple = previous_function['quadruple']
+
+        # Set the return value
+        print(f'Returning {return_value} and going back to quadruple {go_back_quadruple}')
+        self.set_value(return_value, previous_function['address'])
+
+        # Go back
+        self.quadPointer = go_back_quadruple
+        print('ret')
+
+    def endfunc(self):
+        # Change context
+        previous_local_memory = self.localMemoryStack.pop()
+        previous_temporal_memory = self.temporalMemoryStack.pop()
+        previous_pointer_memory = self.pointerMemoryStack.pop()
+        previous_function = self.functionStack.pop()
+        self.LOCAL = previous_local_memory
+        self.TEMPORAL = previous_temporal_memory
+        self.POINTER = previous_pointer_memory
+
+        # IF the previous function is expecting a return address and we reached ENDFUNC, we have a runtime error
+        if previous_function['address'] is not None:
+            raise Exception('Error! Reached end of function without a return')
+
+        go_back_quadruple = previous_function['quadruple']
+        # Go back
+        print(f'Going back to quadruple {go_back_quadruple}')
+        self.quadPointer = go_back_quadruple
+        print('endfunc')
+
+    def verif(self):
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        left_operand_address = current_quad.leftOp
+        right_operand_address = current_quad.rightOp
+        result_address = current_quad.resultTemp
+        print('verif')
+
+        self.increase_current_quad_pointer()
 

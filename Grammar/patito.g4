@@ -143,13 +143,13 @@ statute
   ;
 
 assignation
-  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}  // a =
-    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*             // b = | b[1]= | b[1][2]=
-    (mexp) SEMICOLON {compiler.generateAssignQuads()}                                                                   // b; | 2+1;
+  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}
+    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*
+    (mexp) SEMICOLON {compiler.generateAssignQuads()}
   ;
 
 funccall
-  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS ( | mexp (COMMA mexp)* ) RIGHT_PARENTHESIS SEMICOLON
+  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})* ) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_void_function_quad($ID.text)} RIGHT_PARENTHESIS SEMICOLON
   ;
 
 returncall

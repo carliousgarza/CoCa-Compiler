@@ -3,30 +3,27 @@ var
 bool: lol, bob;
 string: s, t;
 char: c;
-int: i, j, k;
+int: i, j, k, mat[10][10];
 float: f;
+
+function int fibonacci(int o)
+{
+   if (o<0) then {
+      print("Incorrect input");
+      return (-1);
+   }
+   if (o==1) then {
+      return (0);
+    }
+   if (o==2) then {
+      return (1);
+   }
+   return (fibonacci(o-1)+fibonacci(o-2));
+}
 
 
 main()
 {
-  i = 20;
-  j = 50;
-  s = "ACM1PT GUACHIN";
-  lol = j > i;
-  bob = True;
-  if (lol) then {
-    while(bob) do {
-        i = i - 1;
-        j = 50;
-        while(j >= i) do {
-            j = j-10;
-        }
-        print(i);
-        bob = i != 0;
-    }
-  }
-  else {
-    s = "entre al else guachin";
-  }
-  print(s);
+  i = fibonacci(15);
+  print(i);
 }

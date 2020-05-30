@@ -34,6 +34,9 @@ class Compiler:
     def get_constants_table(self):
         return self.realConstantTable
 
+    def get_function_table(self):
+        return self.functionTable
+
     def _add_function(self, func: Function):
         self.currentFunction.startQuadruple = len(self.quadruples)
         if func.name not in self.functionTable:
@@ -664,7 +667,9 @@ class Compiler:
             if self.functionTable[id].returntype != 'void':
                 raise TypeError(f'Function {id} return value must be assigned')
             else:
-                print(f'we inside void function {id}')
+                quad = Quadruple("ERA", None, None, id)
+                self.quadruples.append(quad)
+                print(f'ERA, None, None, {id}')
         else:
             raise ValueError(f'Function {id} is not declared')
 
@@ -673,7 +678,7 @@ class Compiler:
             temporalsTaken = 0
             # reversed FOR because the parametersTable is reversed in relation to operandStack
             # example: funccall(0, 1, 2) --> passedParameter is the one we want to match with 2
-            for idx,parameter in enumerate(reversed(self.functionTable[id].parametersTable)):
+            for parameter in reversed(self.functionTable[id].parametersTable):
                 passedParameter = self.operandStack.pop()
                 passedParameterType = self.typesStack.pop()
                 if parameter.vartype != passedParameterType:
@@ -695,14 +700,18 @@ class Compiler:
                         parameterAddress = self.temporalStack[len(self.temporalStack)-1-temporalsTaken]
                         temporalsTaken += 1
 
-                    quad = Quadruple("param",parameterAddress,None,f'par{currentCounter-idx-1}')
+                    quad = Quadruple("PARAM", parameterAddress, None, self.functionTable[id].varsTable[parameter.name].address)
                     self.quadruples.append(quad)
-                    print("parametro bueno")
-                    print("param",parameterAddress,None,f'par{currentCounter-idx-1}')
+                    print("PARAM",parameterAddress,None, self.functionTable[id].varsTable[parameter.name].address)
         else:
             raise ValueError(f'Number of parameters in call to function {id} does not match the amount declared.')
 
     def goto_function_quad(self, id):
+        quad = Quadruple('GOSUB', self.temporalStack[-1], None, self.functionTable[id].startQuadruple)
+        print('GOSUB', self.temporalStack[-1], 'None', self.functionTable[id].startQuadruple)
+        self.quadruples.append(quad)
+
+    def goto_void_function_quad(self, id):
         quad = Quadruple('GOSUB', None, None, self.functionTable[id].startQuadruple)
         print('GOSUB', 'None', 'None', self.functionTable[id].startQuadruple)
         self.quadruples.append(quad)
