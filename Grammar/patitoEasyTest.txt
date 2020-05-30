@@ -3,8 +3,8 @@ var
 bool: lol, bob;
 string: s, t;
 char: c;
-int: i, j, k, mat[10][10], array[10];
-float: f;
+int: i, j, k, mat[10][10];
+float: f, array[10];
 
 function int fibonacci(int o)
 {
@@ -28,7 +28,14 @@ function void example(int i, int j, int k, int l, int m)
 
 main()
 {
-  array[6] = 10;
-  i = 10 + array[6] + 3 * 2;
-  print(i);
+  k = 200;
+  from i = 0 to 10 do {
+    from j = 0 to 10 do {
+        mat[i][j] = k;
+        k = k+1;
+    }
+  }
+  print(mat);
+  // array[6] = 10 * 10/mat[1][2] + (mat[3][3]-20) * mat[9][9] - mat[0][0];
+  // print(array[6]);
 }

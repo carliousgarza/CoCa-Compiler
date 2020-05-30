@@ -319,7 +319,7 @@ class Compiler:
 
     def verify_one_index(self):
         id = self.operandStack.pop(-2)
-        arrayType = self.typesStack.pop()
+        arrayType = self.typesStack.pop(-2)
         baseAddress = None
         dimSize = None
         if id in self.currentFunction.varsTable:
@@ -393,7 +393,7 @@ class Compiler:
 
     def verify_two_indexes(self):
         id = self.operandStack.pop(-3)
-        matrixType = self.typesStack.pop()
+        matrixType = self.typesStack.pop(-3)
         baseAddress = None
         dimSize = None
         firstIndex = None
@@ -1117,8 +1117,7 @@ class Compiler:
                     raise TypeError(f'Cannot assign non-matrix value to {leftOperand}')
 
             # trying to assign a value to a constant/temporal that is not the index of a list
-            elif leftOperandVariable is None and int(self.temporalStack[-1]) < 40000:
-                print("=====================",self.temporalStack[-2])
+            elif leftOperandVariable is None and leftOperand[0] != 'P':
                 raise Exception(f'This operation is impossible')
 
             roAddress = None
@@ -1140,8 +1139,8 @@ class Compiler:
                 loAddress = self.functionTable["global"].varsTable[leftOperand].address
             elif leftOperand in self.constantTable:
                 raise Exception(f'This operation is impossible')
-            elif int(self.temporalStack[-1]) >= 40000:
-                loAddress = self.temporalStack[-1]
+            elif leftOperand[0] == 'P':
+                loAddress = self.temporalStack[int(leftOperand[1:])]
             else:
                 raise Exception(f'This operation is impossible')
 
