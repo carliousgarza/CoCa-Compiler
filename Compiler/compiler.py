@@ -872,8 +872,17 @@ class Compiler:
         self.temporalStack.append(self.memory.mem_temp_int)
         print(f'temporal {tempResult} of type int assigned to {self.memory.mem_temp_int}')
         self.memory.mem_temp_int += 1
-        print(f'+ (from index) {self.loopVariableStack[-1]} 1 {tempResult} {self.temporalStack[-1]}')
-        quad1 = Quadruple("+", self.loopVariableStack[-1], "1", self.temporalStack[-1])
+        print(f'+ (from index) {self.loopVariableStack[-1]} amount 1 {tempResult} {self.temporalStack[-1]}')
+
+        if '1' not in self.constantTable:
+            if self.memory.mem_constant < 40000:
+                self.constantTable['1'] = Constant('int', self.memory.mem_constant, '1')
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, '1')
+                self.memory.mem_constant += 1
+            else:
+                raise Exception(f'StackOverflow on constants')
+
+        quad1 = Quadruple("+", self.loopVariableStack[-1],  self.constantTable['1'].address, self.loopVariableStack[-1])
         self.quadruples.append(quad1)
 
         # Append the current GOTO quadruple, to go back to the beginning of the from
@@ -966,14 +975,14 @@ class Compiler:
             #self.operandStack.append(operand)
             #self.addType(self.functionTable["global"].varsTable[operand].vartype)
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
-        elif operand != "true" and operand != "false":
+        elif operand != "True" and operand != "False":
             operandAddress = self.temporalStack[-1]
             self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
             #self.addType("bool")
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         else:
-            if operand == "true" or operand == "false":
+            if operand == "True" or operand == "False":
                 raise TypeError(f'Error: constant {operand} will cause infinite execution of while loop.')
             raise TypeError(f'Error: variable {operand} does not exist.')
 

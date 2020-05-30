@@ -1,22 +1,32 @@
 program littleDuck2020CorrectFileTest;
 var
-bool: lol;
+bool: lol, bob;
 string: s, t;
 char: c;
-int: i, j;
+int: i, j, k;
 float: f;
 
 
 main()
 {
-  s = "hola" + " chicos";
-  i = 2;
-  j = 10;
+  i = 20;
+  j = 50;
   s = "ACM1PT GUACHIN";
-  f = ((10+3)-20)/i;
-  lol = i > j;
+  lol = j > i;
+  bob = True;
   if (lol) then {
-    s = "entre al if guachin";
+    while(bob) do {
+        i = i - 1;
+        j = 50;
+        while(j >= i) do {
+            j = j-10;
+        }
+        print(i);
+        bob = i != 0;
+    }
+  }
+  else {
+    s = "entre al else guachin";
   }
   print(s);
 }

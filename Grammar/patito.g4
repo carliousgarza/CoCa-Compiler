@@ -62,7 +62,7 @@ STRING: 'string';
 CHAR: 'char';
 
 //Constants
-CTE_BOOL: 'true' | 'false';
+CTE_BOOL: 'True' | 'False';
 CTE_FLOAT: [0-9]+ '.' [0-9]+;
 CTE_INT: [0-9]+;
 CTE_CHAR: '\'' . '\'';

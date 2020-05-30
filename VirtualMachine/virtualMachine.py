@@ -31,10 +31,14 @@ class VirtualMachine:
     def begin(self):
         # This function begins running and executing all quadruples in the program
         counter = 0
+        stackOverflow = 0
         for quad in self.quadruples:
             print(f'{counter} - {quad.operator}.{quad.leftOp}.{quad.rightOp}.{quad.resultTemp}')
             counter+=1
         while self.quadPointer < len(self.quadruples):
+            stackOverflow += 1
+            if stackOverflow == 200000:
+                raise Exception("STACK OVERFLOW!!!!!!!!!!!")
             currentQuad = self.current_quad()
             operator = currentQuad.operator
             self.operators.get(operator)()
@@ -97,7 +101,7 @@ class VirtualMachine:
             elif self.CONSTANT[address].type == "string":
                 return str(value)
             elif self.CONSTANT[address].type == "bool":
-                if value == "true":
+                if value:
                     return True
                 else:
                     return False
@@ -113,7 +117,7 @@ class VirtualMachine:
             elif address < 6000:
                 return str(value)
             elif address < 8000:
-                if value == "true":
+                if value:
                     return True
                 else:
                     return False
@@ -308,9 +312,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value > right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -328,9 +332,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value < right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -348,9 +352,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value == right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -368,9 +372,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value >= right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -388,9 +392,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value <= right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -408,9 +412,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value != right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -428,9 +432,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value and right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -448,9 +452,9 @@ class VirtualMachine:
         right_value = self.check_memory(right_operand_address)
 
         if left_value or right_value:
-            self.set_value('true', result_address)
+            self.set_value(True, result_address)
         else:
-            self.set_value('false', result_address)
+            self.set_value(False, result_address)
 
         self.increase_current_quad_pointer()
 
@@ -463,12 +467,15 @@ class VirtualMachine:
         # Get what type of memory left_operand_address is stored in, and get its true value
         conditional_value = self.check_memory(conditional_address)
 
-        print(conditional_value)
-
-
-        self.increase_current_quad_pointer()
+        if not conditional_value:
+            self.quadPointer = quadruple_to_jump
+        else:
+            self.increase_current_quad_pointer()
 
     def goto(self):
-        print("goto quad")
-        self.increase_current_quad_pointer()
+        # Get the current quad, its operands and address
+        current_quad = self.current_quad()
+        quadruple_to_jump = current_quad.resultTemp
+
+        self.quadPointer = quadruple_to_jump
 
