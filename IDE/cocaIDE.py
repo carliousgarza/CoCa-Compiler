@@ -1,17 +1,18 @@
 from tkinter import *
+import sys
+import os
 
 def run_clicked():
     # Get code from the codeArea
-    code = codeArea.get(0.0, END)
-
+    code = codeArea.get('0.0', 'end-1c')
+    print(code)
     # Get and write to file
     fileName = 'textEditorFile.coca'
     file = open(fileName, 'w')
     file.write(code)
     file.close
-    print("ASDASDASDASD")
-    label = Label(root, text=code)
-    label.pack()
+    print("File saved, now running...")
+    os.system('python3 ../main.py textEditorFile.coca')
 
 # Root Window
 root = Tk()
@@ -21,7 +22,7 @@ root.resizable(False, False)
 # Text editor textarea
 codeArea = Text(root, height=35, width=100)
 codeArea.configure(background='white', foreground="black")
-codeArea.insert(0.0, "//Code goes here")
+#codeArea.insert(1.0, "//Code goes here")
 codeArea.pack()
 
 # Console textarea
