@@ -2,5 +2,5 @@ program hola;
 var int: i;
 main()
 {
-	print("hola");
+	print("holaaaaaaaaaaaa");
 }

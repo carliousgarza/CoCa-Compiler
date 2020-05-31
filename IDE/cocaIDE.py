@@ -13,7 +13,10 @@ def save_clicked():
     console.insert('1.0', 'Saved File\n')
 
 def run_clicked():
-    os.system('python3 ../main.py textEditorFile.coca')
+    #os.system('python3 ../main.py textEditorFile.coca')
+    resultText = os.popen('python3 ../main.py textEditorFile.coca').read()
+    console.insert('end-1c', f'{resultText}\n')
+
 
 # Root Window
 root = Tk()
