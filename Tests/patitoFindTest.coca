@@ -1,0 +1,26 @@
+program littleDuck2020CorrectFileTest;
+var int: i, j, array[50];
+
+function int find (int n)
+{
+  from i = 0 to 50 do {
+    if (array[i] == n) then {
+      return(i);
+    }
+  }
+}
+
+function void fillArray ()
+{
+  from i = 0 to 50 do {
+    array[i] = 50-i;
+  }
+}
+
+main()
+{
+  fillArray();
+  i = 28;
+  j = find(i);
+  print(j);
+}

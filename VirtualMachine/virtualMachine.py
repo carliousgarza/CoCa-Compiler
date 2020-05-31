@@ -641,14 +641,11 @@ class VirtualMachine:
         # Fill in the matrix with its values from the addresses
         for x in range(first_index):
             for y in range(second_index):
-                print(matrix_start + (first_index * x) + y)
                 current_matrix[x][y] = self.check_memory(matrix_start + counter)
                 counter += 1
 
 
-        print(current_matrix)
         inverted_result = np.linalg.inv(current_matrix)
-        print(inverted_result)
 
         counter = 0
 
@@ -682,9 +679,7 @@ class VirtualMachine:
                 current_matrix[x][y] = self.check_memory(matrix_start + counter)
                 counter += 1
 
-        print(current_matrix)
         transposed_result = current_matrix.transpose()
-        print(transposed_result)
 
         counter = 0
 
@@ -718,9 +713,7 @@ class VirtualMachine:
                 current_matrix[x][y] = self.check_memory(matrix_start + counter)
                 counter += 1
 
-        print(current_matrix)
         determinant_result = np.linalg.det(current_matrix)
-        print(determinant_result)
 
         self.set_value(determinant_result, temporal_start)
 
