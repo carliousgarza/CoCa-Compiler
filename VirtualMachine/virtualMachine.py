@@ -298,7 +298,7 @@ class VirtualMachine:
 
         operandValue = self.check_memory(operandAddress)
 
-        print(operandValue)
+        print(f'printing:{operandValue}:')
 
         self.increase_current_quad_pointer()
 

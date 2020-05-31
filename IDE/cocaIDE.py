@@ -10,13 +10,21 @@ def save_clicked():
     file = open(fileName, 'w')
     file.write(code)
     file.close
-    console.insert('1.0', 'Saved File\n')
+    console.insert('end-1c', 'Saved File\n')
 
 def run_clicked():
     #os.system('python3 ../main.py textEditorFile.coca')
     resultText = os.popen('python3 ../main.py textEditorFile.coca').read()
-    console.insert('end-1c', f'{resultText}\n')
 
+    resultTextArray = resultText.split("\n")
+
+    for line in resultTextArray:
+        print(line)
+        if line.startswith("printing:"):
+            console.insert('end-1c', f'{line[9:-1]}\n')
+
+def clear_console_clicked():
+    console.delete('1.0', 'end')
 
 # Root Window
 root = Tk()
@@ -32,12 +40,15 @@ codeArea.pack()
 # Console textarea
 console = Text(root, height=15, width=100)
 console.configure(background='black',foreground="#000fff000")
-#console.configure(background='black',foreground="#000fff000", state="disabled")
 console.pack()
 
+# Clear console button
+clearConsole = Button(root, text="Clear Console", command=clear_console_clicked)
+clearConsole.pack()
+
 # Save button
-runButton = Button(root, text="Save", command=save_clicked)
-runButton.pack()
+saveButton = Button(root, text="Save", command=save_clicked)
+saveButton.pack()
 
 # Run button
 runButton = Button(root, text="Run", command=run_clicked)
