@@ -8,7 +8,7 @@ function int fact (int j, float k, bool n)
 var int: i;
 {
   print(2+1);
-  print(fact(1, 1.5, true));
+  print(fact(1, 1.5, True));
   i = j = p = a = b = 2;
   input(i);
   i = j * -2;
@@ -31,31 +31,43 @@ var int: i;
   {
     i = j * 2;
   }
+  return(i);
 }
 
 function int fact2 (float j)
 var int: i;
 {
   i = 555555 + 44444;
-  i = f + fact(b-1, 1.5, true) + 8;
+  i = f + fact(b-1, 1.5, True) + 8;
   i = 5 + 7 + 8;
-  lol = true;
+  lol = True;
   valor = 1.3203;
 
   if(j==2) then
   {
-    return(j);
+    return(i);
   }
   else
   {
-    i = f + fact(i-1, 1.5, true) + 8;
-    return(j*fact(i-1, 1.5, true));
+    i = f + fact(i-1, 1.5, True) + 8;
+    return(i*fact(i-1, 1.5, True));
   }
   return (2);
 }
 
 main()
 {
+  i = 1;
+  j = 2;
+  p = 3;
+  a = 4;
+  b = 5;
+  c = 6;
+  d = 7;
+  e = 8;
+  f = 9;
   input(p);
-  j=p*2;
+  print(p);
+  valor = 2.0;
+  print(valor + 1231.0);
 }
