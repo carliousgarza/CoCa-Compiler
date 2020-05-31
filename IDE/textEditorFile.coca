@@ -34,11 +34,15 @@ main()
 }
 =======
 program textEditorFile;
-
 var int: i;
+
+function int func ()
+{
+  return(10);
+}
+
 main(){
-	from i = 0 to 10 do {
-		print("i is now: ", i+1);
-	}
+  i = func();
+  print(i);
 }
 >>>>>>> insert code buttons

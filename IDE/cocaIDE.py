@@ -25,19 +25,19 @@ def clear_console_clicked():
     console.delete('1.0', 'end')
 
 def insert_if():
-    codeArea.insert(INSERT, "if(/* your expression goes here*/) then {\n\n} else {\n\n}\n")
+    codeArea.insert(INSERT, "if(_your_expression_goes_here_) then {\n\n} else {\n\n}\n")
 
 def insert_from():
-    codeArea.insert(INSERT, "from int /*var*/ = /*int_constant*/ to /*exp*/ do {\n\n}\n")
+    codeArea.insert(INSERT, "from int _var_ = _int_constant_ to _exp_ do {\n\n}\n")
 
 def insert_while():
-    codeArea.insert(INSERT, "while (/* your expression goes here*/ ) do {\n\n}\n")
+    codeArea.insert(INSERT, "while (_your_expression_goes_here_) do {\n\n}\n")
 
 def insert_function():
-    codeArea.insert(INSERT, "function /*type*/ /*id*/ (/*your parameters go here*/) /*optional vars here*/ {\n\n}\n")
+    codeArea.insert(INSERT, "function _type_ _id_ (_your_parameters_go_here_)\n_optional_vars_here_\n{\n\n}\n")
 
 def insert_main():
-    codeArea.insert(INSERT, "main(){\n /*your code goes here*/\n\n}\n")
+    codeArea.insert(INSERT, "main(){\n  _your_code_goes_here_\n\n}\n")
 
 # Root Window
 root = Tk()
@@ -57,35 +57,34 @@ console.pack()
 
 #Add if button
 insertIf = Button(root, text="Insert If", command=insert_if)
-insertIf.pack()
+insertIf.pack(padx=5, pady=10, side=LEFT)
 
 #Add if button
 insertFrom = Button(root, text="Insert From", command=insert_from)
-insertFrom.pack()
+insertFrom.pack(padx=5, pady=10, side=LEFT)
 
 #Add if button
 insertWhile = Button(root, text="Insert While", command=insert_while)
-insertWhile.pack()
+insertWhile.pack(padx=5, pady=10, side=LEFT)
 
 #Add if button
 insertFunction = Button(root, text="Insert Function", command=insert_function)
-insertFunction.pack()
+insertFunction.pack(padx=5, pady=10, side=LEFT)
 
 #Add if button
 insertMain = Button(root, text="Insert Main", command=insert_main)
-insertMain.pack()
-
-# Clear console button
-clearConsole = Button(root, text="Clear Console", command=clear_console_clicked)
-clearConsole.pack()
-
-# Save button
-saveButton = Button(root, text="Save", command=save_clicked)
-saveButton.pack()
+insertMain.pack(padx=5, pady=10, side=LEFT)
 
 # Run button
 runButton = Button(root, text="Run", command=run_clicked)
-runButton.pack()
+runButton.pack(padx=5, pady=10, side=RIGHT)
 
+# Save button
+saveButton = Button(root, text="Save", command=save_clicked)
+saveButton.pack(padx=5, pady=10, side=RIGHT)
+
+# Clear console button
+clearConsole = Button(root, text="Clear Console", command=clear_console_clicked)
+clearConsole.pack(padx=5, pady=10, side=RIGHT)
 
 root.mainloop()
