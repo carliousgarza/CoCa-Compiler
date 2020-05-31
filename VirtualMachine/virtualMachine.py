@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class VirtualMachine:
     def __init__(self, quadruples, constantTable, functionTable):
         self.quadPointer = 0
@@ -623,7 +626,37 @@ class VirtualMachine:
         # Get the current quad, its operands and address
         current_quad = self.current_quad()
         matrix_start = current_quad.leftOp
+        indexes = current_quad.rightOp
         temporal_start = current_quad.resultTemp
+
+        # Get the matrixes indexes
+        first_index = int(indexes.split(".").pop(-2))
+        second_index = int(indexes.split(".").pop())
+
+        # Create an empty matrix with the normal dimensions
+        current_matrix = np.empty([first_index,second_index])
+
+        counter = 0
+
+        # Fill in the matrix with its values from the addresses
+        for x in range(first_index):
+            for y in range(second_index):
+                print(matrix_start + (first_index * x) + y)
+                current_matrix[x][y] = self.check_memory(matrix_start + counter)
+                counter += 1
+
+
+        print(current_matrix)
+        inverted_result = np.linalg.inv(current_matrix)
+        print(inverted_result)
+
+        counter = 0
+
+        # Set the inverted
+        for x in range(first_index):
+            for y in range(second_index):
+                self.set_value(inverted_result[x][y], temporal_start + counter)
+                counter += 1
 
         self.increase_current_quad_pointer()
 
@@ -631,7 +664,35 @@ class VirtualMachine:
         # Get the current quad, its operands and address
         current_quad = self.current_quad()
         matrix_start = current_quad.leftOp
+        indexes = current_quad.rightOp
         temporal_start = current_quad.resultTemp
+
+        # Get the matrixes indexes
+        first_index = int(indexes.split(".").pop())
+        second_index = int(indexes.split(".").pop(-2))
+
+        # Create an empty matrix with the normal dimensions
+        current_matrix = np.empty([first_index,second_index])
+
+        counter = 0
+
+        # Fill in the matrix with its values from the addresses
+        for x in range(first_index):
+            for y in range(second_index):
+                current_matrix[x][y] = self.check_memory(matrix_start + counter)
+                counter += 1
+
+        print(current_matrix)
+        transposed_result = current_matrix.transpose()
+        print(transposed_result)
+
+        counter = 0
+
+        # Set the inverted
+        for x in range(second_index):
+            for y in range(first_index):
+                self.set_value(transposed_result[x][y], temporal_start + counter)
+                counter += 1
 
         self.increase_current_quad_pointer()
 
@@ -639,7 +700,29 @@ class VirtualMachine:
         # Get the current quad, its operands and address
         current_quad = self.current_quad()
         matrix_start = current_quad.leftOp
+        indexes = current_quad.rightOp
         temporal_start = current_quad.resultTemp
+
+        # Get the matrixes indexes
+        first_index = int(indexes.split(".").pop(-2))
+        second_index = int(indexes.split(".").pop())
+
+        # Create an empty matrix with the normal dimensions
+        current_matrix = np.empty([first_index,second_index])
+
+        counter = 0
+
+        # Fill in the matrix with its values from the addresses
+        for x in range(first_index):
+            for y in range(second_index):
+                current_matrix[x][y] = self.check_memory(matrix_start + counter)
+                counter += 1
+
+        print(current_matrix)
+        determinant_result = np.linalg.det(current_matrix)
+        print(determinant_result)
+
+        self.set_value(determinant_result, temporal_start)
 
         self.increase_current_quad_pointer()
 

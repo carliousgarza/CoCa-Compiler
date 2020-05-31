@@ -3,8 +3,8 @@ var
 bool: lol, bob, b[2][2];
 string: s, t;
 char: c;
-int: i, j, k, mat[2][2], john[2][2], m[2][2];
-float: f, array[10];
+int: i, j, k, m[2][2];
+float: f, array[10], mat[4][3], john[4][4];
 
 function int fibonacci(int o)
 {
@@ -28,11 +28,23 @@ function void example(int i, int j, int k, int l, int m)
 
 main()
 {
-    from i = 0 to 2 do {
-       from j = 0 to 2 do {
-           mat[i][j] = 8*j;
-           john[i][j] = 100-33;
-       }
-    }
-    print(mat + john);
+    john[0][0] = 1.0;
+    john[0][1] = 2.0;
+    john[0][2] = 3.0;
+    john[0][3] = 4.0;
+    john[1][0] = 4.0;
+    john[1][1] = 3.0;
+    john[1][2] = 2.0;
+    john[1][3] = 1.0;
+    john[2][0] = 9.0;
+    john[2][1] = 18.0;
+    john[2][2] = 16.0;
+    john[2][3] = 12.0;
+    john[3][0] = 9.0;
+    john[3][1] = 18.0;
+    john[3][2] = 16.0;
+    john[3][3] = 19.0;
+
+    f = john$;
+    print(f);
 }

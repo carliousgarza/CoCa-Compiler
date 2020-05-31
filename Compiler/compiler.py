@@ -335,10 +335,10 @@ class Compiler:
         else:
             raise Exception(f'List {id} is not declared')
 
-        if baseAddress not in self.constantTable:
+        if str(baseAddress) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant, baseAddress)
-                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, baseAddress)
+                self.constantTable[str(baseAddress)] = Constant('int', self.memory.mem_constant, str(baseAddress))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(baseAddress))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -384,8 +384,8 @@ class Compiler:
         print(f'temporal pointer {pointerResult} of type array index assigned to {self.memory.mem_pointers}')
         self.memory.mem_pointers += 1
 
-        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress].address, indexOperandAddress, self.temporalStack[-1])
-        print(f'+ {baseAddress} {self.constantTable[baseAddress].address} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
+        baseAddressQuad = Quadruple('+', self.constantTable[str(baseAddress)].address, indexOperandAddress, self.temporalStack[-1])
+        print(f'+ {baseAddress} {self.constantTable[str(baseAddress)].address} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
         self.quadruples.append(baseAddressQuad)
         self.addOperand(pointerResult)
         self.addType(arrayType)
@@ -419,10 +419,10 @@ class Compiler:
         # IF THESE VALUES ARE NOT ALLOCATED IN MEMORY, THEY MUST BE ALLOCATED NOW
         # AS THEY WILL BE NEEDED FOR OPERATIONS
 
-        if baseAddress not in self.constantTable:
+        if str(baseAddress) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[baseAddress] = Constant('int', self.memory.mem_constant, baseAddress)
-                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, baseAddress)
+                self.constantTable[str(baseAddress)] = Constant('int', self.memory.mem_constant, str(baseAddress))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(baseAddress))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -440,10 +440,10 @@ class Compiler:
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
-        if firstIndex not in self.constantTable:
+        if str(firstIndex) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[firstIndex] = Constant('int', self.memory.mem_constant, firstIndex)
-                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, firstIndex)
+                self.constantTable[str(firstIndex)] = Constant('int', self.memory.mem_constant, str(firstIndex))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(firstIndex))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -453,10 +453,10 @@ class Compiler:
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
-        if secondIndex not in self.constantTable:
+        if str(secondIndex) not in self.constantTable:
             if self.memory.mem_constant < 40000:
-                self.constantTable[secondIndex] = Constant('int', self.memory.mem_constant, secondIndex)
-                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, secondIndex)
+                self.constantTable[str(secondIndex)] = Constant('int', self.memory.mem_constant, str(secondIndex))
+                self.realConstantTable[self.memory.mem_constant] = Constant('int', self.memory.mem_constant, str(secondIndex))
                 self.memory.mem_constant += 1
             else:
                 raise Exception(f'StackOverflow on constants')
@@ -499,6 +499,7 @@ class Compiler:
         else:
             secondIndexOperandAddress = self.temporalStack[-1]
 
+        print(self.constantTable)
 
         # CREATE A VERIFICATION QUAD FOR THE FIRST INDEX
         # FIRST INDEX OPERAND MUST BE BETWEEN 0 AND THE FIRST DIMENSION SIZE - 1. THE 0 AND FIRST DIMENSION SIZE ARE STORED NOW IN CONSTANT TABLE
@@ -519,8 +520,8 @@ class Compiler:
         firstIndexLocationTemp = 'X' + str(len(self.temporalStack))
         if self.memory.mem_temp_int == 2000:
             raise Exception("Stack Overflow on temporal int variables")
-        firstIndexLocationQuad = Quadruple('*', self.constantTable[secondIndex].address, firstIndexOperandAddress, self.memory.mem_temp_int)
-        print(f'* {secondIndex} {self.constantTable[secondIndex].address} {firstIndexOperand} {firstIndexOperandAddress} {self.memory.mem_temp_int}')
+        firstIndexLocationQuad = Quadruple('*', self.constantTable[str(secondIndex)].address, firstIndexOperandAddress, self.memory.mem_temp_int)
+        print(f'* {secondIndex} {self.constantTable[str(secondIndex)].address} {firstIndexOperand} {firstIndexOperandAddress} {self.memory.mem_temp_int}')
         print(f'temporal {firstIndexLocationTemp} of type int assigned to {self.memory.mem_temp_int}')
         self.temporalStack.append(self.memory.mem_temp_int)
         self.memory.mem_temp_int += 1
@@ -542,8 +543,8 @@ class Compiler:
 
         # THE PREVIOUS ADDITION IS NOW ADDED TO THE BASE ADDRESS AND WE MAKE A QUAD FOR IT TOO
 
-        baseAddressQuad = Quadruple('+', self.constantTable[baseAddress].address, self.temporalStack[-1], self.memory.mem_pointers)
-        print(f'+ {baseAddress} {self.constantTable[baseAddress].address} {secondIndexLocationTemp} {self.temporalStack[-1]} {self.memory.mem_pointers}')
+        baseAddressQuad = Quadruple('+', self.constantTable[str(baseAddress)].address, self.temporalStack[-1], self.memory.mem_pointers)
+        print(f'+ {baseAddress} {self.constantTable[str(baseAddress)].address} {secondIndexLocationTemp} {self.temporalStack[-1]} {self.memory.mem_pointers}')
         self.quadruples.append(baseAddressQuad)
 
         # WE STORE THE WHOLE RESULT IN POINTER MEMORY, AS THE RESULT IS A MEMORY VALUE ALLOCATED TO A MEMORY ADDRESS.
@@ -572,6 +573,9 @@ class Compiler:
         firstIndex = None
         secondIndex = None
 
+        if operandType != "int" and operandType != "float":
+            raise TypeError(f'Can not use {operator} on a matrix of type {operandType}')
+
         if operand in self.currentFunction.varsTable:
             size = self.currentFunction.varsTable[operand].size
             address= self.currentFunction.varsTable[operand].address
@@ -598,52 +602,60 @@ class Compiler:
             newSecondIndex = firstIndex
 
         if isMatrix:
-            tempResult = 'M' + str(len(self.temporalDimensionVariableStack))
-            if operandType == "int":
-                if self.memory.mem_temp_int+size >= 2000:
-                    raise Exception("Stack Overflow on temporal integer variables")
-                print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_int}')
-                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
-                                                     (self.memory.mem_temp_int, newFirstIndex, newSecondIndex, operandType, size))
-                self.memory.mem_temp_int += size
-            elif operandType == "float":
-                if self.memory.mem_temp_float+size >= 4000:
-                    raise Exception("Stack Overflow on temporal float variables")
-                print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_float}')
-                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
-                                                     (self.memory.mem_temp_float, newFirstIndex, newSecondIndex, operandType, size))
-                self.memory.mem_temp_float += size
-            elif operandType == "string":
-                if self.memory.mem_temp_string+size >= 6000:
-                    raise Exception("Stack Overflow on temporal string variables")
-                print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_string}')
-                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
-                                                     (self.memory.mem_temp_string, newFirstIndex, newSecondIndex, operandType, size))
-                self.memory.mem_temp_string += size
-            elif operandType == "bool":
-                if self.memory.mem_temp_bool + size >= 8000:
-                    raise Exception("Stack Overflow on temporal bool variables")
-                print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_bool}')
-                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
-                                                     (self.memory.mem_temp_bool, newFirstIndex, newSecondIndex, operandType, size))
-                self.memory.mem_temp_bool += size
-            elif operandType == "char":
-                if self.memory.mem_temp_char + size >= 10000:
-                    raise Exception("Stack Overflow on temporal char variables")
-                print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_char}')
-                self.temporalDimensionVariableStack.append(TemporalDimensionVariable
-                                                     (self.memory.mem_temp_char, newFirstIndex, newSecondIndex, operandType, size))
-                self.memory.mem_temp_char += size
 
-            # Add result to the Operand Stack
-            self.addOperand(tempResult)
+            if operator == "$":
+                tempResult = 'X' + str(len(self.temporalStack))
+                if operandType == "int":
+                    if self.memory.mem_temp_int >= 2000:
+                        raise Exception("Stack Overflow on temporal integer variables")
+                    print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_int}')
+                    self.temporalStack.append(self.memory.mem_temp_int)
+                    self.memory.mem_temp_int += 1
+                elif operandType == "float":
+                    if self.memory.mem_temp_float >= 4000:
+                        raise Exception("Stack Overflow on temporal float variables")
+                    print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_float}')
+                    self.temporalStack.append(self.memory.mem_temp_float)
+                    self.memory.mem_temp_float += 1
+                else:
+                    raise TypeError(f'You should not be here')
 
-            # Add matrix type to type stack
-            self.addType(operandType)
+                # Add result to the Operand Stack
+                self.addOperand(tempResult)
 
-            quad = Quadruple(operator, address, None, self.temporalDimensionVariableStack[-1].address)
-            print(operator, operand, address, tempResult, self.temporalDimensionVariableStack[-1].address)
-            self.quadruples.append(quad)
+                # Add matrix type to type stack
+                self.addType("float")
+
+                quad = Quadruple(operator, address, f'{newFirstIndex}.{newSecondIndex}', self.temporalStack[-1])
+                print(operator, operand, address, f'{newFirstIndex}.{newSecondIndex}', tempResult, self.temporalStack[-1])
+                self.quadruples.append(quad)
+            else:
+                tempResult = 'M' + str(len(self.temporalDimensionVariableStack))
+                if operandType == "int":
+                    if self.memory.mem_temp_int+size >= 2000:
+                        raise Exception("Stack Overflow on temporal integer variables")
+                    print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_int}')
+                    self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                         (self.memory.mem_temp_int, newFirstIndex, newSecondIndex, operandType, size))
+                    self.memory.mem_temp_int += size
+                elif operandType == "float":
+                    if self.memory.mem_temp_float+size >= 4000:
+                        raise Exception("Stack Overflow on temporal float variables")
+                    print(f'temporal {tempResult} of type {operandType} assigned to {self.memory.mem_temp_float}')
+                    self.temporalDimensionVariableStack.append(TemporalDimensionVariable
+                                                         (self.memory.mem_temp_float, newFirstIndex, newSecondIndex, operandType, size))
+                    self.memory.mem_temp_float += size
+                else:
+                    raise Exception("You should not be here")
+
+                # Add result to the Operand Stack
+                self.addOperand(tempResult)
+
+                # Add matrix type to type stack
+                self.addType(operandType)
+                quad = Quadruple(operator, address, f'{newFirstIndex}.{newSecondIndex}', self.temporalDimensionVariableStack[-1].address)
+                print(operator, operand, address, f'{newFirstIndex}.{newSecondIndex}', tempResult, self.temporalDimensionVariableStack[-1].address)
+                self.quadruples.append(quad)
         else:
             raise TypeError(f'{operator} operand can only be applied to a matrix')
 
