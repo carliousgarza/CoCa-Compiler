@@ -267,27 +267,27 @@ class patitoParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='", 
-                     "'&&'", "'||'", "'+'", "'-'", "'*'", "'/'", "'('", 
-                     "')'", "'['", "']'", "'{'", "'}'", "'$'", "'#'", "'?'", 
-                     "','", "':'", "';'", "'program'", "'main'", "'function'", 
-                     "'return'", "'input'", "'print'", "'if'", "'then'", 
-                     "'else'", "'while'", "'do'", "'from'", "'to'", "'var'", 
-                     "'bool'", "'int'", "'float'", "'string'", "'char'", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
+    literalNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                     "'<'", "'>'", "'<='", "'>='", "'=='", "'!='", "'='",
+                     "'&&'", "'||'", "'+'", "'-'", "'*'", "'/'", "'('",
+                     "')'", "'['", "']'", "'{'", "'}'", "'$'", "'#'", "'?'",
+                     "','", "':'", "';'", "'program'", "'main'", "'function'",
+                     "'return'", "'input'", "'print'", "'if'", "'then'",
+                     "'else'", "'while'", "'do'", "'from'", "'to'", "'var'",
+                     "'bool'", "'int'", "'float'", "'string'", "'char'",
+                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
                      "<INVALID>", "'void'" ]
 
-    symbolicNames = [ "<INVALID>", "COMMENT", "LINE_COMMENT", "WS", "LESS", 
-                      "GREATER", "LESS_EQUAL", "GREATER_EQUAL", "EQUAL", 
-                      "NOT_EQUAL", "ASSIGN", "AND", "OR", "ADD", "SUB", 
-                      "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
-                      "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY", 
-                      "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON", 
-                      "SEMICOLON", "PROGRAM", "MAIN", "FUNCTION", "RETURN", 
-                      "INPUT", "PRINT", "IF", "THEN", "ELSE", "WHILE", "DO", 
-                      "FROM", "TO", "VAR", "BOOL", "INT", "FLOAT", "STRING", 
-                      "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", "CTE_CHAR", 
+    symbolicNames = [ "<INVALID>", "COMMENT", "LINE_COMMENT", "WS", "LESS",
+                      "GREATER", "LESS_EQUAL", "GREATER_EQUAL", "EQUAL",
+                      "NOT_EQUAL", "ASSIGN", "AND", "OR", "ADD", "SUB",
+                      "MULT", "DIV", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS",
+                      "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_CURLY", "RIGHT_CURLY",
+                      "DETERMINANT", "TRANSPOSE", "INVERSE", "COMMA", "COLON",
+                      "SEMICOLON", "PROGRAM", "MAIN", "FUNCTION", "RETURN",
+                      "INPUT", "PRINT", "IF", "THEN", "ELSE", "WHILE", "DO",
+                      "FROM", "TO", "VAR", "BOOL", "INT", "FLOAT", "STRING",
+                      "CHAR", "CTE_BOOL", "CTE_FLOAT", "CTE_INT", "CTE_CHAR",
                       "CTE_STRING", "VOID", "ID" ]
 
     RULE_program = 0
@@ -316,10 +316,10 @@ class patitoParser ( Parser ):
     RULE_fromloop = 23
     RULE_mainfunc = 24
 
-    ruleNames =  [ "program", "declarevars", "variables", "vartypes", "constant", 
-                   "functions", "function", "functiontype", "parameters", 
-                   "mexp", "sexp", "exp", "term", "factor", "statute", "assignation", 
-                   "funccall", "returncall", "indexvariable", "read", "write", 
+    ruleNames =  [ "program", "declarevars", "variables", "vartypes", "constant",
+                   "functions", "function", "functiontype", "parameters",
+                   "mexp", "sexp", "exp", "term", "factor", "statute", "assignation",
+                   "funccall", "returncall", "indexvariable", "read", "write",
                    "conditional", "whileloop", "fromloop", "mainfunc" ]
 
     EOF = Token.EOF
@@ -384,7 +384,6 @@ class patitoParser ( Parser ):
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
         self.compiler = compiler
-
 
 
 
@@ -504,13 +503,13 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 61
             self.match(patitoParser.VAR)
-            self.state = 63 
+            self.state = 63
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 62
                 self.variables()
-                self.state = 65 
+                self.state = 65
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << patitoParser.BOOL) | (1 << patitoParser.INT) | (1 << patitoParser.FLOAT) | (1 << patitoParser.STRING) | (1 << patitoParser.CHAR))) != 0)):
@@ -797,8 +796,8 @@ class patitoParser ( Parser ):
             if la_ == 1:
                 self.state = 109
                 localctx._CTE_BOOL = self.match(patitoParser.CTE_BOOL)
-                self.compiler.addOperand((None if localctx._CTE_BOOL is None else localctx._CTE_BOOL.text))
-                self.compiler.addConstantToTypeStackAndTable("bool")
+                self.compiler.add_operand((None if localctx._CTE_BOOL is None else localctx._CTE_BOOL.text))
+                self.compiler.add_constant_to_type_stack_and_table("bool")
                 pass
 
             elif la_ == 2:
@@ -806,15 +805,15 @@ class patitoParser ( Parser ):
                 self.match(patitoParser.SUB)
                 self.state = 113
                 localctx._CTE_FLOAT = self.match(patitoParser.CTE_FLOAT)
-                self.compiler.addOperand("-" + (None if localctx._CTE_FLOAT is None else localctx._CTE_FLOAT.text))
-                self.compiler.addConstantToTypeStackAndTable("float")
+                self.compiler.add_operand("-" + (None if localctx._CTE_FLOAT is None else localctx._CTE_FLOAT.text))
+                self.compiler.add_constant_to_type_stack_and_table("float")
                 pass
 
             elif la_ == 3:
                 self.state = 116
                 localctx._CTE_FLOAT = self.match(patitoParser.CTE_FLOAT)
-                self.compiler.addOperand((None if localctx._CTE_FLOAT is None else localctx._CTE_FLOAT.text))
-                self.compiler.addConstantToTypeStackAndTable("float")
+                self.compiler.add_operand((None if localctx._CTE_FLOAT is None else localctx._CTE_FLOAT.text))
+                self.compiler.add_constant_to_type_stack_and_table("float")
                 pass
 
             elif la_ == 4:
@@ -822,29 +821,29 @@ class patitoParser ( Parser ):
                 self.match(patitoParser.SUB)
                 self.state = 120
                 localctx._CTE_INT = self.match(patitoParser.CTE_INT)
-                self.compiler.addOperand("-" + (None if localctx._CTE_INT is None else localctx._CTE_INT.text))
-                self.compiler.addConstantToTypeStackAndTable("int")
+                self.compiler.add_operand("-" + (None if localctx._CTE_INT is None else localctx._CTE_INT.text))
+                self.compiler.add_constant_to_type_stack_and_table("int")
                 pass
 
             elif la_ == 5:
                 self.state = 123
                 localctx._CTE_INT = self.match(patitoParser.CTE_INT)
-                self.compiler.addOperand((None if localctx._CTE_INT is None else localctx._CTE_INT.text))
-                self.compiler.addConstantToTypeStackAndTable("int")
+                self.compiler.add_operand((None if localctx._CTE_INT is None else localctx._CTE_INT.text))
+                self.compiler.add_constant_to_type_stack_and_table("int")
                 pass
 
             elif la_ == 6:
                 self.state = 126
                 localctx._CTE_CHAR = self.match(patitoParser.CTE_CHAR)
-                self.compiler.addOperand((None if localctx._CTE_CHAR is None else localctx._CTE_CHAR.text))
-                self.compiler.addConstantToTypeStackAndTable("char")
+                self.compiler.add_operand((None if localctx._CTE_CHAR is None else localctx._CTE_CHAR.text))
+                self.compiler.add_constant_to_type_stack_and_table("char")
                 pass
 
             elif la_ == 7:
                 self.state = 129
                 localctx._CTE_STRING = self.match(patitoParser.CTE_STRING)
-                self.compiler.addOperand((None if localctx._CTE_STRING is None else localctx._CTE_STRING.text))
-                self.compiler.addConstantToTypeStackAndTable("string")
+                self.compiler.add_operand((None if localctx._CTE_STRING is None else localctx._CTE_STRING.text))
+                self.compiler.add_constant_to_type_stack_and_table("string")
                 pass
 
 
@@ -891,13 +890,13 @@ class patitoParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 135 
+            self.state = 135
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 134
                 self.function()
-                self.state = 137 
+                self.state = 137
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==patitoParser.FUNCTION):
@@ -1217,7 +1216,7 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 175
             self.sexp()
-            self.compiler.topIsLogicOperator()
+            self.compiler.top_is_logic_operator()
             self.state = 188
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,12,self._ctx)
@@ -1229,19 +1228,19 @@ class patitoParser ( Parser ):
                     if token in [patitoParser.AND]:
                         self.state = 177
                         localctx._AND = self.match(patitoParser.AND)
-                        self.compiler.addOperator((None if localctx._AND is None else localctx._AND.text))
+                        self.compiler.add_operator((None if localctx._AND is None else localctx._AND.text))
                         pass
                     elif token in [patitoParser.OR]:
                         self.state = 179
                         localctx._OR = self.match(patitoParser.OR)
-                        self.compiler.addOperator((None if localctx._OR is None else localctx._OR.text))
+                        self.compiler.add_operator((None if localctx._OR is None else localctx._OR.text))
                         pass
                     else:
                         raise NoViableAltException(self)
 
                     self.state = 183
                     self.mexp()
-                    self.compiler.topIsLogicOperator()
+                    self.compiler.top_is_logic_operator()
                 self.state = 190
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,12,self._ctx)
@@ -1316,7 +1315,7 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 191
             self.exp()
-            self.compiler.topIsComparison()
+            self.compiler.top_is_comparison()
             self.state = 210
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -1327,39 +1326,39 @@ class patitoParser ( Parser ):
                 if token in [patitoParser.GREATER]:
                     self.state = 193
                     localctx._GREATER = self.match(patitoParser.GREATER)
-                    self.compiler.addOperator((None if localctx._GREATER is None else localctx._GREATER.text))
+                    self.compiler.add_operator((None if localctx._GREATER is None else localctx._GREATER.text))
                     pass
                 elif token in [patitoParser.LESS]:
                     self.state = 195
                     localctx._LESS = self.match(patitoParser.LESS)
-                    self.compiler.addOperator((None if localctx._LESS is None else localctx._LESS.text))
+                    self.compiler.add_operator((None if localctx._LESS is None else localctx._LESS.text))
                     pass
                 elif token in [patitoParser.GREATER_EQUAL]:
                     self.state = 197
                     localctx._GREATER_EQUAL = self.match(patitoParser.GREATER_EQUAL)
-                    self.compiler.addOperator((None if localctx._GREATER_EQUAL is None else localctx._GREATER_EQUAL.text))
+                    self.compiler.add_operator((None if localctx._GREATER_EQUAL is None else localctx._GREATER_EQUAL.text))
                     pass
                 elif token in [patitoParser.LESS_EQUAL]:
                     self.state = 199
                     localctx._LESS_EQUAL = self.match(patitoParser.LESS_EQUAL)
-                    self.compiler.addOperator((None if localctx._LESS_EQUAL is None else localctx._LESS_EQUAL.text))
+                    self.compiler.add_operator((None if localctx._LESS_EQUAL is None else localctx._LESS_EQUAL.text))
                     pass
                 elif token in [patitoParser.NOT_EQUAL]:
                     self.state = 201
                     localctx._NOT_EQUAL = self.match(patitoParser.NOT_EQUAL)
-                    self.compiler.addOperator((None if localctx._NOT_EQUAL is None else localctx._NOT_EQUAL.text))
+                    self.compiler.add_operator((None if localctx._NOT_EQUAL is None else localctx._NOT_EQUAL.text))
                     pass
                 elif token in [patitoParser.EQUAL]:
                     self.state = 203
                     localctx._EQUAL = self.match(patitoParser.EQUAL)
-                    self.compiler.addOperator((None if localctx._EQUAL is None else localctx._EQUAL.text))
+                    self.compiler.add_operator((None if localctx._EQUAL is None else localctx._EQUAL.text))
                     pass
                 else:
                     raise NoViableAltException(self)
 
                 self.state = 207
                 self.sexp()
-                self.compiler.topIsComparison()
+                self.compiler.top_is_comparison()
 
 
         except RecognitionException as re:
@@ -1424,7 +1423,7 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 212
             self.term()
-            self.compiler.topIsAddOrSub()
+            self.compiler.top_is_add_or_sub()
             self.state = 225
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
@@ -1436,19 +1435,19 @@ class patitoParser ( Parser ):
                     if token in [patitoParser.ADD]:
                         self.state = 214
                         localctx._ADD = self.match(patitoParser.ADD)
-                        self.compiler.addOperator((None if localctx._ADD is None else localctx._ADD.text))
+                        self.compiler.add_operator((None if localctx._ADD is None else localctx._ADD.text))
                         pass
                     elif token in [patitoParser.SUB]:
                         self.state = 216
                         localctx._SUB = self.match(patitoParser.SUB)
-                        self.compiler.addOperator((None if localctx._SUB is None else localctx._SUB.text))
+                        self.compiler.add_operator((None if localctx._SUB is None else localctx._SUB.text))
                         pass
                     else:
                         raise NoViableAltException(self)
 
                     self.state = 220
                     self.exp()
-                    self.compiler.topIsAddOrSub()
+                    self.compiler.top_is_add_or_sub()
                 self.state = 227
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
@@ -1515,7 +1514,7 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 228
             self.factor()
-            self.compiler.topIsMultOrDiv()
+            self.compiler.top_is_mult_or_div()
             self.state = 241
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
@@ -1527,19 +1526,19 @@ class patitoParser ( Parser ):
                     if token in [patitoParser.MULT]:
                         self.state = 230
                         localctx._MULT = self.match(patitoParser.MULT)
-                        self.compiler.addOperator((None if localctx._MULT is None else localctx._MULT.text))
+                        self.compiler.add_operator((None if localctx._MULT is None else localctx._MULT.text))
                         pass
                     elif token in [patitoParser.DIV]:
                         self.state = 232
                         localctx._DIV = self.match(patitoParser.DIV)
-                        self.compiler.addOperator((None if localctx._DIV is None else localctx._DIV.text))
+                        self.compiler.add_operator((None if localctx._DIV is None else localctx._DIV.text))
                         pass
                     else:
                         raise NoViableAltException(self)
 
                     self.state = 236
                     self.term()
-                    self.compiler.topIsMultOrDiv()
+                    self.compiler.top_is_mult_or_div()
                 self.state = 243
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
@@ -1642,18 +1641,18 @@ class patitoParser ( Parser ):
             elif la_ == 2:
                 self.state = 245
                 self.match(patitoParser.LEFT_PARENTHESIS)
-                self.compiler.addParenthesis()
+                self.compiler.add_parenthesis()
                 self.state = 247
                 self.mexp()
                 self.state = 248
                 self.match(patitoParser.RIGHT_PARENTHESIS)
-                self.compiler.popParenthesis()
+                self.compiler.pop_parenthesis()
                 pass
 
             elif la_ == 3:
                 self.state = 251
                 localctx._ID = self.match(patitoParser.ID)
-                self.compiler.addOperandAndType((None if localctx._ID is None else localctx._ID.text))
+                self.compiler.add_operand_and_type((None if localctx._ID is None else localctx._ID.text))
                 self.state = 281
                 self._errHandler.sync(self)
                 la_ = self._interp.adaptivePredict(self._input,20,self._ctx)
@@ -1687,10 +1686,10 @@ class patitoParser ( Parser ):
                 elif la_ == 3:
                     self.state = 262
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.compiler.addParenthesis()
+                    self.compiler.add_parenthesis()
                     self.state = 264
                     self.mexp()
-                    self.compiler.popParenthesis()
+                    self.compiler.pop_parenthesis()
                     self.compiler.verify_one_index()
                     self.state = 267
                     self.match(patitoParser.RIGHT_BRACKET)
@@ -1699,18 +1698,18 @@ class patitoParser ( Parser ):
                 elif la_ == 4:
                     self.state = 269
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.compiler.addParenthesis()
+                    self.compiler.add_parenthesis()
                     self.state = 271
                     self.mexp()
-                    self.compiler.popParenthesis()
+                    self.compiler.pop_parenthesis()
                     self.state = 273
                     self.match(patitoParser.RIGHT_BRACKET)
                     self.state = 274
                     self.match(patitoParser.LEFT_BRACKET)
-                    self.compiler.addParenthesis()
+                    self.compiler.add_parenthesis()
                     self.state = 276
                     self.mexp()
-                    self.compiler.popParenthesis()
+                    self.compiler.pop_parenthesis()
                     self.compiler.verify_two_indexes()
                     self.state = 279
                     self.match(patitoParser.RIGHT_BRACKET)
@@ -1725,7 +1724,7 @@ class patitoParser ( Parser ):
                 self.compiler.validate_function_expression((None if localctx._ID is None else localctx._ID.text))
                 self.state = 285
                 self.match(patitoParser.LEFT_PARENTHESIS)
-                self.compiler.addParenthesis()
+                self.compiler.add_parenthesis()
                 currentCounter=0
                 self.state = 300
                 self._errHandler.sync(self)
@@ -1758,7 +1757,7 @@ class patitoParser ( Parser ):
                 self.compiler.goto_function_quad((None if localctx._ID is None else localctx._ID.text))
                 self.state = 305
                 self.match(patitoParser.RIGHT_PARENTHESIS)
-                self.compiler.popParenthesis()
+                self.compiler.pop_parenthesis()
                 pass
 
 
@@ -1972,7 +1971,7 @@ class patitoParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 322
             localctx._ID = self.match(patitoParser.ID)
-            self.compiler.addOperandAndType((None if localctx._ID is None else localctx._ID.text))
+            self.compiler.add_operand_and_type((None if localctx._ID is None else localctx._ID.text))
             self.state = 325
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -1983,7 +1982,7 @@ class patitoParser ( Parser ):
 
             self.state = 327
             localctx._ASSIGN = self.match(patitoParser.ASSIGN)
-            self.compiler.addOperator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
+            self.compiler.add_operator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
             self.state = 338
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,28,self._ctx)
@@ -1991,7 +1990,7 @@ class patitoParser ( Parser ):
                 if _alt==1:
                     self.state = 329
                     localctx._ID = self.match(patitoParser.ID)
-                    self.compiler.addOperandAndType((None if localctx._ID is None else localctx._ID.text))
+                    self.compiler.add_operand_and_type((None if localctx._ID is None else localctx._ID.text))
                     self.state = 332
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
@@ -2002,7 +2001,7 @@ class patitoParser ( Parser ):
 
                     self.state = 334
                     localctx._ASSIGN = self.match(patitoParser.ASSIGN)
-                    self.compiler.addOperator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
+                    self.compiler.add_operator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
                 self.state = 340
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,28,self._ctx)
@@ -2011,7 +2010,7 @@ class patitoParser ( Parser ):
             self.mexp()
             self.state = 342
             self.match(patitoParser.SEMICOLON)
-            self.compiler.generateAssignQuads()
+            self.compiler.generate_assign_quads()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2079,7 +2078,7 @@ class patitoParser ( Parser ):
             self.compiler.validate_void_function((None if localctx._ID is None else localctx._ID.text))
             self.state = 347
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.compiler.addParenthesis()
+            self.compiler.add_parenthesis()
             currentCounter=0
             self.state = 362
             self._errHandler.sync(self)
@@ -2235,10 +2234,10 @@ class patitoParser ( Parser ):
             if la_ == 1:
                 self.state = 376
                 self.match(patitoParser.LEFT_BRACKET)
-                self.compiler.addParenthesis()
+                self.compiler.add_parenthesis()
                 self.state = 378
                 self.mexp()
-                self.compiler.popParenthesis()
+                self.compiler.pop_parenthesis()
                 self.compiler.verify_one_index()
                 self.state = 381
                 self.match(patitoParser.RIGHT_BRACKET)
@@ -2247,18 +2246,18 @@ class patitoParser ( Parser ):
             elif la_ == 2:
                 self.state = 383
                 self.match(patitoParser.LEFT_BRACKET)
-                self.compiler.addParenthesis()
+                self.compiler.add_parenthesis()
                 self.state = 385
                 self.mexp()
-                self.compiler.popParenthesis()
+                self.compiler.pop_parenthesis()
                 self.state = 387
                 self.match(patitoParser.RIGHT_BRACKET)
                 self.state = 388
                 self.match(patitoParser.LEFT_BRACKET)
-                self.compiler.addParenthesis()
+                self.compiler.add_parenthesis()
                 self.state = 390
                 self.mexp()
-                self.compiler.popParenthesis()
+                self.compiler.pop_parenthesis()
                 self.compiler.verify_two_indexes()
                 self.state = 393
                 self.match(patitoParser.RIGHT_BRACKET)
@@ -2279,8 +2278,8 @@ class patitoParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.var_id = None # Token
-            self.var_id2 = None # Token
+            self.varId = None # Token
+            self.varId2 = None # Token
 
         def INPUT(self):
             return self.getToken(patitoParser.INPUT, 0)
@@ -2339,8 +2338,8 @@ class patitoParser ( Parser ):
             self.state = 398
             self.match(patitoParser.LEFT_PARENTHESIS)
             self.state = 399
-            localctx.var_id = self.match(patitoParser.ID)
-            self.compiler.addOperandAndType((None if localctx.var_id is None else localctx.var_id.text))
+            localctx.varId = self.match(patitoParser.ID)
+            self.compiler.add_operand_and_type((None if localctx.varId is None else localctx.varId.text))
             self.state = 402
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -2349,7 +2348,7 @@ class patitoParser ( Parser ):
                 self.indexvariable()
 
 
-            self.compiler.generateReadQuad()
+            self.compiler.generate_read_quad()
             self.state = 414
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -2357,7 +2356,7 @@ class patitoParser ( Parser ):
                 self.state = 405
                 self.match(patitoParser.COMMA)
                 self.state = 406
-                localctx.var_id2 = self.match(patitoParser.ID)
+                localctx.varId2 = self.match(patitoParser.ID)
                 self.state = 408
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2366,8 +2365,8 @@ class patitoParser ( Parser ):
                     self.indexvariable()
 
 
-                self.compiler.addOperandAndType((None if localctx.var_id2 is None else localctx.var_id2.text))
-                self.compiler.generateReadQuad()
+                self.compiler.add_operand_and_type((None if localctx.varId2 is None else localctx.varId2.text))
+                self.compiler.generate_read_quad()
                 self.state = 416
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2444,7 +2443,7 @@ class patitoParser ( Parser ):
 
             self.state = 422
             self.mexp()
-            self.compiler.generateWriteQuad()
+            self.compiler.generate_write_quad()
             self.state = 431
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -2454,7 +2453,7 @@ class patitoParser ( Parser ):
 
                 self.state = 426
                 self.mexp()
-                self.compiler.generateWriteQuad()
+                self.compiler.generate_write_quad()
                 self.state = 433
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2545,7 +2544,7 @@ class patitoParser ( Parser ):
             self.mexp()
             self.state = 440
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.compiler.generateIfQuad()
+            self.compiler.generate_if_quad()
             self.state = 442
             self.match(patitoParser.THEN)
             self.state = 443
@@ -2560,7 +2559,7 @@ class patitoParser ( Parser ):
             if _la==patitoParser.ELSE:
                 self.state = 446
                 self.match(patitoParser.ELSE)
-                self.compiler.generateGoToQuad()
+                self.compiler.generate_go_to_quad()
                 self.state = 448
                 self.match(patitoParser.LEFT_CURLY)
                 self.state = 449
@@ -2569,7 +2568,7 @@ class patitoParser ( Parser ):
                 self.match(patitoParser.RIGHT_CURLY)
 
 
-            self.compiler.generateEndIfQuad()
+            self.compiler.generate_end_if_quad()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2635,19 +2634,19 @@ class patitoParser ( Parser ):
             self.match(patitoParser.WHILE)
             self.state = 457
             self.match(patitoParser.LEFT_PARENTHESIS)
-            self.compiler.generateWhileBeforeCheck()
+            self.compiler.generate_while_before_check()
             self.state = 459
             self.mexp()
             self.state = 460
             self.match(patitoParser.RIGHT_PARENTHESIS)
-            self.compiler.generateWhileAfterCheck()
+            self.compiler.generate_while_after_check()
             self.state = 462
             self.match(patitoParser.DO)
             self.state = 463
             self.match(patitoParser.LEFT_CURLY)
             self.state = 464
             self.statute()
-            self.compiler.generateWhileEnd()
+            self.compiler.generate_while_end()
             self.state = 466
             self.match(patitoParser.RIGHT_CURLY)
         except RecognitionException as re:
@@ -2728,7 +2727,7 @@ class patitoParser ( Parser ):
             self.match(patitoParser.FROM)
             self.state = 469
             localctx._ID = self.match(patitoParser.ID)
-            self.compiler.addFromVarOperand((None if localctx._ID is None else localctx._ID.text))
+            self.compiler.add_from_var_operand((None if localctx._ID is None else localctx._ID.text))
             self.state = 472
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -2739,16 +2738,16 @@ class patitoParser ( Parser ):
 
             self.state = 474
             localctx._ASSIGN = self.match(patitoParser.ASSIGN)
-            self.compiler.addOperator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
+            self.compiler.add_operator((None if localctx._ASSIGN is None else localctx._ASSIGN.text))
             self.state = 476
             self.mexp()
-            self.compiler.generateAssignQuads()
+            self.compiler.generate_assign_quads()
             self.state = 478
             self.match(patitoParser.TO)
-            self.compiler.generateFromBeforeCheck()
+            self.compiler.generate_from_before_check()
             self.state = 480
             self.mexp()
-            self.compiler.generateFromAfterCheck()
+            self.compiler.generate_from_after_check()
             self.state = 482
             self.match(patitoParser.DO)
             self.state = 483
@@ -2757,7 +2756,7 @@ class patitoParser ( Parser ):
             self.statute()
             self.state = 485
             self.match(patitoParser.RIGHT_CURLY)
-            self.compiler.generateEndFromQuad()
+            self.compiler.generate_end_from_quad()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2835,8 +2834,3 @@ class patitoParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

@@ -87,7 +87,7 @@ vartypes
   ;
 
 constant
-  : (CTE_BOOL {compiler.addOperand($CTE_BOOL.text)} {compiler.addConstantToTypeStackAndTable("bool")} | SUB CTE_FLOAT {compiler.addOperand("-" + $CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | CTE_FLOAT {compiler.addOperand($CTE_FLOAT.text)} {compiler.addConstantToTypeStackAndTable("float")} | SUB CTE_INT {compiler.addOperand("-" + $CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_INT {compiler.addOperand($CTE_INT.text)} {compiler.addConstantToTypeStackAndTable("int")} | CTE_CHAR {compiler.addOperand($CTE_CHAR.text)} {compiler.addConstantToTypeStackAndTable("char")}| CTE_STRING {compiler.addOperand($CTE_STRING.text)} {compiler.addConstantToTypeStackAndTable("string")})
+  : (CTE_BOOL {compiler.add_operand($CTE_BOOL.text)} {compiler.add_constant_to_type_stack_and_table("bool")} | SUB CTE_FLOAT {compiler.add_operand("-" + $CTE_FLOAT.text)} {compiler.add_constant_to_type_stack_and_table("float")} | CTE_FLOAT {compiler.add_operand($CTE_FLOAT.text)} {compiler.add_constant_to_type_stack_and_table("float")} | SUB CTE_INT {compiler.add_operand("-" + $CTE_INT.text)} {compiler.add_constant_to_type_stack_and_table("int")} | CTE_INT {compiler.add_operand($CTE_INT.text)} {compiler.add_constant_to_type_stack_and_table("int")} | CTE_CHAR {compiler.add_operand($CTE_CHAR.text)} {compiler.add_constant_to_type_stack_and_table("char")}| CTE_STRING {compiler.add_operand($CTE_STRING.text)} {compiler.add_constant_to_type_stack_and_table("string")})
   ;
 
 functions
@@ -107,35 +107,35 @@ parameters
   ;
 
 mexp
-  : sexp {compiler.topIsLogicOperator()} ((AND {compiler.addOperator($AND.text)} | OR {compiler.addOperator($OR.text)} ) mexp {compiler.topIsLogicOperator()} )*
+  : sexp {compiler.top_is_logic_operator()} ((AND {compiler.add_operator($AND.text)} | OR {compiler.add_operator($OR.text)} ) mexp {compiler.top_is_logic_operator()} )*
   ;
 
 sexp
-  : exp {compiler.topIsComparison()} ((GREATER {compiler.addOperator($GREATER.text)} |
-      LESS {compiler.addOperator($LESS.text)} |
-      GREATER_EQUAL {compiler.addOperator($GREATER_EQUAL.text)} |
-      LESS_EQUAL {compiler.addOperator($LESS_EQUAL.text)} |
-      NOT_EQUAL {compiler.addOperator($NOT_EQUAL.text)} |
-      EQUAL {compiler.addOperator($EQUAL.text)} ) sexp {compiler.topIsComparison()})?
+  : exp {compiler.top_is_comparison()} ((GREATER {compiler.add_operator($GREATER.text)} |
+      LESS {compiler.add_operator($LESS.text)} |
+      GREATER_EQUAL {compiler.add_operator($GREATER_EQUAL.text)} |
+      LESS_EQUAL {compiler.add_operator($LESS_EQUAL.text)} |
+      NOT_EQUAL {compiler.add_operator($NOT_EQUAL.text)} |
+      EQUAL {compiler.add_operator($EQUAL.text)} ) sexp {compiler.top_is_comparison()})?
   ;
 
 exp
-  : term {compiler.topIsAddOrSub()} ((ADD {compiler.addOperator($ADD.text)} | SUB {compiler.addOperator($SUB.text)} ) exp {compiler.topIsAddOrSub()})*
+  : term {compiler.top_is_add_or_sub()} ((ADD {compiler.add_operator($ADD.text)} | SUB {compiler.add_operator($SUB.text)} ) exp {compiler.top_is_add_or_sub()})*
   ;
 
 term
-  : factor {compiler.topIsMultOrDiv()}
-    ((MULT {compiler.addOperator($MULT.text)} | DIV {compiler.addOperator($DIV.text)}) term {compiler.topIsMultOrDiv()})*
+  : factor {compiler.top_is_mult_or_div()}
+    ((MULT {compiler.add_operator($MULT.text)} | DIV {compiler.add_operator($DIV.text)}) term {compiler.top_is_mult_or_div()})*
   ;
 
 factor
   : (constant |
-    LEFT_PARENTHESIS {compiler.addParenthesis()} mexp RIGHT_PARENTHESIS {compiler.popParenthesis()} |
-    ID {compiler.addOperandAndType($ID.text)} ( |
+    LEFT_PARENTHESIS {compiler.add_parenthesis()} mexp RIGHT_PARENTHESIS {compiler.pop_parenthesis()} |
+    ID {compiler.add_operand_and_type($ID.text)} ( |
       (DETERMINANT {compiler.generate_matrix_operation_quad($DETERMINANT.text)} | TRANSPOSE  {compiler.generate_matrix_operation_quad($TRANSPOSE.text)} | INVERSE  {compiler.generate_matrix_operation_quad($INVERSE.text)}) |
-      LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} {compiler.verify_one_index()} RIGHT_BRACKET |
-      LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} RIGHT_BRACKET LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} {compiler.verify_two_indexes()} RIGHT_BRACKET ) |
-    ID {compiler.validate_function_expression($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.add_func_operand_and_type($ID.text)} {compiler.goto_function_quad($ID.text)} RIGHT_PARENTHESIS {compiler.popParenthesis()})
+      LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} {compiler.verify_one_index()} RIGHT_BRACKET |
+      LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} RIGHT_BRACKET LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} {compiler.verify_two_indexes()} RIGHT_BRACKET ) |
+    ID {compiler.validate_function_expression($ID.text)} LEFT_PARENTHESIS {compiler.add_parenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})*) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.add_func_operand_and_type($ID.text)} {compiler.goto_function_quad($ID.text)} RIGHT_PARENTHESIS {compiler.pop_parenthesis()})
   ;
 
 statute
@@ -143,13 +143,13 @@ statute
   ;
 
 assignation
-  : <assoc=right> ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)}
-    (ID {compiler.addOperandAndType($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)})*
-    (mexp) SEMICOLON {compiler.generateAssignQuads()}
+  : <assoc=right> ID {compiler.add_operand_and_type($ID.text)} indexvariable? ASSIGN {compiler.add_operator($ASSIGN.text)}
+    (ID {compiler.add_operand_and_type($ID.text)} indexvariable? ASSIGN {compiler.add_operator($ASSIGN.text)})*
+    (mexp) SEMICOLON {compiler.generate_assign_quads()}
   ;
 
 funccall
-  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS {compiler.addParenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})* ) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_void_function_quad($ID.text)} RIGHT_PARENTHESIS SEMICOLON
+  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS {compiler.add_parenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})* ) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_void_function_quad($ID.text)} RIGHT_PARENTHESIS SEMICOLON
   ;
 
 returncall
@@ -157,27 +157,27 @@ returncall
   ;
 
 indexvariable
-  : (LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} {compiler.verify_one_index()}  RIGHT_BRACKET | LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} RIGHT_BRACKET LEFT_BRACKET {compiler.addParenthesis()} mexp {compiler.popParenthesis()} {compiler.verify_two_indexes()} RIGHT_BRACKET)
+  : (LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} {compiler.verify_one_index()}  RIGHT_BRACKET | LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} RIGHT_BRACKET LEFT_BRACKET {compiler.add_parenthesis()} mexp {compiler.pop_parenthesis()} {compiler.verify_two_indexes()} RIGHT_BRACKET)
   ;
 
 read
-  : INPUT LEFT_PARENTHESIS var_id=ID {compiler.addOperandAndType($var_id.text)} indexvariable? {compiler.generateReadQuad()} (COMMA var_id2=ID indexvariable? {compiler.addOperandAndType($var_id2.text)} {compiler.generateReadQuad()})* RIGHT_PARENTHESIS SEMICOLON
+  : INPUT LEFT_PARENTHESIS varId=ID {compiler.add_operand_and_type($varId.text)} indexvariable? {compiler.generate_read_quad()} (COMMA varId2=ID indexvariable? {compiler.add_operand_and_type($varId2.text)} {compiler.generate_read_quad()})* RIGHT_PARENTHESIS SEMICOLON
   ;
 
 write
-  : PRINT LEFT_PARENTHESIS (mexp {compiler.generateWriteQuad()}) (COMMA (mexp {compiler.generateWriteQuad()}))* RIGHT_PARENTHESIS SEMICOLON
+  : PRINT LEFT_PARENTHESIS (mexp {compiler.generate_write_quad()}) (COMMA (mexp {compiler.generate_write_quad()}))* RIGHT_PARENTHESIS SEMICOLON
   ;
 
 conditional
-  : IF LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS {compiler.generateIfQuad()} THEN LEFT_CURLY statute RIGHT_CURLY (ELSE {compiler.generateGoToQuad()} LEFT_CURLY statute RIGHT_CURLY)? {compiler.generateEndIfQuad()}
+  : IF LEFT_PARENTHESIS mexp RIGHT_PARENTHESIS {compiler.generate_if_quad()} THEN LEFT_CURLY statute RIGHT_CURLY (ELSE {compiler.generate_go_to_quad()} LEFT_CURLY statute RIGHT_CURLY)? {compiler.generate_end_if_quad()}
   ;
 
 whileloop
-  : WHILE LEFT_PARENTHESIS {compiler.generateWhileBeforeCheck()} mexp RIGHT_PARENTHESIS {compiler.generateWhileAfterCheck()} DO LEFT_CURLY statute {compiler.generateWhileEnd()} RIGHT_CURLY
+  : WHILE LEFT_PARENTHESIS {compiler.generate_while_before_check()} mexp RIGHT_PARENTHESIS {compiler.generate_while_after_check()} DO LEFT_CURLY statute {compiler.generate_while_end()} RIGHT_CURLY
   ;
 
 fromloop
-  : FROM ID {compiler.addFromVarOperand($ID.text)} indexvariable? ASSIGN {compiler.addOperator($ASSIGN.text)} mexp {compiler.generateAssignQuads()} TO {compiler.generateFromBeforeCheck()} mexp {compiler.generateFromAfterCheck()} DO LEFT_CURLY statute RIGHT_CURLY {compiler.generateEndFromQuad()}
+  : FROM ID {compiler.add_from_var_operand($ID.text)} indexvariable? ASSIGN {compiler.add_operator($ASSIGN.text)} mexp {compiler.generate_assign_quads()} TO {compiler.generate_from_before_check()} mexp {compiler.generate_from_after_check()} DO LEFT_CURLY statute RIGHT_CURLY {compiler.generate_end_from_quad()}
   ;
 
 mainfunc

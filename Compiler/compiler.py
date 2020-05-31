@@ -53,7 +53,7 @@ class Compiler:
 
     # code generator
 
-    def addConstantToTypeStackAndTable(self, vartype):
+    def add_constant_to_type_stack_and_table(self, vartype):
         self.typesStack.append(vartype)
         if self.operandStack[-1] not in self.constantTable:
             if self.memory.mem_constant < 40000:
@@ -64,22 +64,22 @@ class Compiler:
             else:
                 raise Exception(f'StackOverflow on constants')
 
-    def addType(self, vartype):
+    def add_type(self, vartype):
         self.typesStack.append(vartype)
         # print(vartype)
 
-    def addOperand(self, operand):
+    def add_operand(self, operand):
         self.operandStack.append(operand)
         # print(operand)
 
-    def addOperandAndType(self, operand):
+    def add_operand_and_type(self, operand):
         if operand in self.currentFunction.varsTable:
             self.operandStack.append(operand)
-            self.addType(self.currentFunction.varsTable[operand].vartype)
+            self.add_type(self.currentFunction.varsTable[operand].vartype)
             # print(operand)
         elif operand in self.functionTable["global"].varsTable:
             self.operandStack.append(operand)
-            self.addType(self.functionTable["global"].varsTable[operand].vartype)
+            self.add_type(self.functionTable["global"].varsTable[operand].vartype)
             # print(operand)
         else:
             raise ValueError(f'The variable {operand} is not declared')
@@ -95,7 +95,7 @@ class Compiler:
         tempResult = 'X' + str(len(self.temporalStack))
         tempType = self.functionTable[operand].returntype
         self.operandStack.append(tempResult)
-        self.addType(tempType)
+        self.add_type(tempType)
         if tempType == "int":
             if self.memory.mem_temp_int == 2000:
                 raise Exception("Stack Overflow on temporal integer variables")
@@ -127,7 +127,7 @@ class Compiler:
             print(f'temporal {tempResult} (function {operand}) of type {tempType} assigned to {self.memory.mem_temp_char}')
             self.memory.mem_temp_char += 1
 
-    def addOperator(self, operator):
+    def add_operator(self, operator):
         self.operatorStack.append(operator)
         # print(operator)
 
@@ -387,8 +387,8 @@ class Compiler:
         baseAddressQuad = Quadruple('+', self.constantTable[str(baseAddress)].address, indexOperandAddress, self.temporalStack[-1])
         print(f'+ {baseAddress} {self.constantTable[str(baseAddress)].address} {indexOperand} {indexOperandAddress} {self.temporalStack[-1]}')
         self.quadruples.append(baseAddressQuad)
-        self.addOperand(pointerResult)
-        self.addType(arrayType)
+        self.add_operand(pointerResult)
+        self.add_type(arrayType)
 
 
     def verify_two_indexes(self):
@@ -558,8 +558,8 @@ class Compiler:
 
         # THE RESULTING ADDRESS MUST BE ADDED TO THE OPERAND STACK NOW, WITH THE MATRIX TYPE, FOR WHATEVER THE NEXT STEP IS
 
-        self.addOperand(pointerResult)
-        self.addType(matrixType)
+        self.add_operand(pointerResult)
+        self.add_type(matrixType)
 
 
 
@@ -621,10 +621,10 @@ class Compiler:
                     raise TypeError(f'You should not be here')
 
                 # Add result to the Operand Stack
-                self.addOperand(tempResult)
+                self.add_operand(tempResult)
 
                 # Add matrix type to type stack
-                self.addType("float")
+                self.add_type("float")
 
                 quad = Quadruple(operator, address, f'{newFirstIndex}.{newSecondIndex}', self.temporalStack[-1])
                 print(operator, operand, address, f'{newFirstIndex}.{newSecondIndex}', tempResult, self.temporalStack[-1])
@@ -649,10 +649,10 @@ class Compiler:
                     raise Exception("You should not be here")
 
                 # Add result to the Operand Stack
-                self.addOperand(tempResult)
+                self.add_operand(tempResult)
 
                 # Add matrix type to type stack
-                self.addType(operandType)
+                self.add_type(operandType)
                 quad = Quadruple(operator, address, f'{newFirstIndex}.{newSecondIndex}', self.temporalDimensionVariableStack[-1].address)
                 print(operator, operand, address, f'{newFirstIndex}.{newSecondIndex}', tempResult, self.temporalDimensionVariableStack[-1].address)
                 self.quadruples.append(quad)
@@ -761,31 +761,31 @@ class Compiler:
         print('ENDFUNC', None, None, None)
         self.quadruples.append(quad)
 
-    def addParenthesis(self):
+    def add_parenthesis(self):
         self.operatorStack.append('(')
         # print('(')
 
-    def popParenthesis(self):
+    def pop_parenthesis(self):
         self.operatorStack.pop()
         # print(')')
 
-    def topIsMultOrDiv(self):
+    def top_is_mult_or_div(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "*" or self.operatorStack[-1] == "/":
                 self.check_for_array_or_matrix()
 
-    def topIsAddOrSub(self):
+    def top_is_add_or_sub(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "+" or self.operatorStack[-1] == "-":
                 self.check_for_array_or_matrix()
 
-    def topIsComparison(self):
+    def top_is_comparison(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "==" or self.operatorStack[-1] == "!=" or self.operatorStack[-1] == ">=" or \
                     self.operatorStack[-1] == "<=" or self.operatorStack[-1] == ">" or self.operatorStack[-1] == "<":
                 self.check_for_array_or_matrix()
 
-    def topIsLogicOperator(self):
+    def top_is_logic_operator(self):
         if len(self.operatorStack) != 0:
             if self.operatorStack[-1] == "&&" or self.operatorStack[-1] == "||":
                 self.check_for_array_or_matrix()
@@ -804,7 +804,7 @@ class Compiler:
         self.quadruples[mainQuad].resultTemp = self.currentFunction.startQuadruple
         print(f'main quad is jumping to {self.currentFunction.startQuadruple}')
 
-    def generateIfQuad(self):
+    def generate_if_quad(self):
         # beginning of if
         if len(self.operandStack) != 0:
             conditionVar = self.operandStack.pop()
@@ -827,14 +827,14 @@ class Compiler:
             else:
                 raise TypeError(f'Error: {conditionVar} is not a boolean')
 
-    def generateEndIfQuad(self):
+    def generate_end_if_quad(self):
         # popping
         false = self.jumpStack.pop()
         # fill the previous quadruple's GOTOF value with the current quadruple index
         print(f'filled endif quadruple {false} with {len(self.quadruples)}')
         self.quadruples[false].resultTemp = len(self.quadruples)
 
-    def generateGoToQuad(self):
+    def generate_go_to_quad(self):
         # if there was an else, you are here
         # this GOTO will redirect the end of an if block to the end of the conditional statute
         print(f'Created GOTO at the end of the if block: GOTO None None _')
@@ -843,13 +843,13 @@ class Compiler:
 
         # BUT FIRST! we have to make sure that the previously saved GOTOF from the if redirects to this else
         # ALSO, we have to point the GOTO to the end of the conditional statue, as said earlier.
-        self.generateEndIfQuad()
+        self.generate_end_if_quad()
 
         # So we append the GOTO's current index (length-1) to the jumpstack, AFTER having
         # popped the other jump previously saved
         self.jumpStack.append(len(self.quadruples) - 1)
 
-    def addFromVarOperand(self, operand):
+    def add_from_var_operand(self, operand):
         print("agrega fromvaroperand")
         if operand in self.currentFunction.varsTable:
             if self.currentFunction.varsTable[operand].vartype == "int":
@@ -859,7 +859,7 @@ class Compiler:
                 # We will need its address to be able to modify it
                 self.loopVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
-                self.addType(self.currentFunction.varsTable[operand].vartype)
+                self.add_type(self.currentFunction.varsTable[operand].vartype)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         elif operand in self.functionTable["global"].varsTable:
@@ -870,17 +870,17 @@ class Compiler:
                 # We will need its address to be able to modify it
                 self.loopVariableStack.append(operandAddress)
                 self.operandStack.append(operand)
-                self.addType(self.functionTable["global"].varsTable[operand].vartype)
+                self.add_type(self.functionTable["global"].varsTable[operand].vartype)
             else:
                 raise TypeError(f'The variable {operand} is not an int')
         else:
             raise ValueError(f'The variable {operand} is not declared')
 
-    def generateFromBeforeCheck(self):
+    def generate_from_before_check(self):
         print("From Before Check")
         self.jumpStack.append(len(self.quadruples))
 
-    def generateEndFromQuad(self):
+    def generate_end_from_quad(self):
         print("From End")
         # Get the index of the beginning of the from statute
         fromAfterCheckIndex = self.jumpStack.pop()
@@ -914,7 +914,7 @@ class Compiler:
         self.quadruples[fromAfterCheckIndex].resultTemp = len(self.quadruples)
         self.loopVariableStack.pop()
 
-    def generateFromAfterCheck(self):
+    def generate_from_after_check(self):
         print("From After Check")
         if len(self.operandStack) != 0:
             expResult = self.operandStack.pop()
@@ -955,18 +955,18 @@ class Compiler:
             else:
                 raise TypeError(f'Error: The expression resulting in {expResult} must be an integer')
 
-    def generateWhileBeforeCheck(self):
+    def generate_while_before_check(self):
         print("While Before Check", len(self.quadruples))
         self.jumpStack.append(len(self.quadruples))
 
-    def generateWhileAfterCheck(self):
+    def generate_while_after_check(self):
         print("While After Check")
         if len(self.operandStack) != 0:
             conditionVar = self.operandStack.pop()
             typeConditionVar = self.typesStack.pop()
             if typeConditionVar == "bool":
                 print(f"CONDITIONVAR: {conditionVar}")
-                self.addWhileVarOperand(conditionVar)
+                self.add_while_var_operand(conditionVar)
                 whileVarAddress = self.loopVariableStack[-1]
                 print(f'whileVarAddress {self.loopVariableStack[-1]}')
                 quad = Quadruple("GOTOF", whileVarAddress, None, "_")
@@ -977,7 +977,7 @@ class Compiler:
             else:
                 raise TypeError(f'Error: {conditionVar} is not a boolean')
 
-    def addWhileVarOperand(self, operand):
+    def add_while_var_operand(self, operand):
         if operand in self.currentFunction.varsTable:
             operandAddress = self.currentFunction.varsTable[operand].address
 
@@ -985,7 +985,7 @@ class Compiler:
             # We will need its address to be able to modify it
             self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
-            #self.addType(self.currentFunction.varsTable[operand].vartype)
+            #self.add_type(self.currentFunction.varsTable[operand].vartype)
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         elif operand in self.functionTable["global"].varsTable:
             operandAddress = self.functionTable["global"].varsTable[operand].address
@@ -994,20 +994,20 @@ class Compiler:
             # We will need its address to be able to modify it
             self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
-            #self.addType(self.functionTable["global"].varsTable[operand].vartype)
+            #self.add_type(self.functionTable["global"].varsTable[operand].vartype)
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         elif operand != "True" and operand != "False":
             operandAddress = self.temporalStack[-1]
             self.loopVariableStack.append(operandAddress)
             #self.operandStack.append(operand)
-            #self.addType("bool")
+            #self.add_type("bool")
             print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         else:
             if operand == "True" or operand == "False":
                 raise TypeError(f'Error: constant {operand} will cause infinite execution of while loop.')
             raise TypeError(f'Error: variable {operand} does not exist.')
 
-    def generateWhileEnd(self):
+    def generate_while_end(self):
         print("WhileEnd")
         # Get the index of the beginning of the while statute
         whileAfterCheckIndex = self.jumpStack.pop()
@@ -1020,7 +1020,7 @@ class Compiler:
         print(self.quadruples[whileAfterCheckIndex].operator, self.quadruples[whileAfterCheckIndex].leftOp,
               self.quadruples[whileAfterCheckIndex].rightOp, self.quadruples[whileAfterCheckIndex].resultTemp)
 
-    def generateReadQuad(self):
+    def generate_read_quad(self):
         operand = self.operandStack.pop()
         operandType = self.typesStack.pop()
 
@@ -1046,7 +1046,7 @@ class Compiler:
         else:
             raise ValueError(f'The variable {operand} is not declared')
 
-    def generateWriteQuad(self):
+    def generate_write_quad(self):
         if len(self.operandStack) == 0:
             raise Exception("Empty print statement")
         printedOperand = self.operandStack.pop()
@@ -1085,7 +1085,7 @@ class Compiler:
                 self.quadruples.append(quad)
 
 
-    def generateAssignQuads(self):
+    def generate_assign_quads(self):
         # In case of multiple assignments in the same line, we use a while
         while self.operatorStack and self.operatorStack[-1] == "=":
             rightOperand = self.operandStack.pop()
@@ -1251,10 +1251,10 @@ class Compiler:
         self.quadruples.append(quad)
 
         # Add result back to the Operand Stack
-        self.addOperand(tempResult)
+        self.add_operand(tempResult)
 
         # Add type to type stack
-        self.addType(temptype)
+        self.add_type(temptype)
 
     def generate_temporal_array_quad(self, leftArray, rightArray, operator):
         if operator == '>' or operator == '<' or operator == '>=' or operator == '<=' or operator == '&&' or operator == '||':
@@ -1337,10 +1337,10 @@ class Compiler:
             self.quadruples.append(quad)
 
         # Add result to the Operand Stack
-        self.addOperand(tempResult)
+        self.add_operand(tempResult)
 
         # Add matrix type to type stack
-        self.addType(tempType)
+        self.add_type(tempType)
 
     def generate_temporal_matrix_quad(self, leftMatrix, rightMatrix, operator):
         if operator == '>' or operator == '<' or operator == '>=' or operator == '<=' or operator == '&&' or operator == '||':
@@ -1424,10 +1424,10 @@ class Compiler:
             self.quadruples.append(quad)
 
         # Add result to the Operand Stack
-        self.addOperand(tempResult)
+        self.add_operand(tempResult)
 
         # Add matrix type to type stack
-        self.addType(tempType)
+        self.add_type(tempType)
 
 
 
