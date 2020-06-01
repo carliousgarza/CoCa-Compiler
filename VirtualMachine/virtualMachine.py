@@ -51,7 +51,8 @@ class VirtualMachine:
             "=L": self.assign_lists,
             "==L": self.equal_lists,
             "!=L": self.not_equal_lists,
-            "PRINTLIST": self.print_list,
+            "PRINTARRAY": self.print_array,
+            "PRINTMATRIX": self.print_matrix,
         }
 
     def begin(self):
@@ -297,6 +298,9 @@ class VirtualMachine:
         operandAddress = currentQuad.leftOp
 
         operandValue = self.check_memory(operandAddress)
+
+        if type(operandValue) is str and (operandValue.startswith("\"") or operandValue.startswith("\'")):
+            operandValue = operandValue[1:-1]
 
         print(f'printing:{operandValue}:')
 
@@ -800,22 +804,45 @@ class VirtualMachine:
         # Get the current quad, its operands and address
         currentQuad = self.current_quad()
         leftOperand = currentQuad.leftOp
-
-        rightOperandAddress = currentQuad.rightOp
+        rightOperand = currentQuad.rightOp
         resultAddress = currentQuad.resultTemp
-        listsSize = int(currentQuad.leftOp.split(".").pop())
-        leftOperandAddress = int(currentQuad.leftOp.split(".").pop(-2))
 
-        for x in range(listsSize):
-            # Get what type of memory leftOperandAddress is stored in, and get its true value
-            leftValue = self.check_memory(leftOperandAddress+x)
-            # Get what type of memory rightOperandAddress is stored in, and get its true value
-            rightValue = self.check_memory(rightOperandAddress+x)
-            # Get the real result of multiplying both operands together
-            result = leftValue * rightValue
-            print(f'{leftValue} * {rightValue} = {result}')
-            # Check where to store the result and store it
-            self.set_value(result, resultAddress+x)
+        leftOperandFirstIndex = int(leftOperand.split(".").pop(-2))
+        leftOperandSecondIndex = int(leftOperand.split(".").pop())
+        leftOperandAddress = int(leftOperand.split(".").pop(-3))
+
+        rightOperandFirstIndex = int(rightOperand.split(".").pop(-2))
+        rightOperandSecondIndex = int(rightOperand.split(".").pop())
+        rightOperandAddress = int(rightOperand.split(".").pop(-3))
+
+        # Create two empty matrixes with the normal dimensions
+        leftMatrix = np.empty([leftOperandFirstIndex, leftOperandSecondIndex])
+        rightMatrix = np.empty([rightOperandFirstIndex, rightOperandSecondIndex])
+
+        counter = 0
+
+        # Fill in the left matrix with its values from the addresses
+        for x in range(leftOperandFirstIndex):
+            for y in range(leftOperandSecondIndex):
+                leftMatrix[x][y] = self.check_memory(leftOperandAddress + counter)
+                counter += 1
+
+        counter = 0
+        # Fill in the right matrix with its values from the addresses
+        for x in range(rightOperandFirstIndex):
+            for y in range(rightOperandSecondIndex):
+                rightMatrix[x][y] = self.check_memory(rightOperandAddress + counter)
+                counter += 1
+
+        resultMatrix = leftMatrix.dot(rightMatrix)
+
+        counter = 0
+
+        # Set the result matrix
+        for x in range(len(resultMatrix)):
+            for y in range(len(resultMatrix[0])):
+                self.set_value(resultMatrix[x][y], resultAddress + counter)
+                counter += 1
 
         self.increase_current_quad_pointer()
 
@@ -884,14 +911,36 @@ class VirtualMachine:
         self.set_value(result, resultAddress)
         self.increase_current_quad_pointer()
 
-    def print_list(self):
+    def print_array(self):
         # Get the current quad, its operands and address
         currentQuad = self.current_quad()
-        listAddress = currentQuad.leftOp
-        listSize = currentQuad.rightOp
+        arrayAddress = currentQuad.leftOp
+        arraySize = currentQuad.rightOp
 
-        for x in range(listSize):
-            value = self.check_memory(listAddress+x)
-            print(value)
+        for x in range(arraySize):
+            value = self.check_memory(arrayAddress+x)
+            if type(value) is str and (value.startswith("\"") or value.startswith("\'")):
+                value = value[1:-1]
+            print(f'printing:{value}:')
+
+        self.increase_current_quad_pointer()
+
+    def print_matrix(self):
+        # Get the current quad, its operands and address
+        currentQuad = self.current_quad()
+        matrixAddress = currentQuad.leftOp
+        firstIndex = currentQuad.rightOp
+        secondIndex = currentQuad.resultTemp
+
+        temporalMatrix = np.empty([firstIndex, secondIndex])
+
+        counter = 0
+
+        # Fill in the matrix with its values from the addresses
+        for x in range(firstIndex):
+            for y in range(secondIndex):
+                temporalMatrix[x][y] = self.check_memory(matrixAddress + counter)
+                counter += 1
+            print(f'printing:{temporalMatrix[x]}:')
 
         self.increase_current_quad_pointer()
