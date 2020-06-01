@@ -1,0 +1,37 @@
+program littleDuck2020CorrectFileTest;
+var int: i, j, k, l, m, n, o;
+int: arreglo[10], otroArreglo[10], mat1[3][3], mat2[3][3];
+float: f;
+bool: b;
+
+function void recursiveprinting(int k)
+{
+   if (k >= 0) then {
+    print("RECURSIVE PRINTIIIIIIIIIING");
+    print(k);
+    recursiveprinting(k-1);
+   }
+}
+
+function int fact (int i, int j)
+var int: i;
+{
+  print("EEEEE"+" SIMON");
+  input(mat1[i][j]);
+  k = mat1[i][j];
+  recursiveprinting(k);
+
+  return(i*j);
+}
+
+
+main()
+{
+  from i = 0 to 3 do {
+    from j = 0 to 3 do {
+        print("entrando a fact #", fact(i,j));
+    }
+  }
+  mat2 = mat1;
+  print(mat1 * mat2 * mat1 + mat2);
+}

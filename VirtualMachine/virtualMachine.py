@@ -12,11 +12,11 @@ class VirtualMachine:
         self.pointerMemoryStack = []
         self.parameterStack = []
 
-        self.GLOBAL = [None] * 10000
-        self.LOCAL = [None] * 10000
-        self.TEMPORAL = [None] * 10000
+        self.GLOBAL = {}
+        self.LOCAL = {}
+        self.TEMPORAL = {}
         self.CONSTANT = constantTable
-        self.POINTER = [None] * 10000
+        self.POINTER = {}
         self.operators = {
             "+": self.add,
             "-": self.subtract,
@@ -78,25 +78,28 @@ class VirtualMachine:
         #the caller
 
         if operandAddress < 10000:
-            value = self.TEMPORAL[operandAddress]
-            if value is None:
+            if operandAddress in self.TEMPORAL:
+                value = self.TEMPORAL[operandAddress]
+                trueValue = self.check_type_and_return_true_value(value, operandAddress, "temporal")
+                return trueValue
+            else:
                 raise Exception(f'Using an operand that has not been assigned a value yet')
-            trueValue = self.check_type_and_return_true_value(value, operandAddress, "temporal")
-            return trueValue
         elif operandAddress < 20000:
             operandAddress -= 10000
-            value = self.GLOBAL[operandAddress]
-            if value is None:
+            if operandAddress in self.GLOBAL:
+                value = self.GLOBAL[operandAddress]
+                trueValue = self.check_type_and_return_true_value(value, operandAddress, "global")
+                return trueValue
+            else:
                 raise Exception(f'Using an operand that has not been assigned a value yet')
-            trueValue = self.check_type_and_return_true_value(value, operandAddress, "global")
-            return trueValue
         elif operandAddress < 30000:
             operandAddress -= 20000
-            value = self.LOCAL[operandAddress]
-            if value is None:
+            if operandAddress in self.LOCAL:
+                value = self.LOCAL[operandAddress]
+                trueValue = self.check_type_and_return_true_value(value, operandAddress, "local")
+                return trueValue
+            else:
                 raise Exception(f'Using an operand that has not been assigned a value yet')
-            trueValue = self.check_type_and_return_true_value(value, operandAddress, "local")
-            return trueValue
         elif operandAddress < 40000:
             value = self.CONSTANT[operandAddress].operand
             if value is None:
@@ -105,10 +108,11 @@ class VirtualMachine:
             return trueValue
         elif operandAddress < 50000:
             operandAddress -= 40000
-            addressValue = int(self.POINTER[operandAddress])
-            if addressValue is None:
+            if operandAddress in self.POINTER:
+                addressValue = int(self.POINTER[operandAddress])
+                return self.check_memory(addressValue)
+            else:
                 raise Exception(f'Using an operand that has not been assigned a value yet')
-            return self.check_memory(addressValue)
         else:
             raise Exception("Danger zone, something is wrong")
 
@@ -169,7 +173,7 @@ class VirtualMachine:
 
         elif valueAddress < 50000:
             valueAddress -= 40000
-            if self.current_quad().operator != '=':
+            if self.current_quad().operator != '=' and self.current_quad().operator != 'READ':
                 print(f'setting {value} to pointer {valueAddress + 40000}')
                 self.POINTER[valueAddress] = value
             else:
@@ -533,19 +537,13 @@ class VirtualMachine:
         futureTemporalToAssignReturn = currentQuad.leftOp
         quadToJump = currentQuad.resultTemp
 
-        # Changing context
-        # this was previously on the troublesome and useless ERA
-        l = [None] * 10000
-        t = [None] * 10000
-        p = [None] * 10000
-
         self.localMemoryStack.append(self.LOCAL)
         self.pointerMemoryStack.append(self.POINTER)
         self.temporalMemoryStack.append(self.TEMPORAL)
 
-        self.LOCAL = l
-        self.TEMPORAL = t
-        self.POINTER = p
+        self.LOCAL = {}
+        self.TEMPORAL = {}
+        self.POINTER = {}
 
         for parameter in self.parameterStack:
             self.set_value(parameter['value'], parameter['address'])
@@ -730,7 +728,7 @@ class VirtualMachine:
 
         rightOperandAddress = currentQuad.rightOp
         resultAddress = currentQuad.resultTemp
-        listsSize = int(currentQuad.lQtOp.split(".").pop())
+        listsSize = int(currentQuad.leftOp.split(".").pop())
         leftOperandAddress = int(currentQuad.leftOp.split(".").pop(-2))
 
         for x in range(listsSize):

@@ -71,7 +71,7 @@ VOID: 'void';
 ID: [_A-Za-z]([_A-Za-z0-9])*;
 
 program
-  : PROGRAM ID {compiler._add_function(compiler.currentFunction)} SEMICOLON declarevars {compiler.goto_main_quad()} functions? mainfunc
+  : PROGRAM ID {compiler._add_function(compiler.currentFunction)} SEMICOLON declarevars? {compiler.goto_main_quad()} functions? mainfunc
   ;
 
 declarevars
