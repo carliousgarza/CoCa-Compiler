@@ -145,7 +145,8 @@ class Compiler:
             self.currentFunction.parametersTable.append(Variable(id, vartype, None, -1))
             self.update_vars_table(id, vartype)
         else:
-            print("You can't have two or more parameters with the same name")
+            print('Error: You cannot have two or more parameters with the same name')
+            raise ValueError("You can't have two or more parameters with the same name")
 
     def update_vars_table(self, id, vartype):
         if id not in self.currentFunction.varsTable:
@@ -233,7 +234,8 @@ class Compiler:
                     print(f'variable {id} of type {vartype} assigned to {self.memory.mem_local_char}')
                     self.memory.mem_local_char += 1
         else:
-            print("You can't have two or more variables with the same name")
+            print('Error: You cannot have two or more variables with the same name')
+            raise ValueError("You can't have two or more variables with the same name")
 
     def update_array_variable(self, id, index, vartype):
         index_num = int(index)
