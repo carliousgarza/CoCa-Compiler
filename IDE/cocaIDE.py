@@ -17,9 +17,10 @@ def run_clicked():
     resultTextArray = resultText.split("\n")
 
     for line in resultTextArray:
-        print(line)
         if line.startswith("printing:"):
             console.insert('end-1c', f'{line[9:-1]}\n')
+        elif line.startswith("Error:"):
+            console.insert('end-1c', f'{line}')
 
 def clear_console_clicked():
     console.delete('1.0', 'end')

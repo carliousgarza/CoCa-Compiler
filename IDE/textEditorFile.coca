@@ -1,7 +1,7 @@
 program littleDuck2020CorrectFileTest;
 var float: m[3][3], n[3][3], o[3][3];
 
-main()
+function int fibonacci(int o)
 {
   m[0][0] = 1.0;
   m[0][1] = 2.0;
