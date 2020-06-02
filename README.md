@@ -3,9 +3,9 @@
 ## Requerimientos
 
 * Python 3.7+
-  Librería numpy
+  > Librería numpy
 * Antlr4
-  antlr4-python3-runtime
+  > antlr4-python3-runtime
   
 ## Desarrollo del proyecto
 
