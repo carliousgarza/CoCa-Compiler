@@ -49,7 +49,7 @@ $ python3 main.py Grammar/<nombre de tu archivo>.coca
 Para poner comentarios en el código, se utilizan // para líneas y /* */ para bloques.
 function void prueba (int n)
 
-```python
+```
 var int i;
 {
  i = 20; // i es inicializada con 20
