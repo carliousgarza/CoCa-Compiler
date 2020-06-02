@@ -88,12 +88,16 @@ class Compiler:
             raise ValueError(f'The variable {operand} is not declared')
 
     def validate_function_expression(self, operand):
-        if self.functionTable[operand].returntype == 'void':
-            print(f'Error: Cannot assign void function {operand} to value')
-            raise TypeError(f'Cannot assign void function {operand} to value')
-        quad = Quadruple("ERA", None, None, operand)
-        self.quadruples.append(quad)
-        print(f'ERA, None, None, {operand}')
+        if operand in self.functionTable:
+            if self.functionTable[operand].returntype == 'void':
+                print(f'Error: Cannot assign void function {operand} to value')
+                raise TypeError(f'Cannot assign void function {operand} to value')
+            quad = Quadruple("ERA", None, None, operand)
+            self.quadruples.append(quad)
+            print(f'ERA, None, None, {operand}')
+        else:
+            print(f'Error: function {operand} is not declared')
+            raise ValueError(f'Error: function {operand} is not declared')
 
     def add_func_operand_and_type(self, operand):
         tempResult = 'X' + str(len(self.temporalStack))
@@ -1066,28 +1070,17 @@ class Compiler:
     def add_while_var_operand(self, operand):
         if operand in self.currentFunction.varsTable:
             operandAddress = self.currentFunction.varsTable[operand].address
-
-            # Add the current operand to the From Variable Stack to keep its address for future reference.
+            # Add the current operand to the Loop Variable Stack to keep its address for future reference.
             # We will need its address to be able to modify it
             self.loopVariableStack.append(operandAddress)
-            #self.operandStack.append(operand)
-            #self.add_type(self.currentFunction.varsTable[operand].vartype)
-            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         elif operand in self.functionTable["global"].varsTable:
             operandAddress = self.functionTable["global"].varsTable[operand].address
-
-            # Add the current operand to the From Variable Stack to keep its address for future reference.
+            # Add the current operand to the Loop Variable Stack to keep its address for future reference.
             # We will need its address to be able to modify it
             self.loopVariableStack.append(operandAddress)
-            #self.operandStack.append(operand)
-            #self.add_type(self.functionTable["global"].varsTable[operand].vartype)
-            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         elif operand != "True" and operand != "False":
             operandAddress = self.temporalStack[-1]
             self.loopVariableStack.append(operandAddress)
-            #self.operandStack.append(operand)
-            #self.add_type("bool")
-            print(f'WHILEVAROPERAND OPERANDADDRESS {operandAddress}')
         else:
             if operand == "True" or operand == "False":
                 print(f'Error: Constant {operand} will cause infinite execution of while loop')

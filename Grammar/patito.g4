@@ -149,7 +149,7 @@ assignation
   ;
 
 funccall
-  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS {compiler.add_parenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})* ) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_void_function_quad($ID.text)} RIGHT_PARENTHESIS SEMICOLON
+  : ID {compiler.validate_void_function($ID.text)} LEFT_PARENTHESIS {compiler.add_parenthesis()} {currentCounter=0} ( | mexp {currentCounter += 1} (COMMA mexp {currentCounter += 1})* ) {compiler.validate_parameters($ID.text, currentCounter)} {compiler.goto_void_function_quad($ID.text)} RIGHT_PARENTHESIS SEMICOLON {compiler.pop_parenthesis()}
   ;
 
 returncall
