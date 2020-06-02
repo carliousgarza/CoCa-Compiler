@@ -1,4 +1,4 @@
-program littleDuck2020CorrectFileTest;
+program p;
 var int: i, j, array[50];
 
 function int find (int n)
@@ -13,7 +13,7 @@ function int find (int n)
 function void fillArray ()
 {
   from i = 0 to 50 do {
-    array[i] = 50-i;
+    array[i] = i*2;
   }
 }
 

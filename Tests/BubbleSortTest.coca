@@ -27,7 +27,7 @@ main()
     array[3] = 5;
     array[4] = 6;
     array[5] = 12;
-    array[6] = 1;
+    array[6] = -102;
     array[7] = 121;
     array[8] = 87;
     array[9] = 0;

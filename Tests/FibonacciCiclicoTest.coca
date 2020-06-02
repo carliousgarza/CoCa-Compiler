@@ -1,4 +1,4 @@
-program littleDuck2020CorrectFileTest;
+program p;
 var int: i, j;
 
 function int fibonacci (int n)
@@ -25,6 +25,6 @@ var int: first, second, i, sum;
 main()
 {
   j = 30;
-  i = fibonacci(30);
+  i = fibonacci(10);
   print(i);
 }

@@ -19,6 +19,6 @@ function int fibonacci(int o)
 
 main()
 {
-  i = fibonacci(15);
+  i = fibonacci(10);
   print(i);
 }

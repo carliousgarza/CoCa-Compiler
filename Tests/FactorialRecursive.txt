@@ -1,0 +1,25 @@
+program p;
+var int: i, j;
+bool: lol;
+
+function int factorial (int n)
+{
+  if (n == 1) then {
+      return (n);
+  }
+  else{
+      return (n*factorial(n-1));
+   }
+}
+
+main()
+{
+  i = 7;
+  lol = True;
+  if (i > 0 && lol) then {
+    print(factorial(i));
+  }
+  else {
+    print("No se pueden numeros menores o iguales a 0");
+  }
+}
