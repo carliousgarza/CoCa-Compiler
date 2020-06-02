@@ -21,8 +21,7 @@ def main(argv):
         print("PROGRAMA CORRECTO ========================================================================")
         quadruples = compiler.get_quadruples()
         constants = compiler.get_constants_table()
-        functionTable = compiler.get_function_table()
-        virtualMachine = VirtualMachine(quadruples, constants, functionTable)
+        virtualMachine = VirtualMachine(quadruples, constants)
         virtualMachine.begin()
     else:
         print("PROGRAMA INCORRECTO")

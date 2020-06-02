@@ -2,10 +2,9 @@ import numpy as np
 
 
 class VirtualMachine:
-    def __init__(self, quadruples, constantTable, functionTable):
+    def __init__(self, quadruples, constantTable):
         self.quadPointer = 0
         self.quadruples = quadruples
-        self.functionTable = functionTable
         self.functionStack = []
         self.localMemoryStack = []
         self.temporalMemoryStack = []

@@ -22,7 +22,6 @@ class Compiler:
         self.typesStack = []
         self.scube = SemanticCube()
         self.loopVariableStack = []
-        self.functionStack = []
         self.memory = Memory()
         self.temporalStack = []
         self.temporalDimensionVariableStack = []
