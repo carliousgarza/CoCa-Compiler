@@ -242,6 +242,9 @@ class Compiler:
 
     def update_array_variable(self, id, index, vartype):
         index_num = int(index)
+        if index_num <= 0:
+            print('Error: Cannot initialize an array of dimension 0')
+            raise IndexError('Cannot initialize an array of dimension 0')
         self.currentFunction.varsTable[id].isArray = True
         self.currentFunction.varsTable[id].size = index_num
         self.currentFunction.varsCount += (index_num-1)
@@ -300,6 +303,10 @@ class Compiler:
                 self.memory.mem_local_char += (index_num - 1)
 
     def update_matrix_variable(self, id, first_index, second_index, vartype):
+        if int(first_index) <= 0 or int(second_index) <= 0:
+            print('Error: Cannot initialize matrix with a dimension 0')
+            raise IndexError('Cannot initialize matrix with a dimension 0')
+
         memory_size = (int(first_index) * int(second_index)) - 1
         self.currentFunction.varsTable[id].isMatrix = True
         self.currentFunction.varsTable[id].size = memory_size+1
